@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
+import { Genres } from './genres.enum';
 
 export type ConfigDocument = HydratedDocument<Config>;
 
@@ -7,6 +8,9 @@ export type ConfigDocument = HydratedDocument<Config>;
 export class Config {
     @Prop()
     name: string;
+
+    @Prop()
+    type: Genres;
 
     @Prop()
     colors: string[];
