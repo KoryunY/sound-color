@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import { HydratedDocument, Types } from 'mongoose';
 
 export type ConfigDocument = HydratedDocument<Config>;
 
@@ -9,10 +9,10 @@ export class Config {
     name: string;
 
     @Prop()
-    type: number;
+    colors: string[];
 
-    @Prop()
-    breed: string;
+    @Prop({ type: [{ type: Types.ObjectId, ref: 'UserConfig' }] })
+    userConfigs: Types.ObjectId[];
 }
 
-export const Configchema = SchemaFactory.createForClass(Config);
+export const ConfigSchema = SchemaFactory.createForClass(Config);
