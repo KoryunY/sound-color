@@ -1,4 +1,5 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { Genres } from 'src/Model/genres.enum';
 import { UsersService } from './users.service';
 
@@ -6,21 +7,27 @@ import { UsersService } from './users.service';
 export class UsersController {
     constructor(private readonly userService: UsersService) { }
 
-    @Get('test')
+    @Get('init')
     getTest() {
-        return this.userService.create();
+        return this.userService.init();
+    }
+
+    @Post('upload')
+    @UseInterceptors(FileInterceptor('file'))
+    async uploadFile(@UploadedFile() file: Express.Multer.File) {
+        return await this.userService.decodeAudio(file.buffer);
     }
 
     //gettingcategory
-    @Get('genres/sound')
-    getGenreBySound() {
-        return this.userService.create();
-    }
+    // @Get('genres/sound')
+    // getGenreBySound() {
+    //     return this.userService.getGenreByAudio();
+    // }
 
-    @Get('genres/name')
-    getGenreByName() {
-        return this.userService.create();
-    }
+    // @Get('genres/name')
+    // getGenreByMusicName() {
+    //     return this.userService.getGenreByMusicName();
+    // }
 
     @Get('genres')
     getGenress() {

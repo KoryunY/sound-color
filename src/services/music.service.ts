@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import DSP from 'dsp.js';
+import { promisify } from 'util';
+
 import { ReadStream } from 'fs';
-import { parseStream } from 'music-metadata';
-import decode, { decoders } from 'audio-decode';
+//import { parseStream } from 'music-metadata';
+const decoders = import('audio-decode');
 
 // import { InjectModel } from '@nestjs/mongoose';
 // import { Model } from 'mongoose';
@@ -10,7 +12,7 @@ import decode, { decoders } from 'audio-decode';
 // import { User } from 'src/Model/user.schema';
 
 @Injectable()
-export class UsersService {
+export class MusicService {
     // constructor() { }
 
     generateIntervalData(bpm, frequencyArray, amplitudeArray, intervalCount) {
@@ -117,37 +119,43 @@ export class UsersService {
         return peaks;
     }
 
-    getBpm(peaks: any, audio: any) {
-        const timeInterval = 1 / audio.sampleRate
-        // calculate the time interval between each peak
-        const intervals = [];
-        for (let i = 0; i < peaks.length - 1; i++) {
-            const interval = (peaks[i + 1] - peaks[i]) * timeInterval;
-            intervals.push(interval);
-        }
-        // calculate the average time interval between the peaks
-        const avgInterval = intervals.reduce((acc, curr) => acc + curr, 0) / intervals.length;
+    // getBpm(peaks: any, audio: any) {
+    //     const timeInterval = 1 / audio.sampleRate
+    //     // calculate the time interval between each peak
+    //     const intervals = [];
+    //     for (let i = 0; i < peaks.length - 1; i++) {
+    //         const interval = (peaks[i + 1] - peaks[i]) * timeInterval;
+    //         intervals.push(interval);
+    //     }
+    //     // calculate the average time interval between the peaks
+    //     const avgInterval = intervals.reduce((acc, curr) => acc + curr, 0) / intervals.length;
 
-        // calculate the BPM
-        const bpm = 60 / avgInterval;
+    //     // calculate the BPM
+    //     const bpm = 60 / avgInterval;
 
-        return bpm;
-    }
+    //     return bpm;
+    // }
 
-    parseMetadata(someReadStream: ReadStream) {
-        (async () => {
-            try {
-                const metadata = await parseStream(someReadStream, { mimeType: 'audio/mpeg', size: 26838 });
-                return metadata;
-            } catch (error) {
-                return error.message;
-            }
-        })();
-    }
+    // parseMetadata(someReadStream: ReadStream) {
+    //     (async () => {
+    //         try {
+    //             const metadata = await parseStream(someReadStream, { mimeType: 'audio/mpeg', size: 26838 });
+    //             return metadata;
+    //         } catch (error) {
+    //             return error.message;
+    //         }
+    //     })();
+    // }
 
     async decodeAudioByType(type: string, mp3buf: any) {
-        await decoders.mp3(); // load & compile decoder
-        const audioBuffer = await decoders.mp3(mp3buf); // decode
+
+        const decoderss = await decoders;
+        const data = await decoderss.decoders.mp3(mp3buf);
+        console.log('a')
+        return data;
+        //.then(mp3 => console.log(mp3.decoders.mp3(mp3buf).then(data => data))); // load & compile decoder
+        //const audioBuffer = await decoders.mp3(mp3buf); // decode
+        return null;
     }
 
     //addShazam maybe others to
