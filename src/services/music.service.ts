@@ -4,7 +4,8 @@ import { promisify } from 'util';
 
 import { ReadStream } from 'fs';
 //import { parseStream } from 'music-metadata';
-const decoders = import('audio-decode');
+//const decoders = import('audio-decode');
+//import { decode } from 'audio-decode';
 
 // import { InjectModel } from '@nestjs/mongoose';
 // import { Model } from 'mongoose';
@@ -147,15 +148,10 @@ export class MusicService {
     //     })();
     // }
 
-    async decodeAudioByType(type: string, mp3buf: any) {
+    async decodeAudioByType(type: string, audioBuffer: any) {
+        const decode = await import('audio-decode');
 
-        const decoderss = await decoders;
-        const data = await decoderss.decoders.mp3(mp3buf);
-        console.log('a')
-        return data;
-        //.then(mp3 => console.log(mp3.decoders.mp3(mp3buf).then(data => data))); // load & compile decoder
-        //const audioBuffer = await decoders.mp3(mp3buf); // decode
-        return null;
+        return await decode.default(audioBuffer)
     }
 
     //addShazam maybe others to

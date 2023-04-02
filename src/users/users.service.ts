@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { Audio } from 'src/Model/audio.schema';
 import { Config } from 'src/Model/configs.schema';
 import { User } from 'src/Model/user.schema';
 import { MusicService } from 'src/services/music.service';
@@ -10,6 +11,7 @@ export class UsersService {
     constructor(
         @InjectModel(User.name) private userModel: Model<User>,
         @InjectModel(Config.name) private configModel: Model<Config>,
+        @InjectModel("Audio") private audioModel: Model<Audio>,
         private musicService: MusicService
     ) { }
 
@@ -24,7 +26,23 @@ export class UsersService {
         //init default colors;
     }
 
-    async decodeAudio(audio: any) {
-        return this.musicService.decodeAudioByType("any", audio);
+    async decodeAudio(filename: string, audio: any) {
+
+        let fileAttributes = filename.split('.');
+        let fileAttribute = fileAttributes[fileAttributes.length - 1];
+        if (fileAttribute != 'mp3') {
+            return `invalid file type:${fileAttribute}`;
+        }
+        let decodedAudio = await this.musicService.decodeAudioByType(fileAttribute, audio);
+        const audioEntity = new this.audioModel({ data: decodedAudio._channelData[0] });
+        let id = null;
+        try {
+            let entity = await audioEntity.save();
+            id = entity._id;
+        }
+        catch (err) {
+            return err;
+        }
+        return id;
     }
 }

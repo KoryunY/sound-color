@@ -2,6 +2,7 @@ import { Controller, Get, Post, UploadedFile, UseInterceptors } from '@nestjs/co
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Genres } from 'src/Model/genres.enum';
 import { UsersService } from './users.service';
+import { AllowedMimes } from 'src/Defaults/conts';
 
 @Controller('users')
 export class UsersController {
@@ -15,7 +16,11 @@ export class UsersController {
     @Post('upload')
     @UseInterceptors(FileInterceptor('file'))
     async uploadFile(@UploadedFile() file: Express.Multer.File) {
-        return await this.userService.decodeAudio(file.buffer);
+        if (!AllowedMimes.includes(file.mimetype)) {
+            return `pls send me audio,you send:${file.mimetype}`;
+        }
+
+        return await this.userService.decodeAudio(file.originalname, file.buffer);
     }
 
     //gettingcategory
