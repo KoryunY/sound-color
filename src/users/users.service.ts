@@ -34,15 +34,18 @@ export class UsersService {
             return `invalid file type:${fileAttribute}`;
         }
         let decodedAudio = await this.musicService.decodeAudioByType(fileAttribute, audio);
-        const audioEntity = new this.audioModel({ data: decodedAudio._channelData[0] });
-        let id = null;
-        try {
-            let entity = await audioEntity.save();
-            id = entity._id;
-        }
-        catch (err) {
-            return err;
-        }
-        return id;
+        let fft = this.musicService.getFft(decodedAudio);
+        let duration = this.musicService.getDuration(decodedAudio);
+        let frequency = this.musicService.getFrequencyData(fft, decodedAudio._channelData[0].length);
+        let peaks = this.musicService.getPeaks(decodedAudio);
+        let bpm = this.musicService.calculateBPM(decodedAudio);
+        let amplitude = this.musicService.getPeaks(decodedAudio);
+
+        let colors = this.musicService.generateIntervalData(bpm, frequency, amplitude, 32);
+        return colors;
+        //const audioEntity = new this.audioModel({ data: decodedAudio._channelData[0] });
+
+        //return (await audioEntity.save())._id;
+
     }
 }

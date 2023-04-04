@@ -17,7 +17,8 @@ export class MusicService {
     // constructor() { }
 
     generateIntervalData(bpm, frequencyArray, amplitudeArray, intervalCount) {
-        const intervalDuration = 60 / bpm / intervalCount;
+        const intervalDuration = (60 / bpm / intervalCount) * 10;
+        // return intervalDuration;
         const intervalData = [];
 
         for (let i = 0; i < frequencyArray.length; i++) {
@@ -30,7 +31,7 @@ export class MusicService {
             const interval = { start: intervalStart, end: intervalEnd, intensity, color };
             intervalData.push(interval);
         }
-
+        return intervalData.length;
         return intervalData;
     }
 
@@ -68,8 +69,8 @@ export class MusicService {
         return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
     }
 
-    getFrequencyData(fft: any, audio: any) {
-        const frequencyData = new Float32Array(audio.channelData[0].length / 2);
+    getFrequencyData(fft: any, length: any) {
+        const frequencyData = new Float32Array(length / 2);
         for (let i = 0; i < frequencyData.length; i++) {
             const real = fft.real[i];
             const imag = fft.imag[i];
@@ -90,10 +91,10 @@ export class MusicService {
 
     getFft(audio: any) {
         // pad audio data to a power of 2 length
-        const originalLength = audio.channelData[0].length;
+        const originalLength = audio.length; //audio.channelData[0].length;
         const paddedLength = Math.pow(2, Math.ceil(Math.log2(originalLength)));
         const audioPadded = new Float32Array(paddedLength);
-        audioPadded.set(audio.channelData[0]);
+        audioPadded.set(audio._channelData[0]);
         // create FFT object
         const fft = new DSP.FFT(paddedLength, audio.sampleRate);
 
@@ -103,15 +104,15 @@ export class MusicService {
     }
 
     getDuration(audio: any) {
-        return audio.channelData[0].length / audio.sampleRate;
+        return audio.length / audio.sampleRate;
     }
 
     getPeaks(audio: any) {
         const peaks = [];
-        for (let i = 0; i < audio.channelData[0].length; i++) {
-            const currentValue = audio.channelData[0][i];
-            const prevValue = audio.channelData[0][i - 1];
-            const nextValue = audio.channelData[0][i + 1];
+        for (let i = 0; i < audio._channelData[0].length; i++) {
+            const currentValue = audio._channelData[0][i];
+            const prevValue = audio._channelData[0][i - 1];
+            const nextValue = audio._channelData[0][i + 1];
 
             if (currentValue > prevValue && currentValue > nextValue) {
                 peaks.push(i);
@@ -120,22 +121,60 @@ export class MusicService {
         return peaks;
     }
 
-    // getBpm(peaks: any, audio: any) {
-    //     const timeInterval = 1 / audio.sampleRate
-    //     // calculate the time interval between each peak
-    //     const intervals = [];
-    //     for (let i = 0; i < peaks.length - 1; i++) {
-    //         const interval = (peaks[i + 1] - peaks[i]) * timeInterval;
-    //         intervals.push(interval);
-    //     }
-    //     // calculate the average time interval between the peaks
-    //     const avgInterval = intervals.reduce((acc, curr) => acc + curr, 0) / intervals.length;
+    getBpm(peaks: any, audio: any) {
+        const timeInterval = 1 / audio.sampleRate
+        // calculate the time interval between each peak
+        const intervals = [];
+        for (let i = 0; i < peaks.length - 1; i++) {
+            const interval = (peaks[i + 1] - peaks[i]) * timeInterval;
+            intervals.push(interval);
+        }
+        // calculate the average time interval between the peaks
+        const avgInterval = intervals.reduce((acc, curr) => acc + curr, 0) / intervals.length;
 
-    //     // calculate the BPM
-    //     const bpm = 60 / avgInterval;
+        // calculate the BPM
+        const bpm = 60 / avgInterval;
 
-    //     return bpm;
-    // }
+        return bpm;
+    }
+
+    calculateBPM(audioBuffer) {
+        // Get the audio data from the first channel
+        const audioData = audioBuffer._channelData[0];
+
+        // Calculate the length of one audio frame
+        const frameLength = audioBuffer.sampleRate / 60; // 60 seconds in a minute
+
+        // Create an array to store the beats
+        const beats = [];
+
+        // Loop through the audio data, checking for beats
+        for (let i = 0; i < audioData.length - frameLength; i += frameLength) {
+            // Calculate the average amplitude of this frame
+            let sum = 0;
+            for (let j = i; j < i + frameLength; j++) {
+                sum += Math.abs(audioData[j]);
+            }
+            const avgAmplitude = sum / frameLength;
+
+            // Check if this frame contains a beat
+            if (avgAmplitude > 0.1) {
+                beats.push(i);
+            }
+        }
+
+        // Calculate the time difference between each beat
+        const timeDiffs = [];
+        for (let i = 1; i < beats.length; i++) {
+            timeDiffs.push(beats[i] - beats[i - 1]);
+        }
+
+        // Calculate the average time difference and convert to BPM
+        const avgTimeDiff = timeDiffs.reduce((a, b) => a + b, 0) / timeDiffs.length;
+        const bpm = audioBuffer.sampleRate / avgTimeDiff * 60;
+
+        return bpm;
+    }
 
     // parseMetadata(someReadStream: ReadStream) {
     //     (async () => {
