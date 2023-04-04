@@ -16,9 +16,7 @@ import { ReadStream } from 'fs';
 export class MusicService {
     // constructor() { }
 
-    generateIntervalData(bpm, frequencyArray, amplitudeArray, intervalCount) {
-        const intervalDuration = (60 / bpm / intervalCount) * 10;
-        // return intervalDuration;
+    generateIntervalData(frequencyArray, amplitudeArray, intervalDuration) {
         const intervalData = [];
 
         for (let i = 0; i < frequencyArray.length; i++) {
@@ -31,7 +29,6 @@ export class MusicService {
             const interval = { start: intervalStart, end: intervalEnd, intensity, color };
             intervalData.push(interval);
         }
-        return intervalData.length;
         return intervalData;
     }
 

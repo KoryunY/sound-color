@@ -41,7 +41,7 @@ export class UsersService {
         let bpm = this.musicService.calculateBPM(decodedAudio);
         let amplitude = this.musicService.getPeaks(decodedAudio);
 
-        let colors = this.musicService.generateIntervalData(bpm, frequency, amplitude, 32);
+        let colors = this.musicService.generateIntervalData(frequency, amplitude, duration / 32);
         return colors;
         //const audioEntity = new this.audioModel({ data: decodedAudio._channelData[0] });
 
