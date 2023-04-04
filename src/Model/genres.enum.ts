@@ -1,6 +1,7 @@
 export enum Genres {
     ROCK,
-    TECHNO,
-    CLASSIC,
-    METAL
+    POP,
+    ELECTRO,
+    HIP_HOP,
+
 }

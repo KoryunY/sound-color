@@ -14,12 +14,17 @@ import { ReadStream } from 'fs';
 
 @Injectable()
 export class MusicService {
-    // constructor() { }
+    colors = {
+        rock: ["#ff0000", "#000000", "#ffffff"], // red, black, white
+        pop: ["#ff8800", "#ffff00", "#00ffff"], // orange, yellow, cyan
+        electronic: ["#ffff00", "#00ff00", "#0000ff"], // yellow, green, blue
+        hipHop: ["#00ff00", "#ff00ff", "#ff0000"] // green, magenta, red
+    };
 
-    generateIntervalData(frequencyArray, amplitudeArray, intervalDuration) {
+    generateIntervalData(frequencyArray, amplitudeArray, intervalDuration, intervalCount) {
         const intervalData = [];
 
-        for (let i = 0; i < frequencyArray.length; i++) {
+        for (let i = 0; i < intervalCount; i++) {
             const frequency = frequencyArray[i];
             const amplitude = amplitudeArray[i];
             const intervalStart = i * intervalDuration;
@@ -188,6 +193,78 @@ export class MusicService {
         const decode = await import('audio-decode');
 
         return await decode.default(audioBuffer)
+    }
+
+    generateIntervalDataByGenre(frequencyArray, amplitudeArray, intervalDuration, intervalCount, genreColors) {
+        const intervalData = [];
+        let sumAmplitude = 0;
+
+        for (let i = 0; i < intervalCount; i++) {
+            const frequency = frequencyArray[i];
+            const amplitude = amplitudeArray[i];
+            sumAmplitude += amplitude;
+            const intervalStart = i * intervalDuration;
+            const intervalEnd = (i + 1) * intervalDuration;
+            const intensity = Math.sqrt(amplitude);
+
+            // Map frequency to hue value using genreColors object
+            const genre = this.getGenreFromFrequency(frequency, sumAmplitude / intervalCount);
+            const hue = genreColors[genre];
+
+            const saturation = 100;
+            const lightness = 50;
+            const [red, green, blue] = this.hslToRgb(hue, saturation, lightness);
+            const color = `rgb(${red}, ${green}, ${blue})`;
+            const interval = { start: intervalStart, end: intervalEnd, intensity, color };
+            intervalData.push(interval);
+        }
+        return intervalData;
+    }
+
+    getGenreFromFrequency(frequency, averageAmplitude) {
+        // Define frequency ranges for each genre
+        const genres = {
+            'rock': { min: 50, max: 5000 },
+            'classical': { min: 20, max: 2000 },
+            'jazz': { min: 40, max: 4000 },
+            // add other genres and their frequency ranges here
+        };
+
+        // Check if the frequency falls within a range of any genre
+        // for (let genre in genres) {
+        //     const range = genres[genre];
+        //     if (frequency >= range.min && frequency <= range.max) {
+        //         // Compare the average amplitude of the frequency data for each genre
+        //         if (averageAmplitude >= 0.8) {
+        //             return genre;
+        //         } else {
+        //             return 'other';
+        //         }
+        //     }
+        // }
+        // Check if the frequency falls within a range of any genre
+        for (let genre in genres) {
+            const range = genres[genre];
+            if (frequency >= range.min && frequency <= range.max) {
+                // Compare the average amplitude of the frequency data for each genre
+                if (averageAmplitude >= 0.8) {
+                    // Check if the frequency is consistently in the range of the genre
+                    const frequencyRange = range.max - range.min;
+                    const frequencyThreshold = frequencyRange * 0.2;
+                    const isInRange = frequency >= range.min + frequencyThreshold && frequency <= range.max - frequencyThreshold;
+                    if (isInRange) {
+                        return genre;
+                    } else {
+                        return 'other';
+                    }
+                } else {
+                    return 'other';
+                }
+            }
+        }
+
+        // If no genre is matched, return 'other'
+        return 'other';
     }
 
     //addShazam maybe others to
