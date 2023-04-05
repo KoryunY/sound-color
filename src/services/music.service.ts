@@ -3,6 +3,12 @@ import DSP from 'dsp.js';
 import { promisify } from 'util';
 
 import { ReadStream } from 'fs';
+
+const { SpeechClient } = require('@google-cloud/speech');
+const client = new SpeechClient({
+    projectId: 'YOUR_PROJECT_ID',
+    credentials: require('./path/to/serviceAccountKey.json')
+});
 //import { parseStream } from 'music-metadata';
 //const decoders = import('audio-decode');
 //import { decode } from 'audio-decode';
@@ -268,7 +274,7 @@ export class MusicService {
         return 'other';
     }
 
-    generateIntervalDataByTempo(amplitudeArray, intervalDuration, intervalCount,bpm,tempoColors) {
+    generateIntervalDataByTempo(amplitudeArray, intervalDuration, intervalCount, bpm, tempoColors) {
         const intervalData = [];
 
         for (let i = 0; i < intervalCount; i++) {
@@ -311,5 +317,91 @@ export class MusicService {
         return 'other';
     }
 
+    async mapAudioData(audioData) {
+        const audioContext = new AudioContext();
+        const source = audioContext.createBufferSource();
+        const buffer = audioContext.createBuffer(1, audioData.length, audioContext.sampleRate);
+        buffer.getChannelData(0).set(audioData);
+        source.buffer = buffer;
+        const analyser = audioContext.createAnalyser();
+        analyser.fftSize = 2048;
+        source.connect(analyser);
+        analyser.connect(audioContext.destination);
+        source.start();
+
+        // Map to instrumentation
+        const frequencies = new Float32Array(analyser.frequencyBinCount);
+        analyser.getFloatFrequencyData(frequencies);
+        const guitarRange = [80, 1000];
+        const pianoRange = [500, 4000];
+        const drumsRange = [200, 600];
+        const instrumentData = [];
+        for (let i = 0; i < frequencies.length; i++) {
+            const frequency = i * audioContext.sampleRate / analyser.fftSize;
+            const amplitude = Math.abs(frequencies[i]);
+            let instrument = 'other';
+            if (frequency >= guitarRange[0] && frequency <= guitarRange[1]) {
+                instrument = 'guitar';
+            } else if (frequency >= pianoRange[0] && frequency <= pianoRange[1]) {
+                instrument = 'piano';
+            } else if (frequency >= drumsRange[0] && frequency <= drumsRange[1]) {
+                instrument = 'drums';
+            }
+            instrumentData.push({ frequency, amplitude, instrument });
+        }
+
+        // Map to energy level
+        const energyData = [];
+        const bufferLength = analyser.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+        analyser.getByteTimeDomainData(dataArray);
+        let totalEnergy = 0;
+        for (let i = 0; i < bufferLength; i++) {
+            const amplitude = Math.abs(dataArray[i] - 128);
+            totalEnergy += amplitude;
+        }
+        const avgEnergy = totalEnergy / bufferLength;
+        const highEnergyThreshold = 128;
+        const energyLevel = avgEnergy >= highEnergyThreshold ? 'high' : 'low';
+        energyData.push({ energyLevel });
+
+        const [response] = await client.recognize({
+            config: {
+                encoding: 'LINEAR16',
+                sampleRateHertz: 16000,
+                languageCode: 'en-US',
+            },
+            audio: {
+                content: audioData.toString('base64'),
+            },
+        });
+        const transcription = response.results
+            .map(result => result.alternatives[0].transcript)
+            .join('\n');
+        console.log(`Transcription: ${transcription}`);
+
+        // Map to lyrics
+        //     const speechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
+        //     const recognizer = new speechRecognition();
+        //     recognizer.continuous = true;
+        //     recognizer.interimResults = true;
+        //     recognizer.lang = 'en-US';
+        //     recognizer.start();
+        //     recognizer.onresult = function (event) {
+        //         const transcript = event.results[0][0].transcript;
+        //         let sentiment = 'neutral';
+        //         if (transcript.includes('love')) {
+        //             sentiment = 'romantic';
+        //         } else if (transcript.includes('heartbreak')) {
+        //             sentiment = 'sad';
+        //         } else if (transcript.includes('politics')) {
+        //             sentiment = 'political';
+        //         }
+        //         const lyricsData = [{ sentiment }];
+        //         console.log(lyricsData);
+        //     };
+        // }
+
+    }
     //addShazam maybe others to
 }
