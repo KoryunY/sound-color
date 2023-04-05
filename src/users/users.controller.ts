@@ -13,14 +13,46 @@ export class UsersController {
         return this.userService.init();
     }
 
-    @Post('upload')
+    @Post('syn')
     @UseInterceptors(FileInterceptor('file'))
-    async uploadFile(@UploadedFile() file: Express.Multer.File) {
+    async getBySynesthesia(@UploadedFile() file: Express.Multer.File) {
         if (!AllowedMimes.includes(file.mimetype)) {
             return `pls send me audio,you send:${file.mimetype}`;
         }
+        let fileAttributes = file.originalname.split('.');
+        let fileAttribute = fileAttributes[fileAttributes.length - 1];
+        if (fileAttribute != 'mp3') {
+            return `invalid file type:${fileAttribute}`;
+        }
+        return await this.userService.getBySynesthesia(file.buffer);
+    }
 
-        return await this.userService.GetByGenre(file.originalname, file.buffer);
+    @Post('gen')
+    @UseInterceptors(FileInterceptor('file'))
+    async GetByGenre(@UploadedFile() file: Express.Multer.File) {
+        if (!AllowedMimes.includes(file.mimetype)) {
+            return `pls send me audio,you send:${file.mimetype}`;
+        }
+        let fileAttributes = file.originalname.split('.');
+        let fileAttribute = fileAttributes[fileAttributes.length - 1];
+        if (fileAttribute != 'mp3') {
+            return `invalid file type:${fileAttribute}`;
+        }
+        return await this.userService.GetByGenre(file.buffer);
+    }
+
+    @Post('bpm')
+    @UseInterceptors(FileInterceptor('file'))
+    async GetByTempo(@UploadedFile() file: Express.Multer.File) {
+        if (!AllowedMimes.includes(file.mimetype)) {
+            return `pls send me audio,you send:${file.mimetype}`;
+        }
+        let fileAttributes = file.originalname.split('.');
+        let fileAttribute = fileAttributes[fileAttributes.length - 1];
+        if (fileAttribute != 'mp3') {
+            return `invalid file type:${fileAttribute}`;
+        }
+        return await this.userService.GetByTempo(file.buffer);
     }
 
     //gettingcategory

@@ -1,8 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import DSP from 'dsp.js';
-import { promisify } from 'util';
-
-import { ReadStream } from 'fs';
 
 const { SpeechClient } = require('@google-cloud/speech');
 const client = new SpeechClient({
@@ -10,16 +7,10 @@ const client = new SpeechClient({
     credentials: require('./path/to/serviceAccountKey.json')
 });
 //import { parseStream } from 'music-metadata';
-//const decoders = import('audio-decode');
-//import { decode } from 'audio-decode';
-
-// import { InjectModel } from '@nestjs/mongoose';
-// import { Model } from 'mongoose';
-// import { Config } from 'src/Model/configs.schema';
-// import { User } from 'src/Model/user.schema';
 
 @Injectable()
 export class MusicService {
+    //delete after
     genreColors = {
         rock: ["#ff0000", "#000000", "#ffffff"], // red, black, white
         pop: ["#ff8800", "#ffff00", "#00ffff"], // orange, yellow, cyan
@@ -27,6 +18,26 @@ export class MusicService {
         hipHop: ["#00ff00", "#ff00ff", "#ff0000"], // green, magenta, red
         other: ["#ffff00", "#00ff00", "#0000ff"]
     };
+
+    tempoColors = {
+        'slow': "#ff8800",
+        'medium': "#00ff00",
+        'fast': "#ffff00",
+    };
+
+    //decode audio
+    async decodeAudioByType(audioBuffer: any) {
+        const decode = await import('audio-decode');
+
+        return await decode.default(audioBuffer)
+    }
+
+
+    //getIntervals
+
+    generateIntervalDataByType(audio, type) {
+
+    }
 
     generateIntervalData(frequencyArray, amplitudeArray, intervalDuration, intervalCount) {
         const intervalData = [];
@@ -43,6 +54,88 @@ export class MusicService {
         }
         return intervalData;
     }
+
+    generateIntervalDataByGenre(frequencyArray, amplitudeArray, intervalDuration, intervalCount) {
+        const intervalData = [];
+        let sumAmplitude = 0;
+
+        for (let i = 0; i < intervalCount; i++) {
+            const frequency = frequencyArray[i];
+            const amplitude = amplitudeArray[i];
+            sumAmplitude += amplitude;
+            const intervalStart = i * intervalDuration;
+            const intervalEnd = (i + 1) * intervalDuration;
+            const intensity = Math.sqrt(amplitude);
+
+            // Map frequency to hue value using genreColors object
+            const genre = this.getGenreFromFrequency(frequency);//, sumAmplitude / intervalCount);
+            const hue = this.genreColors[genre];
+
+            const saturation = 100;
+            const lightness = 50;
+            const [red, green, blue] = this.hslToRgb(hue, saturation, lightness);
+            const color = `rgb(${red}, ${green}, ${blue})`;
+            const interval = { start: intervalStart, end: intervalEnd, intensity, color };
+            intervalData.push(interval);
+        }
+        return intervalData;
+    }
+
+    generateIntervalDataByTempo(amplitudeArray, intervalDuration, intervalCount, bpm) {
+        const intervalData = [];
+
+        for (let i = 0; i < intervalCount; i++) {
+            const amplitude = amplitudeArray[i];
+            const intervalStart = i * intervalDuration;
+            const intervalEnd = (i + 1) * intervalDuration;
+            const intensity = Math.sqrt(amplitude);
+
+            // Map tempo to hue value using tempoColors object
+            const tempo = this.getTempoFromBpm(bpm);
+            const hue = this.tempoColors[tempo];
+
+            const saturation = 100;
+            const lightness = 50;
+            const [red, green, blue] = this.hslToRgb(hue, saturation, lightness);
+            const color = `rgb(${red}, ${green}, ${blue})`;
+            const interval = { start: intervalStart, end: intervalEnd, intensity, color };
+            intervalData.push(interval);
+        }
+        return intervalData;
+    }
+
+    generateIntervalDataByInstrument(amplitudeArray, intervalDuration, intervalCount, bpm) {
+        const intervalData = [];
+
+        for (let i = 0; i < intervalCount; i++) {
+            const amplitude = amplitudeArray[i];
+            const intervalStart = i * intervalDuration;
+            const intervalEnd = (i + 1) * intervalDuration;
+            const intensity = Math.sqrt(amplitude);
+
+            // Map tempo to hue value using tempoColors object
+            const tempo = this.getTempoFromBpm(bpm);
+            const hue = this.tempoColors[tempo];
+
+            const saturation = 100;
+            const lightness = 50;
+            const [red, green, blue] = this.hslToRgb(hue, saturation, lightness);
+            const color = `rgb(${red}, ${green}, ${blue})`;
+            const interval = { start: intervalStart, end: intervalEnd, intensity, color };
+            intervalData.push(interval);
+        }
+        return intervalData;
+    }
+
+    generateIntervalDataByEnergy(amplitudeArray, intervalDuration, intervalCount, bpm) {
+        const intervalData = [];
+    }
+
+    generateIntervalDataBySpeech(amplitudeArray, intervalDuration, intervalCount, bpm) {
+        const intervalData = [];
+    }
+
+    //helpers
 
     getColorFromFrequency(frequency) {
         const hue = Math.round(frequency) % 360; // map frequency to hue value in the range [0, 360)
@@ -185,50 +278,7 @@ export class MusicService {
         return bpm;
     }
 
-    // parseMetadata(someReadStream: ReadStream) {
-    //     (async () => {
-    //         try {
-    //             const metadata = await parseStream(someReadStream, { mimeType: 'audio/mpeg', size: 26838 });
-    //             return metadata;
-    //         } catch (error) {
-    //             return error.message;
-    //         }
-    //     })();
-    // }
-
-    async decodeAudioByType(type: string, audioBuffer: any) {
-        const decode = await import('audio-decode');
-
-        return await decode.default(audioBuffer)
-    }
-
-    generateIntervalDataByGenre(frequencyArray, amplitudeArray, intervalDuration, intervalCount) {
-        const intervalData = [];
-        let sumAmplitude = 0;
-
-        for (let i = 0; i < intervalCount; i++) {
-            const frequency = frequencyArray[i];
-            const amplitude = amplitudeArray[i];
-            sumAmplitude += amplitude;
-            const intervalStart = i * intervalDuration;
-            const intervalEnd = (i + 1) * intervalDuration;
-            const intensity = Math.sqrt(amplitude);
-
-            // Map frequency to hue value using genreColors object
-            const genre = this.getGenreFromFrequency(frequency, sumAmplitude / intervalCount);
-            const hue = this.genreColors[genre];
-
-            const saturation = 100;
-            const lightness = 50;
-            const [red, green, blue] = this.hslToRgb(hue, saturation, lightness);
-            const color = `rgb(${red}, ${green}, ${blue})`;
-            const interval = { start: intervalStart, end: intervalEnd, intensity, color };
-            intervalData.push(interval);
-        }
-        return intervalData;
-    }
-
-    getGenreFromFrequency(frequency, averageAmplitude) {
+    getGenreFromFrequency(frequency) {
         // Define frequency ranges for each genre
         const genres = {
             'rock': { min: 50, max: 5000 },
@@ -237,66 +287,40 @@ export class MusicService {
             // add other genres and their frequency ranges here
         };
 
-        // Check if the frequency falls within a range of any genre
-        // for (let genre in genres) {
-        //     const range = genres[genre];
-        //     if (frequency >= range.min && frequency <= range.max) {
-        //         // Compare the average amplitude of the frequency data for each genre
-        //         if (averageAmplitude >= 0.8) {
-        //             return genre;
-        //         } else {
-        //             return 'other';
-        //         }
-        //     }
-        // }
+        let bestMatch = null;
+        let bestMatchWidth = Infinity;
+        let bestMatchCenter = Infinity;
+
         // Check if the frequency falls within a range of any genre
         for (let genre in genres) {
             const range = genres[genre];
             if (frequency >= range.min && frequency <= range.max) {
                 // Compare the average amplitude of the frequency data for each genre
-                if (averageAmplitude >= 0.8) {
-                    // Check if the frequency is consistently in the range of the genre
-                    const frequencyRange = range.max - range.min;
-                    const frequencyThreshold = frequencyRange * 0.2;
-                    const isInRange = frequency >= range.min + frequencyThreshold && frequency <= range.max - frequencyThreshold;
-                    if (isInRange) {
-                        return genre;
-                    } else {
-                        return 'other';
+                // if (averageAmplitude >= 0.8) {
+                //     // Check if the frequency is consistently in the range of the genre
+                //     const frequencyRange = range.max - range.min;
+                //     const frequencyThreshold = frequencyRange * 0.2;
+                // const isInRange = frequency >= range.min + frequencyThreshold && frequency <= range.max - frequencyThreshold;
+                const rangeWidth = range.max - range.min;
+                const rangeCenter = (range.max + range.min) / 2;
+                if (rangeWidth < bestMatchWidth) {
+                    bestMatch = genre;
+                    bestMatchWidth = rangeWidth;
+                    bestMatchCenter = rangeCenter;
+                } else if (rangeWidth === bestMatchWidth) {
+                    const centerDist = Math.abs(bestMatchCenter - frequency);
+                    const newCenterDist = Math.abs(rangeCenter - frequency);
+                    if (newCenterDist < centerDist) {
+                        bestMatch = genre;
+                        bestMatchWidth = rangeWidth;
+                        bestMatchCenter = rangeCenter;
                     }
-                } else {
-                    return 'other';
                 }
             }
         }
 
-        // If no genre is matched, return 'other'
-        return 'other';
+        return bestMatch || 'other';
     }
-
-    generateIntervalDataByTempo(amplitudeArray, intervalDuration, intervalCount, bpm, tempoColors) {
-        const intervalData = [];
-
-        for (let i = 0; i < intervalCount; i++) {
-            const amplitude = amplitudeArray[i];
-            const intervalStart = i * intervalDuration;
-            const intervalEnd = (i + 1) * intervalDuration;
-            const intensity = Math.sqrt(amplitude);
-
-            // Map tempo to hue value using tempoColors object
-            const tempo = this.getTempoFromBpm(bpm);
-            const hue = tempoColors[tempo];
-
-            const saturation = 100;
-            const lightness = 50;
-            const [red, green, blue] = this.hslToRgb(hue, saturation, lightness);
-            const color = `rgb(${red}, ${green}, ${blue})`;
-            const interval = { start: intervalStart, end: intervalEnd, intensity, color };
-            intervalData.push(interval);
-        }
-        return intervalData;
-    }
-
     getTempoFromBpm(bpm) {
         // Define tempo ranges and corresponding hue values
         const tempos = {
@@ -317,7 +341,7 @@ export class MusicService {
         return 'other';
     }
 
-    async mapAudioData(audioData) {
+    async mapInstrument(audioData) {
         const audioContext = new AudioContext();
         const source = audioContext.createBufferSource();
         const buffer = audioContext.createBuffer(1, audioData.length, audioContext.sampleRate);
@@ -349,6 +373,21 @@ export class MusicService {
             }
             instrumentData.push({ frequency, amplitude, instrument });
         }
+    }
+
+
+
+    async mapByEnergy(audioData) {
+        const audioContext = new AudioContext();
+        const source = audioContext.createBufferSource();
+        const buffer = audioContext.createBuffer(1, audioData.length, audioContext.sampleRate);
+        buffer.getChannelData(0).set(audioData);
+        source.buffer = buffer;
+        const analyser = audioContext.createAnalyser();
+        analyser.fftSize = 2048;
+        source.connect(analyser);
+        analyser.connect(audioContext.destination);
+        source.start();
 
         // Map to energy level
         const energyData = [];
@@ -362,8 +401,21 @@ export class MusicService {
         }
         const avgEnergy = totalEnergy / bufferLength;
         const highEnergyThreshold = 128;
-        const energyLevel = avgEnergy >= highEnergyThreshold ? 'high' : 'low';
+        const energyLevel = avgEnergy >= highEnergyThreshold ? 'high' : 'low'; //mid
         energyData.push({ energyLevel });
+    }
+
+    async mapAudioDataBy(audioData) {
+        const audioContext = new AudioContext();
+        const source = audioContext.createBufferSource();
+        const buffer = audioContext.createBuffer(1, audioData.length, audioContext.sampleRate);
+        buffer.getChannelData(0).set(audioData);
+        source.buffer = buffer;
+        const analyser = audioContext.createAnalyser();
+        analyser.fftSize = 2048;
+        source.connect(analyser);
+        analyser.connect(audioContext.destination);
+        source.start();
 
         const [response] = await client.recognize({
             config: {
@@ -380,28 +432,39 @@ export class MusicService {
             .join('\n');
         console.log(`Transcription: ${transcription}`);
 
-        // Map to lyrics
-        //     const speechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
-        //     const recognizer = new speechRecognition();
-        //     recognizer.continuous = true;
-        //     recognizer.interimResults = true;
-        //     recognizer.lang = 'en-US';
-        //     recognizer.start();
-        //     recognizer.onresult = function (event) {
-        //         const transcript = event.results[0][0].transcript;
-        //         let sentiment = 'neutral';
-        //         if (transcript.includes('love')) {
-        //             sentiment = 'romantic';
-        //         } else if (transcript.includes('heartbreak')) {
-        //             sentiment = 'sad';
-        //         } else if (transcript.includes('politics')) {
-        //             sentiment = 'political';
-        //         }
-        //         const lyricsData = [{ sentiment }];
-        //         console.log(lyricsData);
-        //     };
-        // }
+
+        let sentiment = 'neutral';
+        if (transcription.includes('love')) {
+            sentiment = 'romantic';
+        } else if (transcription.includes('heartbreak')) {
+            sentiment = 'sad';
+        } else if (transcription.includes('politics')) {
+            sentiment = 'political';
+        }
+        const lyricsData = [{ sentiment }];
+        console.log(lyricsData);
 
     }
+
+    //others
+
+    // parseMetadata(someReadStream: ReadStream) {
+    //     (async () => {
+    //         try {
+    //             const metadata = await parseStream(someReadStream, { mimeType: 'audio/mpeg', size: 26838 });
+    //             return metadata;
+    //         } catch (error) {
+    //             return error.message;
+    //         }
+    //     })();
+    // }
+
     //addShazam maybe others to
+
+    //generateByCoverColors
+    //generateByMood
+
+    //test context==true?2 options:1 for now
+    //one function to do all,
+    //endpoints//above parts
 }
