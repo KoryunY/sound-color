@@ -65,10 +65,11 @@ export class UsersService {
         let amplitude = this.musicService.getPeaks(decodedAudio);
         let intervalCount = 64;
         let intervalDuration = duration / intervalCount;
-        let colors = this.musicService.generateIntervalData(frequency, amplitude, intervalDuration, intervalCount);
-        const audioEntity = new this.audioModel({ data: colors });
+        let colors = this.musicService.generateIntervalDataByGenre(frequency, amplitude, intervalDuration, intervalCount);
+        return colors;
+        //const audioEntity = new this.audioModel({ data: colors });
 
-        return `id: ${(await audioEntity.save())._id}`;
+        //return `id: ${(await audioEntity.save())._id}`;
 
     }
 }

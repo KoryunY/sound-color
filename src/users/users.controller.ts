@@ -20,7 +20,7 @@ export class UsersController {
             return `pls send me audio,you send:${file.mimetype}`;
         }
 
-        return await this.userService.getBySynesthesia(file.originalname, file.buffer);
+        return await this.userService.GetByGenre(file.originalname, file.buffer);
     }
 
     //gettingcategory

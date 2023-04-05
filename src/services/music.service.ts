@@ -14,11 +14,12 @@ import { ReadStream } from 'fs';
 
 @Injectable()
 export class MusicService {
-    colors = {
+    genreColors = {
         rock: ["#ff0000", "#000000", "#ffffff"], // red, black, white
         pop: ["#ff8800", "#ffff00", "#00ffff"], // orange, yellow, cyan
         electronic: ["#ffff00", "#00ff00", "#0000ff"], // yellow, green, blue
-        hipHop: ["#00ff00", "#ff00ff", "#ff0000"] // green, magenta, red
+        hipHop: ["#00ff00", "#ff00ff", "#ff0000"], // green, magenta, red
+        other: ["#ffff00", "#00ff00", "#0000ff"]
     };
 
     generateIntervalData(frequencyArray, amplitudeArray, intervalDuration, intervalCount) {
@@ -195,7 +196,7 @@ export class MusicService {
         return await decode.default(audioBuffer)
     }
 
-    generateIntervalDataByGenre(frequencyArray, amplitudeArray, intervalDuration, intervalCount, genreColors) {
+    generateIntervalDataByGenre(frequencyArray, amplitudeArray, intervalDuration, intervalCount) {
         const intervalData = [];
         let sumAmplitude = 0;
 
@@ -209,7 +210,7 @@ export class MusicService {
 
             // Map frequency to hue value using genreColors object
             const genre = this.getGenreFromFrequency(frequency, sumAmplitude / intervalCount);
-            const hue = genreColors[genre];
+            const hue = this.genreColors[genre];
 
             const saturation = 100;
             const lightness = 50;
@@ -264,6 +265,49 @@ export class MusicService {
         }
 
         // If no genre is matched, return 'other'
+        return 'other';
+    }
+
+    generateIntervalDataByTempo(amplitudeArray, intervalDuration, intervalCount,bpm,tempoColors) {
+        const intervalData = [];
+
+        for (let i = 0; i < intervalCount; i++) {
+            const amplitude = amplitudeArray[i];
+            const intervalStart = i * intervalDuration;
+            const intervalEnd = (i + 1) * intervalDuration;
+            const intensity = Math.sqrt(amplitude);
+
+            // Map tempo to hue value using tempoColors object
+            const tempo = this.getTempoFromBpm(bpm);
+            const hue = tempoColors[tempo];
+
+            const saturation = 100;
+            const lightness = 50;
+            const [red, green, blue] = this.hslToRgb(hue, saturation, lightness);
+            const color = `rgb(${red}, ${green}, ${blue})`;
+            const interval = { start: intervalStart, end: intervalEnd, intensity, color };
+            intervalData.push(interval);
+        }
+        return intervalData;
+    }
+
+    getTempoFromBpm(bpm) {
+        // Define tempo ranges and corresponding hue values
+        const tempos = {
+            'slow': { min: 0, max: 80, hue: 0 },
+            'medium': { min: 80, max: 140, hue: 120 },
+            'fast': { min: 140, max: 220, hue: 240 },
+        };
+
+        // Loop through tempos object and return matching tempo for given bpm
+        for (let tempo in tempos) {
+            const range = tempos[tempo];
+            if (bpm >= range.min && bpm <= range.max) {
+                return tempo;
+            }
+        }
+
+        // If no tempo is matched, return 'other'
         return 'other';
     }
 
