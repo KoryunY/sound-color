@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import DSP from 'dsp.js';
 
-const { SpeechClient } = require('@google-cloud/speech');
-const client = new SpeechClient({
-    projectId: 'YOUR_PROJECT_ID',
-    credentials: require('./path/to/serviceAccountKey.json')
-});
+// const { SpeechClient } = require('@google-cloud/speech');
+// const client = new SpeechClient({
+//     projectId: 'YOUR_PROJECT_ID',
+//     credentials: require('./path/to/serviceAccountKey.json')
+// });
 //import { parseStream } from 'music-metadata';
 
 @Injectable()
@@ -26,7 +26,7 @@ export class MusicService {
     };
 
     //decode audio
-    async decodeAudioByType(audioBuffer: any) {
+    async decodeAudio(audioBuffer: any) {
         const decode = await import('audio-decode');
 
         return await decode.default(audioBuffer)
@@ -34,10 +34,6 @@ export class MusicService {
 
 
     //getIntervals
-
-    generateIntervalDataByType(audio, type) {
-
-    }
 
     generateIntervalData(frequencyArray, amplitudeArray, intervalDuration, intervalCount) {
         const intervalData = [];
@@ -181,8 +177,8 @@ export class MusicService {
         return frequencyData;
     }
 
-    getAmplitudeData(fft: any, audio: any, paddedLength: any) {
-        const amplitudeData = new Float32Array(audio.channelData[0].length / 2);
+    getAmplitudeData(fft: any, length: any, paddedLength: any) {
+        const amplitudeData = new Float32Array(length);
         for (let i = 0; i < amplitudeData.length; i++) {
             const real = fft.real[i];
             const imag = fft.imag[i];
@@ -341,110 +337,147 @@ export class MusicService {
         return 'other';
     }
 
-    async mapInstrument(audioData) {
-        const audioContext = new AudioContext();
-        const source = audioContext.createBufferSource();
-        const buffer = audioContext.createBuffer(1, audioData.length, audioContext.sampleRate);
-        buffer.getChannelData(0).set(audioData);
-        source.buffer = buffer;
-        const analyser = audioContext.createAnalyser();
-        analyser.fftSize = 2048;
-        source.connect(analyser);
-        analyser.connect(audioContext.destination);
-        source.start();
+    mapInstrument(amplitudeData, sampleRate) {
+        const fftSize = 2048;
+        const numBins = fftSize / 2;
+        const binWidth = sampleRate / fftSize;
+        const maxFrequency = sampleRate / 2;
 
-        // Map to instrumentation
-        const frequencies = new Float32Array(analyser.frequencyBinCount);
-        analyser.getFloatFrequencyData(frequencies);
-        const guitarRange = [80, 1000];
-        const pianoRange = [500, 4000];
-        const drumsRange = [200, 600];
-        const instrumentData = [];
-        for (let i = 0; i < frequencies.length; i++) {
-            const frequency = i * audioContext.sampleRate / analyser.fftSize;
-            const amplitude = Math.abs(frequencies[i]);
-            let instrument = 'other';
-            if (frequency >= guitarRange[0] && frequency <= guitarRange[1]) {
-                instrument = 'guitar';
-            } else if (frequency >= pianoRange[0] && frequency <= pianoRange[1]) {
-                instrument = 'piano';
-            } else if (frequency >= drumsRange[0] && frequency <= drumsRange[1]) {
-                instrument = 'drums';
+        const energy = amplitudeData.reduce((total, current) => total + current, 0);
+
+        if (energy < 1) {
+            return null;
+        }
+
+        const normalizedEnergy = amplitudeData.map((a) => a / energy);
+
+        const frequencyRanges = [
+            { min: 27.5, max: 55, name: "sub-bass" },
+            { min: 55, max: 110, name: "bass" },
+            { min: 110, max: 220, name: "low midrange" },
+            { min: 220, max: 440, name: "midrange" },
+            { min: 440, max: 880, name: "upper midrange" },
+            { min: 880, max: 1760, name: "presence" },
+            { min: 1760, max: 3520, name: "brilliance" },
+            { min: 3520, max: 7040, name: "upper brilliance" },
+            { min: 7040, max: maxFrequency, name: "air" },
+        ];
+
+        let bestMatch = null;
+        let bestMatchWidth = Infinity;
+        let bestMatchCenter = 0;
+
+        for (const range of frequencyRanges) {
+            const rangeWidth = range.max - range.min;
+            const rangeCenter = (range.max + range.min) / 2;
+
+            for (let i = 0; i < numBins; i++) {
+                const frequency = i * binWidth;
+
+                if (frequency < range.min || frequency > range.max) {
+                    continue;
+                }
+
+                const normalizedBinValue = normalizedEnergy[i];
+
+                if (normalizedBinValue < 0.001) {
+                    continue;
+                }
+
+                if (rangeWidth < bestMatchWidth) {
+                    bestMatch = range.name;
+                    bestMatchWidth = rangeWidth;
+                    bestMatchCenter = rangeCenter;
+                } else if (rangeWidth === bestMatchWidth) {
+                    const centerDist = Math.abs(bestMatchCenter - frequency);
+                    const newCenterDist = Math.abs(rangeCenter - frequency);
+
+                    if (newCenterDist < centerDist) {
+                        bestMatch = range.name;
+                        bestMatchWidth = rangeWidth;
+                        bestMatchCenter = rangeCenter;
+                    }
+                }
             }
-            instrumentData.push({ frequency, amplitude, instrument });
         }
+
+        return bestMatch;
     }
+    // async mapInstrument(frequencyData, amplitudeData, sampleRate, bufferSize) { //fft.bufferSize
+    //     // Map to instrumentation
+    //     const guitarRange = [80, 1000];
+    //     const pianoRange = [500, 4000];
+    //     const drumsRange = [200, 600];
+    //     const instrumentData = [];
+    //     for (let i = 0; i < frequencyData.length; i++) {
+    //         const frequency = i * sampleRate / bufferSize;
+    //         const amplitude = amplitudeData[i];
+    //         let instrument = 'other';
+    //         if (frequency >= guitarRange[0] && frequency <= guitarRange[1]) {
+    //             instrument = 'guitar';
+    //         } else if (frequency >= pianoRange[0] && frequency <= pianoRange[1]) {
+    //             instrument = 'piano';
+    //         } else if (frequency >= drumsRange[0] && frequency <= drumsRange[1]) {
+    //             instrument = 'drums';
+    //         }
+    //         instrumentData.push({ frequency, amplitude, instrument });
+    //     }
 
+    //     return instrumentData;
+    // }
 
-
-    async mapByEnergy(audioData) {
-        const audioContext = new AudioContext();
-        const source = audioContext.createBufferSource();
-        const buffer = audioContext.createBuffer(1, audioData.length, audioContext.sampleRate);
-        buffer.getChannelData(0).set(audioData);
-        source.buffer = buffer;
-        const analyser = audioContext.createAnalyser();
-        analyser.fftSize = 2048;
-        source.connect(analyser);
-        analyser.connect(audioContext.destination);
-        source.start();
-
+    async mapEnergy(amplitudeData) {
         // Map to energy level
-        const energyData = [];
-        const bufferLength = analyser.frequencyBinCount;
-        const dataArray = new Uint8Array(bufferLength);
-        analyser.getByteTimeDomainData(dataArray);
-        let totalEnergy = 0;
-        for (let i = 0; i < bufferLength; i++) {
-            const amplitude = Math.abs(dataArray[i] - 128);
-            totalEnergy += amplitude;
-        }
-        const avgEnergy = totalEnergy / bufferLength;
-        const highEnergyThreshold = 128;
-        const energyLevel = avgEnergy >= highEnergyThreshold ? 'high' : 'low'; //mid
-        energyData.push({ energyLevel });
+        //const energyData = [];
+        const highEnergyThreshold = 0.1;
+        const lowEnergyThreshold = 0.05;
+        const avgEnergy = amplitudeData.reduce((acc, val) => acc + val) / amplitudeData.length;
+        const energyLevel = avgEnergy >= highEnergyThreshold ? 'high' : (avgEnergy >= lowEnergyThreshold ? 'mid' : 'low');
+        //energyData.push({ energyLevel });
+
+        return energyLevel;
     }
 
-    async mapAudioDataBy(audioData) {
-        const audioContext = new AudioContext();
-        const source = audioContext.createBufferSource();
-        const buffer = audioContext.createBuffer(1, audioData.length, audioContext.sampleRate);
-        buffer.getChannelData(0).set(audioData);
-        source.buffer = buffer;
-        const analyser = audioContext.createAnalyser();
-        analyser.fftSize = 2048;
-        source.connect(analyser);
-        analyser.connect(audioContext.destination);
-        source.start();
+    // async mapAudioDataBy(audioData) {
+    //     const audioContext = new AudioContext();
+    //     const source = audioContext.createBufferSource();
+    //     const buffer = audioContext.createBuffer(1, audioData.length, audioContext.sampleRate);
+    //     buffer.getChannelData(0).set(audioData);
+    //     source.buffer = buffer;
+    //     const analyser = audioContext.createAnalyser();
+    //     analyser.fftSize = 2048;
+    //     source.connect(analyser);
+    //     analyser.connect(audioContext.destination);
+    //     source.start();
 
-        const [response] = await client.recognize({
-            config: {
-                encoding: 'LINEAR16',
-                sampleRateHertz: 16000,
-                languageCode: 'en-US',
-            },
-            audio: {
-                content: audioData.toString('base64'),
-            },
-        });
-        const transcription = response.results
-            .map(result => result.alternatives[0].transcript)
-            .join('\n');
-        console.log(`Transcription: ${transcription}`);
+    //     const [response] = await client.recognize({
+    //         config: {
+    //             encoding: 'LINEAR16',
+    //             sampleRateHertz: 16000,
+    //             languageCode: 'en-US',
+    //         },
+    //         audio: {
+    //             content: audioData.toString('base64'),
+    //         },
+    //     });
+    //     const transcription = response.results
+    //         .map(result => result.alternatives[0].transcript)
+    //         .join('\n');
+    //     console.log(`Transcription: ${transcription}`);
 
 
-        let sentiment = 'neutral';
-        if (transcription.includes('love')) {
-            sentiment = 'romantic';
-        } else if (transcription.includes('heartbreak')) {
-            sentiment = 'sad';
-        } else if (transcription.includes('politics')) {
-            sentiment = 'political';
-        }
-        const lyricsData = [{ sentiment }];
-        console.log(lyricsData);
+    //     let sentiment = 'neutral';
+    //     if (transcription.includes('love')) {
+    //         sentiment = 'romantic';
+    //     } else if (transcription.includes('heartbreak')) {
+    //         sentiment = 'sad';
+    //     } else if (transcription.includes('politics')) {
+    //         sentiment = 'political';
+    //     }
+    //     const lyricsData = [{ sentiment }];
+    //     console.log(lyricsData);
 
-    }
+    // }
 
     //others
 
@@ -467,4 +500,5 @@ export class MusicService {
     //test context==true?2 options:1 for now
     //one function to do all,
     //endpoints//above parts
+
 }
