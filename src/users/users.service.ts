@@ -44,7 +44,7 @@ export class UsersService {
             case ConvertingType.GENRE:
                 return this.musicService.generateByGenre(frequency, amplitude, null, intervalDuration, intervalCount);
             case ConvertingType.TEMPO:
-                return this.musicService.generateByTempo(amplitude, intervalDuration, intervalCount, bpm);
+                return this.musicService.generateByTempo(frequency, amplitude, intervalDuration, intervalCount, bpm);
             case ConvertingType.INSTRUMENT:
                 return this.musicService.generateByInstrument(amplitude, intervalDuration, intervalCount, bpm);
             case ConvertingType.ENERGY:
@@ -56,11 +56,13 @@ export class UsersService {
 
     async test(audio: any) {
         const decodedAudio = await this.musicService.decodeAudio(audio);
-        let intervalCount = 10;
+        let intervalCount = 123;
         const [fft, frequency, amplitude, bpm, duration, intervalDuration, originalLength, paddedLength] = this.musicService.generateIntervalData(decodedAudio, intervalCount);
-        //return bpm
-        let colors = this.musicService.generateByTempo(amplitude, intervalDuration, intervalCount, bpm[0]);
-        return colors;
+       // return frequency
+        //let colors = this.musicService.generateByGenre(frequency, amplitude, intervalDuration, intervalCount, bpm[0]);
+        return this.musicService.generateByGenre(frequency, amplitude, null, intervalDuration, intervalCount);
+
+        //return colors;
         //const audioEntity = new this.audioModel({ data: colors });
         // let fft = this.musicService.getFft(decodedAudio);
         // const originalLength = decodedAudio.length;

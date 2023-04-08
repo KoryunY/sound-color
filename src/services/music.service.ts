@@ -17,14 +17,15 @@ export class MusicService {
         electronic: ["#ffff00", "#00ff00", "#0000ff"], // yellow, green, blue
         hipHop: ["#00ff00", "#ff00ff", "#ff0000"], // green, magenta, red
         classical: ["#ff8800", "#ffff00", "#00ffff"],
-        other: ["#ffff00", "#00ff00", "#0000ff"]
+        other: ["#ffff00", "#00ff00", "#0000ff"],
+        jazz: ["#ffff00", "#00ff00", "#0000ff"]
     };
 
     tempoColors = {
-        'slow': "#ff8800",
-        'medium': "#00ff00",
-        'fast': "#ffff00",
-        'other': "#ffff00"
+        'slow': ["#00ff00", "#ff00ff", "#ff0000"],
+        'medium': ["#ff8800", "#ffff00", "#00ffff"],
+        'fast': ["#ff8800", "#ffff00", "#00ffff"],
+        'other': ["#ff0000", "#000000", "#ffffff"]
     };
 
     //optimize all functions
@@ -75,8 +76,6 @@ export class MusicService {
         // calculate interval duration if not provided
         if (!intervalDuration && duration) {
             intervalDuration = (length > 0) ? (duration / length) : 0;
-        } else {
-            throw new Error("Invalid input parameters");
         }
 
         for (let i = 0; i < length; i++) {
@@ -131,6 +130,7 @@ export class MusicService {
 
             // Map frequency to hue value using genreColors object
             const genre = this.getGenreFromFrequency(frequency);//, sumAmplitude / intervalCount);
+            console.log(genre);
             const colors = this.genreColors[genre];
             const colorIndex = Math.floor(Math.random() * colors.length);
             const [red, green, blue] = this.hexToRgb(colors[colorIndex])
@@ -142,26 +142,56 @@ export class MusicService {
         return intervalData;
     }
 
-    generateByTempo(amplitudeArray, intervalDuration, intervalCount, bpm) {
+    generateByTempo(frequency, amplitudeArray, intervalDuration, intervalCount, bpm) {
         const intervalData = [];
-
+        const tempo = this.getTempoFromBpm(bpm);
+        console.log(tempo)
+        const colorr = this.tempoColors[tempo];
+        console.log(colorr)
         for (let i = 0; i < intervalCount; i++) {
             const amplitude = amplitudeArray[i];
             const intervalStart = i * intervalDuration;
             const intervalEnd = (i + 1) * intervalDuration;
             const intensity = Math.sqrt(amplitude);
-
+            const colorrr = this.getMatchingColor(bpm, frequency[i], colorr)
             // Map tempo to hue value using tempoColors object
-            const tempo = this.getTempoFromBpm(bpm);
-            const colorr = this.tempoColors[tempo];
             // const colorIndex = Math.floor(Math.random() * colors.length);
-            const [red, green, blue] = this.hexToRgb(colorr)//colors[colorIndex])
+            const [red, green, blue] = this.hexToRgb(colorrr)//colors[colorIndex])
 
             const color = `rgb(${red}, ${green}, ${blue})`;
             const interval = { start: intervalStart, end: intervalEnd, intensity, color };
             intervalData.push(interval);
         }
         return intervalData;
+    }
+
+    getMatchingColor(bpm, frequency, colors) {
+        let bestColor = '';
+        let bestMatchScore = Number.MAX_VALUE;
+
+        for (let i = 0; i < colors.length; i++) {
+            const color = colors[i];
+            const [r, g, b] = this.hexToRgb(color);
+            const matchScore = this.calculateMatchScore(bpm, frequency, r, g, b);
+            console.log(matchScore)
+            if (matchScore < bestMatchScore) {
+                bestMatchScore = matchScore;
+                bestColor = color;
+            }
+        }
+
+        return bestColor;
+    }
+
+    calculateMatchScore(bpm, frequency, r, g, b) {
+        // Calculate the difference between the given BPM and frequency and the color components
+        const bpmDiff = Math.abs(bpm - r);
+        const frequencyDiff = Math.abs(frequency - g);
+
+        // Calculate a weighted score based on the differences
+        const matchScore = Math.sqrt((bpmDiff * bpmDiff) + (frequencyDiff * frequencyDiff)) + b;
+
+        return matchScore;
     }
 
     generateByInstrument(amplitudeArray, intervalDuration, intervalCount, bpm) {
@@ -313,51 +343,123 @@ export class MusicService {
     getDuration(audio: any) {
         return audio.length / audio.sampleRate;
     }
-
     getGenreFromFrequency(frequency) {
         // Define frequency ranges for each genre
         const genres = {
-            'rock': { min: 50, max: 5000 },
-            'classical': { min: 20, max: 2000 },
-            'jazz': { min: 40, max: 4000 },
-            // add other genres and their frequency ranges here
+            'rock': { min: 80, max: 800 },
+            'pop': { min: 400, max: 4000 },
+            'electronic': { min: 1000, max: 10000 },
+            'hipHop': { min: 100, max: 1000 },
+            'classical': { min: 40, max: 400 },
+            'jazz': { min: 200, max: 2000 },
+            'other': { min: 20, max: 200 }
         };
 
         let bestMatch = null;
-        let bestMatchWidth = Infinity;
-        let bestMatchCenter = Infinity;
+        let bestMatchDistance = Infinity;
+        let totalWeight = 0;
+        let genreWeights = {
+            'rock': 3,
+            'pop': 3,
+            'electronic': 2,
+            'hipHop': 1,
+            'classical': 1,
+            'jazz': 1,
+            'other': 1
+        };
 
         // Check if the frequency falls within a range of any genre
         for (let genre in genres) {
             const range = genres[genre];
             if (frequency >= range.min && frequency <= range.max) {
-                // Compare the average amplitude of the frequency data for each genre
-                // if (averageAmplitude >= 0.8) {
-                //     // Check if the frequency is consistently in the range of the genre
-                //     const frequencyRange = range.max - range.min;
-                //     const frequencyThreshold = frequencyRange * 0.2;
-                // const isInRange = frequency >= range.min + frequencyThreshold && frequency <= range.max - frequencyThreshold;
-                const rangeWidth = range.max - range.min;
                 const rangeCenter = (range.max + range.min) / 2;
-                if (rangeWidth < bestMatchWidth) {
+                const distance = Math.sqrt(Math.pow(rangeCenter - frequency, 2));
+                const weightedDistance = distance / genreWeights[genre];
+                if (weightedDistance < bestMatchDistance) {
                     bestMatch = genre;
-                    bestMatchWidth = rangeWidth;
-                    bestMatchCenter = rangeCenter;
-                } else if (rangeWidth === bestMatchWidth) {
-                    const centerDist = Math.abs(bestMatchCenter - frequency);
-                    const newCenterDist = Math.abs(rangeCenter - frequency);
-                    if (newCenterDist < centerDist) {
-                        bestMatch = genre;
-                        bestMatchWidth = rangeWidth;
-                        bestMatchCenter = rangeCenter;
-                    }
+                    bestMatchDistance = weightedDistance;
                 }
+                totalWeight += genreWeights[genre];
             }
         }
 
-        return bestMatch || 'other';
-    }
+        // Normalize the genre weights so that they add up to 1
+        for (let genre in genreWeights) {
+            genreWeights[genre] /= totalWeight;
+        }
 
+        // Calculate the final genre based on the weighted distance
+        let weightedGenres = {};
+        for (let genre in genres) {
+            const range = genres[genre];
+            const rangeCenter = (range.max + range.min) / 2;
+            const distance = Math.sqrt(Math.pow(rangeCenter - frequency, 2));
+            const weightedDistance = distance / genreWeights[genre];
+            weightedGenres[genre] = weightedDistance;
+        }
+        // Sort the genres by their weighted distance
+        let genreArray = Object.entries(weightedGenres).sort((a, b) => (a[1] as number) - (b[1] as number));
+
+        // Check if the best match is 'rock', and if so, check if it's a better match than 'other'
+        if (bestMatch === 'rock') {
+            const rockWeight = genreWeights['rock'];
+            const otherWeight = genreWeights['other'];
+            if (rockWeight > otherWeight) {
+                return bestMatch;
+            }
+        }
+
+        // Return the genre with the smallest weighted distance
+        return genreArray[0][0] || 'other';
+    }
+    // getGenreFromFrequency(frequency) {
+    //     // Define frequency ranges for each genre
+    //     const genres = {
+    //         'rock': { min: 640, max: 7680 },
+    //         'pop': { min: 588.8, max: 7065.6 },
+    //         'electronic': { min: 352, max: 4224 },
+    //         'hipHop': { min: 384, max: 4608 },
+    //         'classical': { min: 224, max: 2688 },
+    //         'jazz': { min: 256, max: 3072 },
+    //         'other': { min: 200, max: 2400 }
+    //     };
+
+    //     let bestMatch = null;
+    //     let bestMatchWidth = Infinity;
+    //     let bestMatchCenter = Infinity;
+
+    //     // Check if the frequency falls within a range of any genre
+    //     for (let genre in genres) {
+    //         const range = genres[genre];
+    //         if (frequency >= range.min && frequency <= range.max) {
+    //             // Compare the average amplitude of the frequency data for each genre
+    //             // if (averageAmplitude >= 0.8) {
+    //             //     // Check if the frequency is consistently in the range of the genre
+    //             //     const frequencyRange = range.max - range.min;
+    //             //     const frequencyThreshold = frequencyRange * 0.2;
+    //             // const isInRange = frequency >= range.min + frequencyThreshold && frequency <= range.max - frequencyThreshold;
+    //             const rangeWidth = range.max - range.min;
+    //             const rangeCenter = (range.max + range.min) / 2;
+    //             if (rangeWidth < bestMatchWidth) {
+    //                 bestMatch = genre;
+    //                 bestMatchWidth = rangeWidth;
+    //                 bestMatchCenter = rangeCenter;
+    //             } else if (rangeWidth === bestMatchWidth) {
+    //                 const centerDist = Math.abs(bestMatchCenter - frequency);
+    //                 const newCenterDist = Math.abs(rangeCenter - frequency);
+    //                 if (newCenterDist < centerDist) {
+    //                     bestMatch = genre;
+    //                     bestMatchWidth = rangeWidth;
+    //                     bestMatchCenter = rangeCenter;
+    //                 }
+    //             }
+    //         }
+    //     }
+
+    //     return bestMatch || 'other';
+    // }
+
+    //changeForOne
     calculateBPM(audioBuffer, intervalCount) {
         // Get the audio data from the first channel
         const audioData = audioBuffer._channelData[0];
@@ -379,7 +481,6 @@ export class MusicService {
                 sum += Math.abs(audioData[j]);
             }
             const avgAmplitude = sum / frameLength;
-
             // Check if this frame contains a beat
             if (avgAmplitude > 0.1) {
                 const intervalIndex = Math.floor(i / intervalSize);
