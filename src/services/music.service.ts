@@ -10,12 +10,13 @@ import DSP from 'dsp.js';
 
 @Injectable()
 export class MusicService {
-    //delete after
+    //delete after and store other place
     genreColors = {
         rock: ["#ff0000", "#000000", "#ffffff"], // red, black, white
         pop: ["#ff8800", "#ffff00", "#00ffff"], // orange, yellow, cyan
         electronic: ["#ffff00", "#00ff00", "#0000ff"], // yellow, green, blue
         hipHop: ["#00ff00", "#ff00ff", "#ff0000"], // green, magenta, red
+        classical: ["#ff8800", "#ffff00", "#00ffff"],
         other: ["#ffff00", "#00ff00", "#0000ff"]
     };
 
@@ -23,7 +24,10 @@ export class MusicService {
         'slow': "#ff8800",
         'medium': "#00ff00",
         'fast': "#ffff00",
+        'other': "#ffff00"
     };
+
+    //optimize all functions
 
     //decode audio
     async decodeAudio(audioBuffer: any) {
@@ -34,11 +38,48 @@ export class MusicService {
 
 
     //getIntervals
+    generateIntervalData(decodedAudio: any, intervalCount?: number) { //xary count logic
+        let fft = this.getFft(decodedAudio);
+        let duration = this.getDuration(decodedAudio);
+        let frequency = this.getFrequencyData(fft, decodedAudio._channelData[0].length, intervalCount);
+        let bpm = this.calculateBPM(decodedAudio, intervalCount);
+        const originalLength = decodedAudio._channelData[0].length;
+        const paddedLength = Math.pow(2, Math.ceil(Math.log2(originalLength)));
+        const intervalAudioLength = Math.floor(originalLength / intervalCount);
 
-    generateIntervalData(frequencyArray, amplitudeArray, intervalDuration, intervalCount) {
+        let amplitude = this.getAmplitudeData(fft, decodedAudio._channelData[0].length / 2, paddedLength, intervalCount, intervalAudioLength);
+
+        let intervalDuration = duration / intervalCount;
+
+        return [fft, frequency, amplitude, bpm, duration, intervalDuration, originalLength, paddedLength];
+    }
+
+    generateBySynesthesia(frequencyArray, amplitudeArray, duration = null, intervalDuration = null, intervalCount = null) {
+        let length;
+
+        // check for valid inputs
+        if (intervalDuration && intervalCount) {
+            length = intervalCount;
+        } else if (frequencyArray && amplitudeArray) {
+            length = Math.min(frequencyArray.length, amplitudeArray.length);
+        } else if (frequencyArray) {
+            length = frequencyArray.length;
+        } else if (amplitudeArray) {
+            length = amplitudeArray.length;
+        } else {
+            throw new Error("Invalid input parameters");
+        }
+
         const intervalData = [];
 
-        for (let i = 0; i < intervalCount; i++) {
+        // calculate interval duration if not provided
+        if (!intervalDuration && duration) {
+            intervalDuration = (length > 0) ? (duration / length) : 0;
+        } else {
+            throw new Error("Invalid input parameters");
+        }
+
+        for (let i = 0; i < length; i++) {
             const frequency = frequencyArray[i];
             const amplitude = amplitudeArray[i];
             const intervalStart = i * intervalDuration;
@@ -48,14 +89,39 @@ export class MusicService {
             const interval = { start: intervalStart, end: intervalEnd, intensity, color };
             intervalData.push(interval);
         }
+
         return intervalData;
     }
 
-    generateIntervalDataByGenre(frequencyArray, amplitudeArray, intervalDuration, intervalCount) {
+    generateByGenre(frequencyArray, amplitudeArray, duration = null, intervalDuration = null, intervalCount = null) {
+        let length;
+
+        // check for valid inputs
+        if (intervalDuration && intervalCount) {
+            length = intervalCount;
+        } else if (frequencyArray && amplitudeArray) {
+            length = Math.min(frequencyArray.length, amplitudeArray.length);
+        } else if (frequencyArray) {
+            length = frequencyArray.length;
+        } else if (amplitudeArray) {
+            length = amplitudeArray.length;
+        } else {
+            throw new Error("Invalid input parameters");
+        }
+
         const intervalData = [];
         let sumAmplitude = 0;
 
-        for (let i = 0; i < intervalCount; i++) {
+        // calculate interval duration if not provided
+        if (!intervalDuration && duration) {
+            intervalDuration = (length > 0) ? (duration / length) : 0;
+        } else if (!duration && intervalDuration && length) {
+            duration = intervalDuration * length;
+        } else {
+            throw new Error("Invalid input parameters");
+        }
+
+        for (let i = 0; i < length; i++) {
             const frequency = frequencyArray[i];
             const amplitude = amplitudeArray[i];
             sumAmplitude += amplitude;
@@ -65,11 +131,32 @@ export class MusicService {
 
             // Map frequency to hue value using genreColors object
             const genre = this.getGenreFromFrequency(frequency);//, sumAmplitude / intervalCount);
-            const hue = this.genreColors[genre];
+            const colors = this.genreColors[genre];
+            const colorIndex = Math.floor(Math.random() * colors.length);
+            const [red, green, blue] = this.hexToRgb(colors[colorIndex])
+            const color = `rgb(${red}, ${green}, ${blue})`;
 
-            const saturation = 100;
-            const lightness = 50;
-            const [red, green, blue] = this.hslToRgb(hue, saturation, lightness);
+            const interval = { start: intervalStart, end: intervalEnd, intensity, color };
+            intervalData.push(interval);
+        }
+        return intervalData;
+    }
+
+    generateByTempo(amplitudeArray, intervalDuration, intervalCount, bpm) {
+        const intervalData = [];
+
+        for (let i = 0; i < intervalCount; i++) {
+            const amplitude = amplitudeArray[i];
+            const intervalStart = i * intervalDuration;
+            const intervalEnd = (i + 1) * intervalDuration;
+            const intensity = Math.sqrt(amplitude);
+
+            // Map tempo to hue value using tempoColors object
+            const tempo = this.getTempoFromBpm(bpm);
+            const colorr = this.tempoColors[tempo];
+            // const colorIndex = Math.floor(Math.random() * colors.length);
+            const [red, green, blue] = this.hexToRgb(colorr)//colors[colorIndex])
+
             const color = `rgb(${red}, ${green}, ${blue})`;
             const interval = { start: intervalStart, end: intervalEnd, intensity, color };
             intervalData.push(interval);
@@ -77,7 +164,7 @@ export class MusicService {
         return intervalData;
     }
 
-    generateIntervalDataByTempo(amplitudeArray, intervalDuration, intervalCount, bpm) {
+    generateByInstrument(amplitudeArray, intervalDuration, intervalCount, bpm) {
         const intervalData = [];
 
         for (let i = 0; i < intervalCount; i++) {
@@ -100,43 +187,25 @@ export class MusicService {
         return intervalData;
     }
 
-    generateIntervalDataByInstrument(amplitudeArray, intervalDuration, intervalCount, bpm) {
-        const intervalData = [];
-
-        for (let i = 0; i < intervalCount; i++) {
-            const amplitude = amplitudeArray[i];
-            const intervalStart = i * intervalDuration;
-            const intervalEnd = (i + 1) * intervalDuration;
-            const intensity = Math.sqrt(amplitude);
-
-            // Map tempo to hue value using tempoColors object
-            const tempo = this.getTempoFromBpm(bpm);
-            const hue = this.tempoColors[tempo];
-
-            const saturation = 100;
-            const lightness = 50;
-            const [red, green, blue] = this.hslToRgb(hue, saturation, lightness);
-            const color = `rgb(${red}, ${green}, ${blue})`;
-            const interval = { start: intervalStart, end: intervalEnd, intensity, color };
-            intervalData.push(interval);
-        }
-        return intervalData;
-    }
-
-    generateIntervalDataByEnergy(amplitudeArray, intervalDuration, intervalCount, bpm) {
+    generateByEnergy(amplitudeArray, intervalDuration, intervalCount, bpm) {
         const intervalData = [];
     }
 
-    generateIntervalDataBySpeech(amplitudeArray, intervalDuration, intervalCount, bpm) {
+    generateBySpeech(amplitudeArray, intervalDuration, intervalCount, bpm) {
         const intervalData = [];
     }
 
     //helpers
 
     getColorFromFrequency(frequency) {
-        const hue = Math.round(frequency) % 360; // map frequency to hue value in the range [0, 360)
-        const saturation = 100;
-        const lightness = 50;
+        //let shiftedFrequency = frequency;
+        // if (shiftedFrequency < 20) {
+        //     shiftedFrequency = 20;
+        // }
+        //shiftedFrequency -= 20;
+        const hue = Math.round(frequency) % 360;
+        const saturation = Math.max(30, Math.min(70, frequency * 2.5));
+        const lightness = Math.max(10, Math.min(90, frequency * 1.5));
         const [red, green, blue] = this.hslToRgb(hue, saturation, lightness); // convert HSL to RGB values
         return `rgb(${red}, ${green}, ${blue})`;
     }
@@ -167,23 +236,63 @@ export class MusicService {
         return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
     }
 
-    getFrequencyData(fft: any, length: any) {
+
+    getFrequencyData(fft: any, length: any, intervalCount = null) {
         const frequencyData = new Float32Array(length / 2);
+
         for (let i = 0; i < frequencyData.length; i++) {
             const real = fft.real[i];
             const imag = fft.imag[i];
             frequencyData[i] = Math.sqrt(real * real + imag * imag);
         }
+
+        if (intervalCount !== null) {
+            const intervalSize = Math.floor(frequencyData.length / intervalCount);
+            const intervalFrequencyData = new Array(intervalCount).fill(0);
+            const intervalDataCount = new Array(intervalCount).fill(0);
+
+            for (let i = 0; i < frequencyData.length; i++) {
+                const intervalIndex = Math.floor(i / intervalSize);
+                intervalFrequencyData[intervalIndex] += frequencyData[i];
+                intervalDataCount[intervalIndex]++;
+            }
+
+            for (let i = 0; i < intervalCount; i++) {
+                intervalFrequencyData[i] /= intervalDataCount[i];
+            }
+
+            return intervalFrequencyData;
+        }
+
         return frequencyData;
     }
 
-    getAmplitudeData(fft: any, length: any, paddedLength: any) {
+    getAmplitudeData(fft, length, paddedLength, intervalCount = null, intervalAudioLength = null) {
         const amplitudeData = new Float32Array(length);
         for (let i = 0; i < amplitudeData.length; i++) {
             const real = fft.real[i];
             const imag = fft.imag[i];
             amplitudeData[i] = Math.sqrt(real * real + imag * imag) / (paddedLength / 2);
         }
+
+        if (intervalCount !== null && intervalAudioLength !== null) {
+            const intervalSize = Math.ceil(length / intervalCount);
+            const intervalAmplitudeData = new Array(intervalCount).fill(0);
+            const intervalDataCount = new Array(intervalCount).fill(0);
+
+            for (let i = 0; i < amplitudeData.length; i++) {
+                const intervalIndex = Math.floor(i / intervalSize);
+                intervalAmplitudeData[intervalIndex] += amplitudeData[i];
+                intervalDataCount[intervalIndex]++;
+            }
+
+            for (let i = 0; i < intervalCount; i++) {
+                intervalAmplitudeData[i] /= intervalDataCount[i];
+            }
+
+            return intervalAmplitudeData;
+        }
+
         return amplitudeData;
     }
 
@@ -203,75 +312,6 @@ export class MusicService {
 
     getDuration(audio: any) {
         return audio.length / audio.sampleRate;
-    }
-
-    getPeaks(audio: any) {
-        const peaks = [];
-        for (let i = 0; i < audio._channelData[0].length; i++) {
-            const currentValue = audio._channelData[0][i];
-            const prevValue = audio._channelData[0][i - 1];
-            const nextValue = audio._channelData[0][i + 1];
-
-            if (currentValue > prevValue && currentValue > nextValue) {
-                peaks.push(i);
-            }
-        }
-        return peaks;
-    }
-
-    getBpm(peaks: any, audio: any) {
-        const timeInterval = 1 / audio.sampleRate
-        // calculate the time interval between each peak
-        const intervals = [];
-        for (let i = 0; i < peaks.length - 1; i++) {
-            const interval = (peaks[i + 1] - peaks[i]) * timeInterval;
-            intervals.push(interval);
-        }
-        // calculate the average time interval between the peaks
-        const avgInterval = intervals.reduce((acc, curr) => acc + curr, 0) / intervals.length;
-
-        // calculate the BPM
-        const bpm = 60 / avgInterval;
-
-        return bpm;
-    }
-
-    calculateBPM(audioBuffer) {
-        // Get the audio data from the first channel
-        const audioData = audioBuffer._channelData[0];
-
-        // Calculate the length of one audio frame
-        const frameLength = audioBuffer.sampleRate / 60; // 60 seconds in a minute
-
-        // Create an array to store the beats
-        const beats = [];
-
-        // Loop through the audio data, checking for beats
-        for (let i = 0; i < audioData.length - frameLength; i += frameLength) {
-            // Calculate the average amplitude of this frame
-            let sum = 0;
-            for (let j = i; j < i + frameLength; j++) {
-                sum += Math.abs(audioData[j]);
-            }
-            const avgAmplitude = sum / frameLength;
-
-            // Check if this frame contains a beat
-            if (avgAmplitude > 0.1) {
-                beats.push(i);
-            }
-        }
-
-        // Calculate the time difference between each beat
-        const timeDiffs = [];
-        for (let i = 1; i < beats.length; i++) {
-            timeDiffs.push(beats[i] - beats[i - 1]);
-        }
-
-        // Calculate the average time difference and convert to BPM
-        const avgTimeDiff = timeDiffs.reduce((a, b) => a + b, 0) / timeDiffs.length;
-        const bpm = audioBuffer.sampleRate / avgTimeDiff * 60;
-
-        return bpm;
     }
 
     getGenreFromFrequency(frequency) {
@@ -317,6 +357,54 @@ export class MusicService {
 
         return bestMatch || 'other';
     }
+
+    calculateBPM(audioBuffer, intervalCount) {
+        // Get the audio data from the first channel
+        const audioData = audioBuffer._channelData[0];
+
+        // Calculate the length of one audio frame
+        const frameLength = audioBuffer.sampleRate / 60; // 60 seconds in a minute
+
+        // Calculate the interval size
+        const intervalSize = Math.floor(audioData.length / intervalCount);
+
+        // Create an array to store the beats for each interval
+        const intervalBeats = new Array(intervalCount).fill(0).map(() => []);
+
+        // Loop through the audio data, checking for beats
+        for (let i = 0; i < audioData.length - frameLength; i += frameLength) {
+            // Calculate the average amplitude of this frame
+            let sum = 0;
+            for (let j = i; j < i + frameLength; j++) {
+                sum += Math.abs(audioData[j]);
+            }
+            const avgAmplitude = sum / frameLength;
+
+            // Check if this frame contains a beat
+            if (avgAmplitude > 0.1) {
+                const intervalIndex = Math.floor(i / intervalSize);
+                intervalBeats[intervalIndex].push(i);
+            }
+        }
+
+        // Calculate the BPM for each interval
+        const bpms = intervalBeats.map((interval) => {
+            // Calculate the time difference between each beat
+            const timeDiffs = [];
+            for (let i = 1; i < interval.length; i++) {
+                timeDiffs.push(interval[i] - interval[i - 1]);
+            }
+
+            // Calculate the average time difference and convert to BPM
+            const avgTimeDiff = timeDiffs.reduce((a, b) => a + b, 0) / timeDiffs.length;
+            const bpm = audioBuffer.sampleRate / avgTimeDiff * 60;
+
+            return bpm;
+        });
+
+        return bpms;
+    }
+
     getTempoFromBpm(bpm) {
         // Define tempo ranges and corresponding hue values
         const tempos = {
@@ -403,28 +491,6 @@ export class MusicService {
 
         return bestMatch;
     }
-    // async mapInstrument(frequencyData, amplitudeData, sampleRate, bufferSize) { //fft.bufferSize
-    //     // Map to instrumentation
-    //     const guitarRange = [80, 1000];
-    //     const pianoRange = [500, 4000];
-    //     const drumsRange = [200, 600];
-    //     const instrumentData = [];
-    //     for (let i = 0; i < frequencyData.length; i++) {
-    //         const frequency = i * sampleRate / bufferSize;
-    //         const amplitude = amplitudeData[i];
-    //         let instrument = 'other';
-    //         if (frequency >= guitarRange[0] && frequency <= guitarRange[1]) {
-    //             instrument = 'guitar';
-    //         } else if (frequency >= pianoRange[0] && frequency <= pianoRange[1]) {
-    //             instrument = 'piano';
-    //         } else if (frequency >= drumsRange[0] && frequency <= drumsRange[1]) {
-    //             instrument = 'drums';
-    //         }
-    //         instrumentData.push({ frequency, amplitude, instrument });
-    //     }
-
-    //     return instrumentData;
-    // }
 
     async mapEnergy(amplitudeData) {
         // Map to energy level
@@ -500,5 +566,16 @@ export class MusicService {
     //test context==true?2 options:1 for now
     //one function to do all,
     //endpoints//above parts
+    hexToRgb(hex) {
+        // Convert hex string to integer value
+        const intVal = parseInt(hex.substring(1), 16);
 
+        // Extract red, green, and blue values using bit-shifting and bitwise AND operations
+        const r = (intVal >> 16) & 255;
+        const g = (intVal >> 8) & 255;
+        const b = intVal & 255;
+
+        // Return an object with r, g, and b properties
+        return [r, g, b];
+    }
 }

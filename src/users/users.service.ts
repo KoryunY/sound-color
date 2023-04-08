@@ -35,48 +35,32 @@ export class UsersService {
     async generateColors(options: ColorOptionsDto, audio: any) {
         const decodedAudio = await this.musicService.decodeAudio(audio);
         const type: ConvertingType = options.type;
-        let fft = this.musicService.getFft(decodedAudio);
-        let duration = this.musicService.getDuration(decodedAudio);
-        let frequency = this.musicService.getFrequencyData(fft, decodedAudio._channelData[0].length);
-        let peaks = this.musicService.getPeaks(decodedAudio);
-        let bpm = this.musicService.calculateBPM(decodedAudio);
-        //qcenq 
-        const originalLength = decodedAudio.length;
-        const paddedLength = Math.pow(2, Math.ceil(Math.log2(originalLength)));
-        let amplitude = this.musicService.getAmplitudeData(fft, decodedAudio._channelData[0].length / 2, paddedLength);
-        let intervalCount = options.intervalCount;
-        let intervalDuration = duration / intervalCount;
+        const intervalCount = options.intervalCount;
+        const [fft, frequency, amplitude, bpm, duration, intervalDuration, originalLength, paddedLength] = this.musicService.generateIntervalData(decodedAudio, intervalCount);
 
         switch (type) {
             case ConvertingType.SYNESTHESIA:
-                return this.musicService.generateIntervalData(frequency, amplitude, intervalDuration, intervalCount);
+                return this.musicService.generateBySynesthesia(frequency, amplitude, null, intervalDuration, intervalCount);
             case ConvertingType.GENRE:
-                return this.musicService.generateIntervalDataByGenre(frequency, amplitude, intervalDuration, intervalCount);
+                return this.musicService.generateByGenre(frequency, amplitude, null, intervalDuration, intervalCount);
             case ConvertingType.TEMPO:
-                return this.musicService.generateIntervalDataByTempo(amplitude, intervalDuration, intervalCount, bpm);
+                return this.musicService.generateByTempo(amplitude, intervalDuration, intervalCount, bpm);
             case ConvertingType.INSTRUMENT:
-                return this.musicService.generateIntervalDataByInstrument(amplitude, intervalDuration, intervalCount, bpm);
+                return this.musicService.generateByInstrument(amplitude, intervalDuration, intervalCount, bpm);
             case ConvertingType.ENERGY:
-                return this.musicService.generateIntervalDataByEnergy(amplitude, intervalDuration, intervalCount, bpm);
+                return this.musicService.generateByEnergy(amplitude, intervalDuration, intervalCount, bpm);
             case ConvertingType.SPEECH:
-                return this.musicService.generateIntervalDataBySpeech(amplitude, intervalDuration, intervalCount, bpm);
+                return this.musicService.generateBySpeech(amplitude, intervalDuration, intervalCount, bpm);
         }
     }
 
     async test(audio: any) {
         const decodedAudio = await this.musicService.decodeAudio(audio);
-        let fft = this.musicService.getFft(decodedAudio);
-        let duration = this.musicService.getDuration(decodedAudio);
-        let frequency = this.musicService.getFrequencyData(fft, decodedAudio._channelData[0].length);
-        let peaks = this.musicService.getPeaks(decodedAudio);
-        let bpm = this.musicService.calculateBPM(decodedAudio);
-        const originalLength = decodedAudio._channelData[0].length;
-        const paddedLength = Math.pow(2, Math.ceil(Math.log2(originalLength)));
-        let amplitude = this.musicService.getAmplitudeData(fft, originalLength, paddedLength);
-        let intervalCount = 64;
-        let intervalDuration = duration / intervalCount;
-        let colors = this.musicService.generateIntervalData(frequency, amplitude, intervalDuration, intervalCount);
-        return frequency;
+        let intervalCount = 10;
+        const [fft, frequency, amplitude, bpm, duration, intervalDuration, originalLength, paddedLength] = this.musicService.generateIntervalData(decodedAudio, intervalCount);
+        //return bpm
+        let colors = this.musicService.generateByTempo(amplitude, intervalDuration, intervalCount, bpm[0]);
+        return colors;
         //const audioEntity = new this.audioModel({ data: colors });
         // let fft = this.musicService.getFft(decodedAudio);
         // const originalLength = decodedAudio.length;
@@ -89,6 +73,8 @@ export class UsersService {
         // // return
         // return this.musicService.mapInstrument(amplitude, decodedAudio.sampleRate);
     }
+
+
     // async generateBySynesthesia(audio: any) {
     //     let decodedAudio = await this.musicService.decodeAudio(audio);
     //     let fft = this.musicService.getFft(decodedAudio);

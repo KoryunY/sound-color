@@ -10,7 +10,7 @@ import { ColorOptionsDto } from 'src/Model/Dto/ColorOptions.dto';
 export class UsersController {
     constructor(private readonly userService: UsersService) { }
 
-    @Post('init')
+    @Post('create')
     async User(@Body() name: string) {
         return this.userService.create(name);
     }
