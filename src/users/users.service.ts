@@ -55,13 +55,14 @@ export class UsersService {
     }
 
     async test(audio: any) {
-        const decodedAudio = await this.musicService.decodeAudio(audio);
-        let intervalCount = 123;
-        const [fft, frequency, amplitude, bpm, duration, intervalDuration, originalLength, paddedLength, pitch] = this.musicService.generateIntervalData(decodedAudio, intervalCount);
+        // const decodedAudio = await this.musicService.decodeAudio(audio);
+        return this.musicService.testSpeech(audio);
+        //   let intervalCount = 123;
+        // const [fft, frequency, amplitude, bpm, duration, intervalDuration, originalLength, paddedLength, pitch] = this.musicService.generateIntervalData(decodedAudio, intervalCount);
         //return frequency
         //let colors = this.musicService.generateByGenre(frequency, amplitude, intervalDuration, intervalCount, bpm[0]);
         //return pitch
-        return this.musicService.generateByInstrument(amplitude, pitch, intervalDuration, intervalCount);
+        //  return this.musicService.generateByInstrument(amplitude, pitch, intervalDuration, intervalCount);
 
         //return colors;
         //const audioEntity = new this.audioModel({ data: colors });

@@ -1,13 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import DSP from 'dsp.js';
-
+import axios from 'axios';
+import fs from 'fs';
+//import { Model } from 'deepspeech';
 // const { SpeechClient } = require('@google-cloud/speech');
 // const client = new SpeechClient({
 //     projectId: 'YOUR_PROJECT_ID',
 //     credentials: require('./path/to/serviceAccountKey.json')
 // });
 //import { parseStream } from 'music-metadata';
-
 @Injectable()
 export class MusicService {
     //delete after and store other place
@@ -50,6 +51,27 @@ export class MusicService {
         const decode = await import('audio-decode');
 
         return await decode.default(audioBuffer)
+    }
+
+    async testSpeech(decodeAudio: any) {
+
+        const audioFile = fs.readFileSync("C:\\Users\\Koryu\\Downloads\\asd.m4a");
+
+        const base64Audio = Buffer.from(audioFile).toString("base64");
+        // return base64Audio
+        const config = {
+            headers: {
+                'Content-Type': `text/plain`,
+                'x-rapidapi-key': '5f8d6921d7msh800b18be09dd89ap1b7a42jsn1adb7f318889',//process.env.API_KEY,
+                'x-rapidapi-host': 'shazam.p.rapidapi.com',
+            },
+            method: 'post',
+            url: 'https://shazam.p.rapidapi.com/songs/detect',
+            data: base64Audio
+        };
+
+        const asd = axios(config).then(d => console.log(d.data)).catch(err => console.log(err));
+        return asd;
     }
 
 
