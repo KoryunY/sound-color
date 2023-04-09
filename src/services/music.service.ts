@@ -27,6 +27,21 @@ export class MusicService {
         'fast': ["#ff8800", "#ffff00", "#00ffff"],
         'other': ["#ff0000", "#000000", "#ffffff"]
     };
+    energyColors = {
+        high: '#ff0000',  // red
+        mid: '#ffff00',  // yellow
+        low: '#00ff00',   // green
+    };
+
+    instrumentColors = {
+        bass: ["#ff0000", "#000000", "#ffffff"], // red, black, white
+        guitar: ["#ff8800", "#ffff00", "#00ffff"], // orange, yellow, cyan
+        drums: ["#ffff00", "#00ff00", "#0000ff"], // yellow, green, blue
+        vocals: ["#00ff00", "#ff00ff", "#ff0000"], // green, magenta, red
+        keyboard: ["#ff8800", "#ffff00", "#00ffff"],
+        brass: ["#ffff00", "#00ff00", "#0000ff"],
+        other: ["#ffff00", "#00ff00", "#0000ff"]
+    };
 
     //optimize all functions
 
@@ -47,12 +62,12 @@ export class MusicService {
         const originalLength = decodedAudio._channelData[0].length;
         const paddedLength = Math.pow(2, Math.ceil(Math.log2(originalLength)));
         const intervalAudioLength = Math.floor(originalLength / intervalCount);
-
+        const pitch = this.getPitchArray(frequency);
         let amplitude = this.getAmplitudeData(fft, decodedAudio._channelData[0].length / 2, paddedLength, intervalCount, intervalAudioLength);
 
         let intervalDuration = duration / intervalCount;
 
-        return [fft, frequency, amplitude, bpm, duration, intervalDuration, originalLength, paddedLength];
+        return [fft, frequency, amplitude, bpm, duration, intervalDuration, originalLength, paddedLength, pitch];
     }
 
     generateBySynesthesia(frequencyArray, amplitudeArray, duration = null, intervalDuration = null, intervalCount = null) {
@@ -194,22 +209,42 @@ export class MusicService {
         return matchScore;
     }
 
-    generateByInstrument(amplitudeArray, intervalDuration, intervalCount, bpm) {
+    generateByInstrument(amplitudeArray, pitchArray, intervalDuration, intervalCount) {
         const intervalData = [];
-
+        // Iterate through intervals
         for (let i = 0; i < intervalCount; i++) {
             const amplitude = amplitudeArray[i];
+            const instrument = this.mapInstrument(pitchArray[i]);
+            if (!instrument) continue;
+            console.log(instrument)
             const intervalStart = i * intervalDuration;
             const intervalEnd = (i + 1) * intervalDuration;
             const intensity = Math.sqrt(amplitude);
 
-            // Map tempo to hue value using tempoColors object
-            const tempo = this.getTempoFromBpm(bpm);
-            const hue = this.tempoColors[tempo];
+            const instrumentColor = this.instrumentColors[instrument];
+            const [red, green, blue] = this.hexToRgb(instrumentColor[0]);
 
-            const saturation = 100;
-            const lightness = 50;
-            const [red, green, blue] = this.hslToRgb(hue, saturation, lightness);
+            const color = `rgb(${red}, ${green}, ${blue})`;
+            const interval = { start: intervalStart, end: intervalEnd, intensity, color };
+            intervalData.push(interval);
+        }
+
+        return intervalData;
+    }
+
+    async generateByEnergy(amplitudeArray, intervalDuration, intervalCount) {
+        const intervalData = [];
+
+        for (let i = 0; i < intervalCount; i++) {
+            const amplitude = amplitudeArray[i];
+            const energyLevel = this.mapEnergy(amplitude);
+            const intervalStart = i * intervalDuration;
+            const intervalEnd = (i + 1) * intervalDuration;
+            const intensity = Math.sqrt(amplitude);
+
+            const energyColor = this.energyColors[energyLevel];
+            const [red, green, blue] = this.hexToRgb(energyColor);
+
             const color = `rgb(${red}, ${green}, ${blue})`;
             const interval = { start: intervalStart, end: intervalEnd, intensity, color };
             intervalData.push(interval);
@@ -217,9 +252,9 @@ export class MusicService {
         return intervalData;
     }
 
-    generateByEnergy(amplitudeArray, intervalDuration, intervalCount, bpm) {
-        const intervalData = [];
-    }
+    // generateByEnergy(amplitudeArray, intervalDuration, intervalCount, bpm) {
+    //     const intervalData = [];
+    // }
 
     generateBySpeech(amplitudeArray, intervalDuration, intervalCount, bpm) {
         const intervalData = [];
@@ -412,52 +447,6 @@ export class MusicService {
         // Return the genre with the smallest weighted distance
         return genreArray[0][0] || 'other';
     }
-    // getGenreFromFrequency(frequency) {
-    //     // Define frequency ranges for each genre
-    //     const genres = {
-    //         'rock': { min: 640, max: 7680 },
-    //         'pop': { min: 588.8, max: 7065.6 },
-    //         'electronic': { min: 352, max: 4224 },
-    //         'hipHop': { min: 384, max: 4608 },
-    //         'classical': { min: 224, max: 2688 },
-    //         'jazz': { min: 256, max: 3072 },
-    //         'other': { min: 200, max: 2400 }
-    //     };
-
-    //     let bestMatch = null;
-    //     let bestMatchWidth = Infinity;
-    //     let bestMatchCenter = Infinity;
-
-    //     // Check if the frequency falls within a range of any genre
-    //     for (let genre in genres) {
-    //         const range = genres[genre];
-    //         if (frequency >= range.min && frequency <= range.max) {
-    //             // Compare the average amplitude of the frequency data for each genre
-    //             // if (averageAmplitude >= 0.8) {
-    //             //     // Check if the frequency is consistently in the range of the genre
-    //             //     const frequencyRange = range.max - range.min;
-    //             //     const frequencyThreshold = frequencyRange * 0.2;
-    //             // const isInRange = frequency >= range.min + frequencyThreshold && frequency <= range.max - frequencyThreshold;
-    //             const rangeWidth = range.max - range.min;
-    //             const rangeCenter = (range.max + range.min) / 2;
-    //             if (rangeWidth < bestMatchWidth) {
-    //                 bestMatch = genre;
-    //                 bestMatchWidth = rangeWidth;
-    //                 bestMatchCenter = rangeCenter;
-    //             } else if (rangeWidth === bestMatchWidth) {
-    //                 const centerDist = Math.abs(bestMatchCenter - frequency);
-    //                 const newCenterDist = Math.abs(rangeCenter - frequency);
-    //                 if (newCenterDist < centerDist) {
-    //                     bestMatch = genre;
-    //                     bestMatchWidth = rangeWidth;
-    //                     bestMatchCenter = rangeCenter;
-    //                 }
-    //             }
-    //         }
-    //     }
-
-    //     return bestMatch || 'other';
-    // }
 
     //changeForOne
     calculateBPM(audioBuffer, intervalCount) {
@@ -525,85 +514,46 @@ export class MusicService {
         // If no tempo is matched, return 'other'
         return 'other';
     }
+    mapInstrument(pitch) {
+        const instrumentPitchRanges = {
+            "bass": { min: 21, max: 48 },
+            "guitar": { min: 40, max: 88 },
+            "drums": { min: 36, max: 84 },
+            "keyboard": { min: 21, max: 96 },
+            "vocals": { min: 40, max: 88 },
+            "brass": { min: 45, max: 84 },
+            "strings": { min: 33, max: 84 },
+            "woodwinds": { min: 36, max: 84 },
+            "synth": { min: 21, max: 96 },
+        };
 
-    mapInstrument(amplitudeData, sampleRate) {
-        const fftSize = 2048;
-        const numBins = fftSize / 2;
-        const binWidth = sampleRate / fftSize;
-        const maxFrequency = sampleRate / 2;
+        let bestInstrument = null;
+        let smallestDifference = Infinity;
 
-        const energy = amplitudeData.reduce((total, current) => total + current, 0);
+        for (const [instrument, range] of Object.entries(instrumentPitchRanges)) {
+            const midpoint = (range.min + range.max) / 2;
+            const difference = Math.abs(pitch - midpoint);
 
-        if (energy < 1) {
-            return null;
-        }
-
-        const normalizedEnergy = amplitudeData.map((a) => a / energy);
-
-        const frequencyRanges = [
-            { min: 27.5, max: 55, name: "sub-bass" },
-            { min: 55, max: 110, name: "bass" },
-            { min: 110, max: 220, name: "low midrange" },
-            { min: 220, max: 440, name: "midrange" },
-            { min: 440, max: 880, name: "upper midrange" },
-            { min: 880, max: 1760, name: "presence" },
-            { min: 1760, max: 3520, name: "brilliance" },
-            { min: 3520, max: 7040, name: "upper brilliance" },
-            { min: 7040, max: maxFrequency, name: "air" },
-        ];
-
-        let bestMatch = null;
-        let bestMatchWidth = Infinity;
-        let bestMatchCenter = 0;
-
-        for (const range of frequencyRanges) {
-            const rangeWidth = range.max - range.min;
-            const rangeCenter = (range.max + range.min) / 2;
-
-            for (let i = 0; i < numBins; i++) {
-                const frequency = i * binWidth;
-
-                if (frequency < range.min || frequency > range.max) {
-                    continue;
-                }
-
-                const normalizedBinValue = normalizedEnergy[i];
-
-                if (normalizedBinValue < 0.001) {
-                    continue;
-                }
-
-                if (rangeWidth < bestMatchWidth) {
-                    bestMatch = range.name;
-                    bestMatchWidth = rangeWidth;
-                    bestMatchCenter = rangeCenter;
-                } else if (rangeWidth === bestMatchWidth) {
-                    const centerDist = Math.abs(bestMatchCenter - frequency);
-                    const newCenterDist = Math.abs(rangeCenter - frequency);
-
-                    if (newCenterDist < centerDist) {
-                        bestMatch = range.name;
-                        bestMatchWidth = rangeWidth;
-                        bestMatchCenter = rangeCenter;
-                    }
-                }
+            if (difference < smallestDifference) {
+                bestInstrument = instrument;
+                smallestDifference = difference;
             }
         }
-
-        return bestMatch;
+        if (!bestInstrument)
+            return 'other';
+        return bestInstrument
     }
 
-    async mapEnergy(amplitudeData) {
+    mapEnergy(amplitude) {
         // Map to energy level
-        //const energyData = [];
         const highEnergyThreshold = 0.1;
         const lowEnergyThreshold = 0.05;
-        const avgEnergy = amplitudeData.reduce((acc, val) => acc + val) / amplitudeData.length;
+        let avgEnergy = Array.isArray(amplitude) ? amplitude.reduce((acc, val) => acc + val) / amplitude.length : amplitude;
+        avgEnergy *= 1000;
         const energyLevel = avgEnergy >= highEnergyThreshold ? 'high' : (avgEnergy >= lowEnergyThreshold ? 'mid' : 'low');
-        //energyData.push({ energyLevel });
-
         return energyLevel;
     }
+
 
     // async mapAudioDataBy(audioData) {
     //     const audioContext = new AudioContext();
@@ -678,5 +628,26 @@ export class MusicService {
 
         // Return an object with r, g, and b properties
         return [r, g, b];
+    }
+
+
+    // calculate pitch data using autocorrelation method
+    getPitchArray(frequencyData) {
+        const pitchArray = [];
+        const minFrequency = 27.5;
+        const maxFrequency = 4186;
+        const numBins = frequencyData.length;
+
+        for (let i = 0; i < numBins; i++) {
+            const frequency = frequencyData[i];
+            if (frequency > 0 && frequency >= minFrequency && frequency <= maxFrequency) {
+                const pitch = 69 + 12 * Math.log2(frequency / 440);
+                pitchArray.push(pitch);
+            } else {
+                pitchArray.push(null);
+            }
+        }
+
+        return pitchArray;
     }
 }
