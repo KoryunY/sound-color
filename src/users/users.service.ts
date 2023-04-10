@@ -33,10 +33,9 @@ export class UsersService {
     }
 
     async generateColors(options: ColorOptionsDto, audio: any) {
-        const decodedAudio = await this.musicService.decodeAudio(audio);
         const type: ConvertingType = options.type;
         const intervalCount = options.intervalCount;
-        const [fft, frequency, amplitude, bpm, duration, intervalDuration, originalLength, paddedLength, pitch] = this.musicService.generateIntervalData(decodedAudio, intervalCount);
+        const [fft, frequency, amplitude, bpm, duration, intervalDuration, originalLength, paddedLength, pitch] = await this.musicService.generateIntervalData(audio, intervalCount);
 
         switch (type) {
             case ConvertingType.SYNESTHESIA:
@@ -50,15 +49,22 @@ export class UsersService {
             case ConvertingType.ENERGY:
                 return this.musicService.generateByEnergy(amplitude, intervalDuration, intervalCount);
             case ConvertingType.SPEECH:
-                return this.musicService.generateBySpeech(amplitude, intervalDuration, intervalCount, bpm);
+                return //this.musicService.generateBySentiment(amplitude, intervalDuration, intervalCount, bpm);
         }
+    }
+
+    async test2(audio: any) {
+        return await this.musicService.parseMetadata(audio);
     }
 
     async test(audio: any) {
         // const decodedAudio = await this.musicService.decodeAudio(audio);
-        return this.musicService.testSpeech(audio);
-        //   let intervalCount = 123;
-        // const [fft, frequency, amplitude, bpm, duration, intervalDuration, originalLength, paddedLength, pitch] = this.musicService.generateIntervalData(decodedAudio, intervalCount);
+        let intervalCount = 123;
+        const [fft, frequency, amplitude, bpm, duration, intervalDuration, originalLength, paddedLength, pitch] = await this.musicService.generateIntervalData(audio, intervalCount);
+        const sentiment = (await this.musicService.testSpeech(audio)).sentiment;
+        // return await this.musicService.generateBySentiment(frequency,amplitude, intervalDuration, intervalCount, sentiment);
+        return await this.musicService.generateBySentiment(frequency, sentiment, intervalDuration, intervalCount);
+
         //return frequency
         //let colors = this.musicService.generateByGenre(frequency, amplitude, intervalDuration, intervalCount, bpm[0]);
         //return pitch

@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import DSP from 'dsp.js';
 import axios from 'axios';
-import fs from 'fs';
+import fs, { ReadStream } from 'fs';
+import { Readable } from 'stream';
+import { promisify } from 'util';
+
 //import { Model } from 'deepspeech';
 // const { SpeechClient } = require('@google-cloud/speech');
 // const client = new SpeechClient({
@@ -44,6 +47,22 @@ export class MusicService {
         other: ["#ffff00", "#00ff00", "#0000ff"]
     };
 
+    sentimentDict = {
+        'love': 'romantic',
+        'heartbreak': 'sad',
+        'politics': 'political',
+        'chaos': 'angry'
+        // Add more sentiment words and their corresponding sentiment here
+    };
+
+    sentimentColors = {
+        romantic: ["#FF1493", "#FF69B4", "#FFC0CB"], // deep pink, hot pink, pink
+        sad: ["#6495ED", "#1E90FF", "#4169E1"], // cornflower blue, dodger blue, royal blue
+        political: ["#FF8C00", "#FFA500", "#FFD700"], // dark orange, orange, gold
+        angry: ["#B22222", "#DC143C", "#FF0000"], // firebrick, crimson, red
+        neutral: ["#808080", "#A9A9A9", "#D3D3D3"] // gray, dark gray, light gray
+    };
+
     //optimize all functions
 
     //decode audio
@@ -55,9 +74,21 @@ export class MusicService {
 
     async testSpeech(decodeAudio: any) {
 
-        const audioFile = fs.readFileSync("C:\\Users\\Koryu\\Downloads\\asd.m4a");
+        //const audioFile = fs.readFileSync("C:\\Users\\Koryu\\Downloads\\asd.m4a");
+        const rawData = await this.convertAudioBufferToRawPcm(decodeAudio.buffer);
+        //console.log(rawData)
+        //return
+        //return rawData
+        //return inputBuffer
+        // Truncate raw PCM data to 3-5 seconds (44100 samples per second)
+        const sampleSize = 2; // 16-bit signed PCM (2 bytes per sample)
+        const maxDuration = 5; // in seconds
+        const maxSamples = 44100 * maxDuration;
+        const truncatedData = rawData.slice(0, maxSamples * sampleSize);
+        const base64Data = Buffer.from(truncatedData).toString('base64');
 
-        const base64Audio = Buffer.from(audioFile).toString("base64");
+        //return base64Data
+        //  const base64Audio = Buffer.from(audioFile).toString("base64");
         // return base64Audio
         const config = {
             headers: {
@@ -67,16 +98,20 @@ export class MusicService {
             },
             method: 'post',
             url: 'https://shazam.p.rapidapi.com/songs/detect',
-            data: base64Audio
+            data: base64Data
         };
 
-        const asd = axios(config).then(d => console.log(d.data)).catch(err => console.log(err));
-        return asd;
+        const respone = await axios(config); //.then(d => console.log(d.data)).catch(err => console.log(err));
+        //respone.data;
+        const words = respone.data.track.sections[1].text
+        return this.sentimentFromWords(this.extractUniqueWords(words));
     }
 
 
     //getIntervals
-    generateIntervalData(decodedAudio: any, intervalCount?: number) { //xary count logic
+    async generateIntervalData(audio: any, intervalCount?: number) { //xary count logic
+        const decodedAudio = await this.decodeAudio(audio);
+
         let fft = this.getFft(decodedAudio);
         let duration = this.getDuration(decodedAudio);
         let frequency = this.getFrequencyData(fft, decodedAudio._channelData[0].length, intervalCount);
@@ -278,8 +313,106 @@ export class MusicService {
     //     const intervalData = [];
     // }
 
-    generateBySpeech(amplitudeArray, intervalDuration, intervalCount, bpm) {
+    async generateBySentiment(frequencyData, sentiment, intervalDuration, intervalCount) {
+        // const frequencyBandColors = {
+        //     bass: ["#ff0000", "#000000", "#ffffff"],
+        //     guitar: ["#ff8800", "#ffff00", "#00ffff"],
+        //     drums: ["#ffff00", "#00ff00", "#0000ff"],
+        //     vocals: ["#00ff00", "#ff00ff", "#ff0000"],
+        //     keyboard: ["#ff8800", "#ffff00", "#00ffff"],
+        //     brass: ["#ffff00", "#00ff00", "#0000ff"],
+        //     other: ["#ffff00", "#00ff00", "#0000ff"]
+        // };
+        let sentimentColors = this.sentimentColors[sentiment];
+
         const intervalData = [];
+
+        const frequencyBands = [{ min: 20, max: 200, name: "bass" }, { min: 200, max: 400, name: "guitar" }, { min: 400, max: 800, name: "keyboard" }, { min: 800, max: 1600, name: "brass" }, { min: 1600, max: 3200, name: "vocals" }, { min: 3200, max: 22050, name: "other" }];
+
+
+        const frequencyBandColors = {
+            'positive': {
+                'bass': '#FFC300',
+                'guitar': '#FFC300',
+                'keyboard': '#3D9970',
+                'brass': '#3D9970',
+                'vocals': '#FF4136',
+                'other': '#FF4136'
+            },
+            'neutral': {
+                'bass': '#0074D9',
+                'guitar': '#FFDC00',
+                'keyboard': '#0074D9',
+                'brass': '#FFDC00',
+                'vocals': '#0074D9',
+                'other': '#FFDC00'
+            },
+            'angry': { //negative
+                'bass': ['#85144b', '#0074D9', '#FFDC00'],
+                'guitar': '#85144b',
+                'keyboard': '#111111',
+                'brass': '#111111',
+                'vocals': '#F012BE',
+                'other': '#F012BE'
+            }
+        };
+
+        const samplesPerInterval = Math.floor(frequencyData.length / intervalCount);
+
+        for (let i = 0; i < intervalCount; i++) {
+            const intervalStart = i * intervalDuration;
+            const intervalEnd = (i + 1) * intervalDuration;
+
+            const startIndex = i * samplesPerInterval;
+            const endIndex = (i + 1) * samplesPerInterval;
+            const intervalDataSlice = frequencyData.slice(startIndex, endIndex);
+
+            const fftSize = intervalDataSlice.length * 2;
+            const fft = new DSP.FFT(fftSize, 44100);
+
+            const buffer = new Float32Array(fftSize);
+            buffer.set(intervalDataSlice);
+            fft.forward(buffer);
+
+            const frequencyCounts = new Array(frequencyBands.length).fill(0);
+
+            for (let j = 0; j < fftSize / 2; j++) {
+                const frequency = j * 44100 / fftSize;
+                for (let k = 0; k < frequencyBands.length; k++) {
+                    const band = frequencyBands[k];
+                    if (frequency >= band.min && frequency < band.max) {
+                        frequencyCounts[k] += Math.abs(fft.spectrum[j]);
+                        break;
+                    }
+                }
+            }
+
+            let dominantBandIndex = 0;
+            let dominantBandCount = frequencyCounts[0];
+
+            for (let j = 1; j < frequencyCounts.length; j++) {
+                if (frequencyCounts[j] > dominantBandCount) {
+                    dominantBandIndex = j;
+                    dominantBandCount = frequencyCounts[j];
+                }
+            }
+
+            const dominantBand = frequencyBands[dominantBandIndex];
+
+            const dominantSentimentColors = frequencyBandColors[sentiment][dominantBand.name];
+            const colorIndex = Math.floor(Math.random() * dominantSentimentColors.length);
+            const color = dominantSentimentColors[colorIndex];
+
+            const interval = {
+                start: intervalStart,
+                end: intervalEnd,
+                color: color
+            };
+
+            intervalData.push(interval);
+        }
+
+        return intervalData;
     }
 
     //helpers
@@ -577,68 +710,31 @@ export class MusicService {
     }
 
 
-    // async mapAudioDataBy(audioData) {
-    //     const audioContext = new AudioContext();
-    //     const source = audioContext.createBufferSource();
-    //     const buffer = audioContext.createBuffer(1, audioData.length, audioContext.sampleRate);
-    //     buffer.getChannelData(0).set(audioData);
-    //     source.buffer = buffer;
-    //     const analyser = audioContext.createAnalyser();
-    //     analyser.fftSize = 2048;
-    //     source.connect(analyser);
-    //     analyser.connect(audioContext.destination);
-    //     source.start();
+    sentimentFromWords(words) {
 
-    //     const [response] = await client.recognize({
-    //         config: {
-    //             encoding: 'LINEAR16',
-    //             sampleRateHertz: 16000,
-    //             languageCode: 'en-US',
-    //         },
-    //         audio: {
-    //             content: audioData.toString('base64'),
-    //         },
-    //     });
-    //     const transcription = response.results
-    //         .map(result => result.alternatives[0].transcript)
-    //         .join('\n');
-    //     console.log(`Transcription: ${transcription}`);
+        let sentiment = 'neutral';
+        const wordCount = words.length;
+        let maxMatch = 0; //minimum match percentege
 
+        // Check each sentiment word
+        for (const [sentimentWord, sentimentValue] of Object.entries(this.sentimentDict)) {
+            const matchCount = words.filter(word => word.includes(sentimentWord)).length;
 
-    //     let sentiment = 'neutral';
-    //     if (transcription.includes('love')) {
-    //         sentiment = 'romantic';
-    //     } else if (transcription.includes('heartbreak')) {
-    //         sentiment = 'sad';
-    //     } else if (transcription.includes('politics')) {
-    //         sentiment = 'political';
-    //     }
-    //     const lyricsData = [{ sentiment }];
-    //     console.log(lyricsData);
+            // If more than 50% of words match the sentiment word, set the sentiment
+            if (matchCount / wordCount > maxMatch) {
+                sentiment = sentimentValue;
+                maxMatch = matchCount / wordCount
+            }
+        }
 
-    // }
+        return { sentiment, maxMatch };
+    }
 
     //others
 
-    // parseMetadata(someReadStream: ReadStream) {
-    //     (async () => {
-    //         try {
-    //             const metadata = await parseStream(someReadStream, { mimeType: 'audio/mpeg', size: 26838 });
-    //             return metadata;
-    //         } catch (error) {
-    //             return error.message;
-    //         }
-    //     })();
-    // }
 
-    //addShazam maybe others to
 
-    //generateByCoverColors
-    //generateByMood
 
-    //test context==true?2 options:1 for now
-    //one function to do all,
-    //endpoints//above parts
     hexToRgb(hex) {
         // Convert hex string to integer value
         const intVal = parseInt(hex.substring(1), 16);
@@ -672,4 +768,91 @@ export class MusicService {
 
         return pitchArray;
     }
+
+    async convertAudioBufferToRawPcm(inputBuffer) {
+        const { spawn } = require('child_process');
+
+        const inputFilePath = './temp-input-file.m4a';
+        const outputFilePath = './temp-output-file.raw';
+
+        // Write input buffer to temporary input file
+        fs.writeFileSync(inputFilePath, inputBuffer);
+
+        // Convert temporary input file to raw PCM format using ffmpeg
+        const command = spawn('ffmpeg', [
+            '-i', inputFilePath,
+            '-vn', '-acodec', 'pcm_s16le',
+            '-ar', '44100', '-ac', '1',
+            '-f', 's16le', outputFilePath
+        ]);
+
+        // Handle command errors
+        command.on('error', (error) => {
+            console.error(`Error running ffmpeg: ${error}`);
+        });
+
+        // Wait for the command to exit
+        await new Promise((resolve, reject) => {
+            command.on('exit', (code) => {
+                if (code === 0) {
+                    resolve(code);
+                } else {
+                    reject(new Error(`ffmpeg process exited with code ${code}`));
+                }
+            });
+        });
+
+        // Read raw PCM data from temporary output file
+        const rawData = fs.readFileSync(outputFilePath);
+
+        // Delete temporary files
+        fs.unlinkSync(inputFilePath);
+        fs.unlinkSync(outputFilePath);
+
+        return rawData;
+    }
+
+    extractUniqueWords(arr) {
+        const uniqueWords = new Set(); // create a new Set to store unique words
+        arr.forEach((str) => { // loop through each string in the array
+            const words = str.split(' '); // split the string into an array of words
+            words.forEach((word) => { // loop through each word in the array
+                uniqueWords.add(word); // add the word to the Set
+            });
+        });
+        return Array.from(uniqueWords); // convert the Set to an array and return it
+    }
+
+    calculateAverageFrequency(amplitudes, frequencies) {
+        let sum = 0;
+        let count = 0;
+
+        for (let i = 0; i < frequencies.length; i++) {
+            const frequency = frequencies[i];
+            const amplitude = amplitudes[i];
+            console.log(`f:${frequency} a:${amplitude}`)
+            if (frequency >= 20 && frequency <= 20000) {
+                sum += frequency * amplitude;
+                count += amplitude;
+            }
+        }
+
+        return sum / count;
+    }
+
+
+    async parseMetadata(audio): Promise<any> {
+        const mm = await import('music-metadata');
+        return mm.parseBuffer(audio.buffer, 'audio/mpeg')
+    }
 }
+
+ //addShazam maybe others to
+
+    //generateByCoverColors
+    //real-timeprocessing
+    //generateByMood//kindaDOne
+
+    //test context==true?2 options:1 for now
+    //one function to do all,
+    //endpoints//above parts

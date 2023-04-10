@@ -32,6 +32,11 @@ export class UsersController {
         return await this.userService.test(audio);
     }
 
+    @Post('test2')
+    @UseInterceptors(FileInterceptor('file'))
+    async test(@UploadedFile() audio: Express.Multer.File) {
+        return await this.userService.test2(audio);
+    }
 
     // @Post('syn')
     // @UseInterceptors(FileInterceptor('file'))
