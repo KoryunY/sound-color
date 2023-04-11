@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
-import { Genres } from './genres.enum';
+import { Genre, Tempo, Energy, Sentiment, Instrument } from 'src/Defaults/types';
 
 export type ConfigDocument = HydratedDocument<Config>;
 
@@ -10,13 +10,13 @@ export class Config {
     name: string;
 
     @Prop()
-    type: Genres;
+    type: Genre | Tempo | Energy | Sentiment | Instrument;
 
     @Prop()
     colors: string[];
 
-    @Prop({ type: [{ type: Types.ObjectId, ref: 'UserConfig' }] })
-    userConfigs: Types.ObjectId[];
+    @Prop({ type: Types.ObjectId, ref: 'UserConfig' })
+    user: Types.ObjectId;
 }
 
 export const ConfigSchema = SchemaFactory.createForClass(Config);

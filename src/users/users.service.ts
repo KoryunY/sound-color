@@ -36,38 +36,16 @@ export class UsersService {
         //init default colors;
     }
 
+    async shazamAudio(audio: any) {
+        return await this.musicService.getMetadata(audio);
+    }
 
+    async shazamText(text: string) {
+        return await this.musicService.getMetadata(null,text);
+    }
 
-    async test2(audio: any) {
+    async metadata(audio: any) {
         return await this.musicService.parseMetadata(audio);
     }
-
-    async test(audio: any) {
-        // const decodedAudio = await this.musicService.decodeAudio(audio);
-        let intervalCount = 123;
-        const [fft, frequency, amplitude, bpm, duration, intervalDuration, originalLength, paddedLength, pitch] = await this.musicService.generateIntervalData(audio, intervalCount);
-        const sentiment = (await this.musicService.testSpeech(audio)).sentiment;
-        // return await this.musicService.generateBySentiment(frequency,amplitude, intervalDuration, intervalCount, sentiment);
-        return await this.musicService.generateBySentiment(frequency, sentiment, intervalDuration, intervalCount);
-
-        //return frequency
-        //let colors = this.musicService.generateByGenre(frequency, amplitude, intervalDuration, intervalCount, bpm[0]);
-        //return pitch
-        //  return this.musicService.generateByInstrument(amplitude, pitch, intervalDuration, intervalCount);
-
-        //return colors;
-        //const audioEntity = new this.audioModel({ data: colors });
-        // let fft = this.musicService.getFft(decodedAudio);
-        // const originalLength = decodedAudio.length;
-        // const paddedLength = Math.pow(2, Math.ceil(Math.log2(originalLength)));
-
-        // let frequency = this.musicService.getFrequencyData(fft, decodedAudio._channelData[0].length);
-
-        // let amplitude = this.musicService.getAmplitudeData(fft, decodedAudio._channelData[0].length / 2, paddedLength);
-        // // console.log(decodedAudio)
-        // // return
-        // return this.musicService.mapInstrument(amplitude, decodedAudio.sampleRate);
-    }
-
 
 }

@@ -7,13 +7,7 @@ import { promisify } from 'util';
 import { ConvertingType } from 'src/Defaults/types';
 import { instrumentPitchRanges, energyColors, genreColors, instrumentColors, sentimentsColors, sentimentDict, tempoColors, frequencyBandColors, genres, genreWeights } from 'src/Defaults/consts';
 
-//import { Model } from 'deepspeech';
-// const { SpeechClient } = require('@google-cloud/speech');
-// const client = new SpeechClient({
-//     projectId: 'YOUR_PROJECT_ID',
-//     credentials: require('./path/to/serviceAccountKey.json')
-// });
-//import { parseStream } from 'music-metadata';
+
 @Injectable()
 export class MusicService {
     //optimize all functions
@@ -24,32 +18,6 @@ export class MusicService {
 
         return await decode.default(audioBuffer)
     }
-
-    async testSpeech(decodeAudio: any) {
-        const rawData = await this.convertAudioBufferToRawPcm(decodeAudio.buffer);
-
-        const sampleSize = 2; // 16-bit signed PCM (2 bytes per sample)
-        const maxDuration = 5; // in seconds
-        const maxSamples = 44100 * maxDuration;
-        const truncatedData = rawData.slice(0, maxSamples * sampleSize);
-        const base64Data = Buffer.from(truncatedData).toString('base64');
-
-        const config = {
-            headers: {
-                'Content-Type': `text/plain`,
-                'x-rapidapi-key': '5f8d6921d7msh800b18be09dd89ap1b7a42jsn1adb7f318889',//process.env.API_KEY,
-                'x-rapidapi-host': 'shazam.p.rapidapi.com',
-            },
-            method: 'post',
-            url: 'https://shazam.p.rapidapi.com/songs/detect',
-            data: base64Data
-        };
-
-        const respone = await axios(config);         //respone.data;
-        const words = respone.data.track.sections[1].text
-        return this.sentimentFromWords(this.extractUniqueWords(words));
-    }
-
 
     //getIntervals
     async generateIntervalData(type: ConvertingType, audio: any, intervalCount?: number) { //xary count logic
@@ -82,8 +50,6 @@ export class MusicService {
 
         }
 
-
-        return [fft, frequency, amplitude, bpm, duration, intervalDuration, originalLength, paddedLength, pitch];
     }
 
     generateBySynesthesia(frequencyArray, amplitudeArray, duration = null, intervalDuration = null, intervalCount = null) {
@@ -732,10 +698,72 @@ export class MusicService {
         return sum / count;
     }
 
+    async requestToShazam(decodeAudio: any) {
+        const rawData = await this.convertAudioBufferToRawPcm(decodeAudio.buffer);
+
+        const sampleSize = 2; // 16-bit signed PCM (2 bytes per sample)
+        const maxDuration = 5; // in seconds
+        const maxSamples = 44100 * maxDuration;
+        const truncatedData = rawData.slice(0, maxSamples * sampleSize);
+        const base64Data = Buffer.from(truncatedData).toString('base64');
+
+        const config = {
+            headers: {
+                'Content-Type': `text/plain`,
+                'x-rapidapi-key': '5f8d6921d7msh800b18be09dd89ap1b7a42jsn1adb7f318889',//process.env.API_KEY,
+                'x-rapidapi-host': 'shazam.p.rapidapi.com',
+            },
+            method: 'post',
+            url: 'https://shazam.p.rapidapi.com/songs/detect',
+            data: base64Data
+        };
+
+        const response = await axios(config);
+
+        return response.data;
+    }
+
+    async getMetadata(decodeAudio?: any, text?: string) {
+        let data
+        if (text == null || text.length == 0)
+            data = await this.requestToShazam(decodeAudio);
+        else data = await this.searchMetadataBytext(text);
+
+        if (!data)
+            return;
+
+        const genres = data.track.genres;
+        const words = data.track.sections[1].text
+        const sentiment = this.sentimentFromWords(this.extractUniqueWords(words));
+        const name = data.track.share.subject;
+
+        return [name, genres, sentiment];
+    }
+
+    async searchMetadataBytext(text: string) {
+        const options = {
+            method: 'GET',
+            url: 'https://shazam.p.rapidapi.com/search',
+            params: { term: text, locale: 'en-US', offset: '0', limit: '5' },
+            headers: {
+                'X-RapidAPI-Key': '5f8d6921d7msh800b18be09dd89ap1b7a42jsn1adb7f318889',
+                'X-RapidAPI-Host': 'shazam.p.rapidapi.com'
+            }
+        };
+
+        const response = await axios(options);
+
+        return response.data;
+    }
 
     async parseMetadata(audio): Promise<any> {
         const mm = await import('music-metadata');
-        return mm.parseBuffer(audio.buffer, 'audio/mpeg')
+
+        const metadata = await mm.parseBuffer(audio.buffer, 'audio/mpeg')
+        const genre = metadata.common.genre;
+        const name = metadata.common.title + ' - ' + metadata.common.artist;
+
+        return [name, genre];
     }
 }
 

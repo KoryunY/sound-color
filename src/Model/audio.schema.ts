@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
-import { Genres } from './genres.enum';
 import { IData } from 'src/Defaults/types';
 
 export type AudioDocument = HydratedDocument<Audio>;

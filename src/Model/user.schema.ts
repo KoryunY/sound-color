@@ -8,8 +8,8 @@ export class User {
     @Prop()
     name: string;
 
-    @Prop({ type: [{ type: Types.ObjectId, ref: 'UserConfig' }] })
-    userConfigs: Types.ObjectId[];
+    @Prop({ type: [{ type: Types.ObjectId, ref: 'Config' }] })
+    configs: Types.ObjectId[];
 
     @Prop({ type: [{ type: Types.ObjectId, ref: 'Audio' }] })
     audios: Types.ObjectId[];

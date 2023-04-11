@@ -1,9 +1,9 @@
 import { Body, Controller, Delete, Get, Param, Post, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Genres } from 'src/Model/genres.enum';
 import { UsersService } from './users.service';
 import { AllowedMimes } from 'src/Defaults/consts';
 import { ColorOptionsDto } from 'src/Model/Dto/ColorOptions.dto';
+import { Genre, Tempo } from 'src/Defaults/types';
 
 
 @Controller('users')
@@ -20,28 +20,38 @@ export class UsersController {
         return this.userService.deleteUser(id);
     }
 
-    @Post('init')
+    @Post('config')
     createConfig(@Query('id') id: string) {
         return this.userService.createConfig(id);
     }
-    
-    @Get('genres')
+
+    @Delete('config')
+    removeConfig(@Query('id') id: string) {
+        return this.userService.createConfig(id);
+    }
+
+    @Get('defaults')
     getGenress() {
-        return Genres;
+        return { genres: Genre, tempos: Tempo };
     }
 
-    @Post('test')
+    @Post('shazam-audio')
     @UseInterceptors(FileInterceptor('file'))
-    async generateColorss(@UploadedFile() audio: Express.Multer.File) {
-        return await this.userService.test(audio);
+    async shazamAudio(@UploadedFile() audio: Express.Multer.File) {
+        return await this.userService.shazamAudio(audio);
     }
 
-    @Post('test2')
-    @UseInterceptors(FileInterceptor('file'))
-    async test(@UploadedFile() audio: Express.Multer.File) {
-        return await this.userService.test2(audio);
+    @Post('shazam-text')
+    async shazamText(@Body() text: string) {
+        return await this.userService.shazamText(text);
     }
-    
-    
+
+    @Post('metadata')
+    @UseInterceptors(FileInterceptor('file'))
+    async metadata(@UploadedFile() audio: Express.Multer.File) {
+        return await this.userService.metadata(audio);
+    }
+
+
 }
 

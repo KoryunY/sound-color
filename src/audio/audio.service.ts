@@ -71,7 +71,7 @@ export class AudioService {
     async generateBySentiment(options: ColorOptionsDto, audio: any) {
         const type: ConvertingType = options.type;
         const intervalCount = options.intervalCount;
-        const sentiment = (await this.musicService.testSpeech(audio)).sentiment;
+        const [sentiment] = (await this.musicService.getMetadata(audio));
         let [frequency, intervalDuration] = await this.musicService.generateIntervalData(audio, type);
 
         return await this.musicService.generateBySentiment(frequency, sentiment, intervalDuration, intervalCount);
