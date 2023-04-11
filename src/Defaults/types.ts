@@ -6,3 +6,10 @@ export enum ConvertingType {
     ENERGY,
     SPEECH
 }
+
+export type IData = {
+    start: number;
+    end: number;
+    intensity: number;
+    color: string;
+}

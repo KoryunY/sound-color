@@ -1,4 +1,5 @@
 import { Optional } from "@nestjs/common";
+import { ObjectId } from "mongoose";
 import { ConvertingType } from "src/Defaults/types";
 
 export interface ColorOptionsDto {
@@ -6,5 +7,6 @@ export interface ColorOptionsDto {
     //data?: string | number,
     saturation?: number | 100,
     ligthness?: number | 50,
-    intervalCount: number | 64
+    intervalCount: number | 64,
+    userId:ObjectId
 }

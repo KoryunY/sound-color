@@ -4,6 +4,8 @@ import axios from 'axios';
 import fs, { ReadStream } from 'fs';
 import { Readable } from 'stream';
 import { promisify } from 'util';
+import { ConvertingType } from 'src/Defaults/types';
+import { instrumentPitchRanges, energyColors, genreColors, instrumentColors, sentimentsColors, sentimentDict, tempoColors, frequencyBandColors, genres, genreWeights } from 'src/Defaults/consts';
 
 //import { Model } from 'deepspeech';
 // const { SpeechClient } = require('@google-cloud/speech');
@@ -14,55 +16,6 @@ import { promisify } from 'util';
 //import { parseStream } from 'music-metadata';
 @Injectable()
 export class MusicService {
-    //delete after and store other place
-    genreColors = {
-        rock: ["#ff0000", "#000000", "#ffffff"], // red, black, white
-        pop: ["#ff8800", "#ffff00", "#00ffff"], // orange, yellow, cyan
-        electronic: ["#ffff00", "#00ff00", "#0000ff"], // yellow, green, blue
-        hipHop: ["#00ff00", "#ff00ff", "#ff0000"], // green, magenta, red
-        classical: ["#ff8800", "#ffff00", "#00ffff"],
-        other: ["#ffff00", "#00ff00", "#0000ff"],
-        jazz: ["#ffff00", "#00ff00", "#0000ff"]
-    };
-
-    tempoColors = {
-        'slow': ["#00ff00", "#ff00ff", "#ff0000"],
-        'medium': ["#ff8800", "#ffff00", "#00ffff"],
-        'fast': ["#ff8800", "#ffff00", "#00ffff"],
-        'other': ["#ff0000", "#000000", "#ffffff"]
-    };
-    energyColors = {
-        high: '#ff0000',  // red
-        mid: '#ffff00',  // yellow
-        low: '#00ff00',   // green
-    };
-
-    instrumentColors = {
-        bass: ["#ff0000", "#000000", "#ffffff"], // red, black, white
-        guitar: ["#ff8800", "#ffff00", "#00ffff"], // orange, yellow, cyan
-        drums: ["#ffff00", "#00ff00", "#0000ff"], // yellow, green, blue
-        vocals: ["#00ff00", "#ff00ff", "#ff0000"], // green, magenta, red
-        keyboard: ["#ff8800", "#ffff00", "#00ffff"],
-        brass: ["#ffff00", "#00ff00", "#0000ff"],
-        other: ["#ffff00", "#00ff00", "#0000ff"]
-    };
-
-    sentimentDict = {
-        'love': 'romantic',
-        'heartbreak': 'sad',
-        'politics': 'political',
-        'chaos': 'angry'
-        // Add more sentiment words and their corresponding sentiment here
-    };
-
-    sentimentColors = {
-        romantic: ["#FF1493", "#FF69B4", "#FFC0CB"], // deep pink, hot pink, pink
-        sad: ["#6495ED", "#1E90FF", "#4169E1"], // cornflower blue, dodger blue, royal blue
-        political: ["#FF8C00", "#FFA500", "#FFD700"], // dark orange, orange, gold
-        angry: ["#B22222", "#DC143C", "#FF0000"], // firebrick, crimson, red
-        neutral: ["#808080", "#A9A9A9", "#D3D3D3"] // gray, dark gray, light gray
-    };
-
     //optimize all functions
 
     //decode audio
@@ -73,23 +26,14 @@ export class MusicService {
     }
 
     async testSpeech(decodeAudio: any) {
-
-        //const audioFile = fs.readFileSync("C:\\Users\\Koryu\\Downloads\\asd.m4a");
         const rawData = await this.convertAudioBufferToRawPcm(decodeAudio.buffer);
-        //console.log(rawData)
-        //return
-        //return rawData
-        //return inputBuffer
-        // Truncate raw PCM data to 3-5 seconds (44100 samples per second)
+
         const sampleSize = 2; // 16-bit signed PCM (2 bytes per sample)
         const maxDuration = 5; // in seconds
         const maxSamples = 44100 * maxDuration;
         const truncatedData = rawData.slice(0, maxSamples * sampleSize);
         const base64Data = Buffer.from(truncatedData).toString('base64');
 
-        //return base64Data
-        //  const base64Audio = Buffer.from(audioFile).toString("base64");
-        // return base64Audio
         const config = {
             headers: {
                 'Content-Type': `text/plain`,
@@ -101,17 +45,15 @@ export class MusicService {
             data: base64Data
         };
 
-        const respone = await axios(config); //.then(d => console.log(d.data)).catch(err => console.log(err));
-        //respone.data;
+        const respone = await axios(config);         //respone.data;
         const words = respone.data.track.sections[1].text
         return this.sentimentFromWords(this.extractUniqueWords(words));
     }
 
 
     //getIntervals
-    async generateIntervalData(audio: any, intervalCount?: number) { //xary count logic
+    async generateIntervalData(type: ConvertingType, audio: any, intervalCount?: number) { //xary count logic
         const decodedAudio = await this.decodeAudio(audio);
-
         let fft = this.getFft(decodedAudio);
         let duration = this.getDuration(decodedAudio);
         let frequency = this.getFrequencyData(fft, decodedAudio._channelData[0].length, intervalCount);
@@ -123,6 +65,23 @@ export class MusicService {
         let amplitude = this.getAmplitudeData(fft, decodedAudio._channelData[0].length / 2, paddedLength, intervalCount, intervalAudioLength);
 
         let intervalDuration = duration / intervalCount;
+
+        switch (type) {
+            case ConvertingType.SYNESTHESIA:
+                return [fft, frequency, amplitude, duration, intervalDuration];
+            case ConvertingType.GENRE:
+                return [fft, frequency, amplitude, duration, intervalDuration];
+            case ConvertingType.TEMPO:
+                return [fft, frequency, amplitude, duration, bpm];
+            case ConvertingType.INSTRUMENT:
+                return [amplitude, intervalDuration, pitch];
+            case ConvertingType.ENERGY:
+                return [amplitude, intervalDuration];
+            case ConvertingType.SPEECH:
+                return [frequency, intervalDuration];
+
+        }
+
 
         return [fft, frequency, amplitude, bpm, duration, intervalDuration, originalLength, paddedLength, pitch];
     }
@@ -202,8 +161,7 @@ export class MusicService {
 
             // Map frequency to hue value using genreColors object
             const genre = this.getGenreFromFrequency(frequency);//, sumAmplitude / intervalCount);
-            console.log(genre);
-            const colors = this.genreColors[genre];
+            const colors = genreColors[genre];
             const colorIndex = Math.floor(Math.random() * colors.length);
             const [red, green, blue] = this.hexToRgb(colors[colorIndex])
             const color = `rgb(${red}, ${green}, ${blue})`;
@@ -218,7 +176,7 @@ export class MusicService {
         const intervalData = [];
         const tempo = this.getTempoFromBpm(bpm);
         console.log(tempo)
-        const colorr = this.tempoColors[tempo];
+        const colorr = tempoColors[tempo];
         console.log(colorr)
         for (let i = 0; i < intervalCount; i++) {
             const amplitude = amplitudeArray[i];
@@ -278,7 +236,7 @@ export class MusicService {
             const intervalEnd = (i + 1) * intervalDuration;
             const intensity = Math.sqrt(amplitude);
 
-            const instrumentColor = this.instrumentColors[instrument];
+            const instrumentColor = instrumentColors[instrument];
             const [red, green, blue] = this.hexToRgb(instrumentColor[0]);
 
             const color = `rgb(${red}, ${green}, ${blue})`;
@@ -299,7 +257,7 @@ export class MusicService {
             const intervalEnd = (i + 1) * intervalDuration;
             const intensity = Math.sqrt(amplitude);
 
-            const energyColor = this.energyColors[energyLevel];
+            const energyColor = energyColors[energyLevel];
             const [red, green, blue] = this.hexToRgb(energyColor);
 
             const color = `rgb(${red}, ${green}, ${blue})`;
@@ -309,53 +267,13 @@ export class MusicService {
         return intervalData;
     }
 
-    // generateByEnergy(amplitudeArray, intervalDuration, intervalCount, bpm) {
-    //     const intervalData = [];
-    // }
-
     async generateBySentiment(frequencyData, sentiment, intervalDuration, intervalCount) {
-        // const frequencyBandColors = {
-        //     bass: ["#ff0000", "#000000", "#ffffff"],
-        //     guitar: ["#ff8800", "#ffff00", "#00ffff"],
-        //     drums: ["#ffff00", "#00ff00", "#0000ff"],
-        //     vocals: ["#00ff00", "#ff00ff", "#ff0000"],
-        //     keyboard: ["#ff8800", "#ffff00", "#00ffff"],
-        //     brass: ["#ffff00", "#00ff00", "#0000ff"],
-        //     other: ["#ffff00", "#00ff00", "#0000ff"]
-        // };
-        let sentimentColors = this.sentimentColors[sentiment];
+
+        let sentimentColors = sentimentsColors[sentiment];
 
         const intervalData = [];
 
         const frequencyBands = [{ min: 20, max: 200, name: "bass" }, { min: 200, max: 400, name: "guitar" }, { min: 400, max: 800, name: "keyboard" }, { min: 800, max: 1600, name: "brass" }, { min: 1600, max: 3200, name: "vocals" }, { min: 3200, max: 22050, name: "other" }];
-
-
-        const frequencyBandColors = {
-            'positive': {
-                'bass': '#FFC300',
-                'guitar': '#FFC300',
-                'keyboard': '#3D9970',
-                'brass': '#3D9970',
-                'vocals': '#FF4136',
-                'other': '#FF4136'
-            },
-            'neutral': {
-                'bass': '#0074D9',
-                'guitar': '#FFDC00',
-                'keyboard': '#0074D9',
-                'brass': '#FFDC00',
-                'vocals': '#0074D9',
-                'other': '#FFDC00'
-            },
-            'angry': { //negative
-                'bass': ['#85144b', '#0074D9', '#FFDC00'],
-                'guitar': '#85144b',
-                'keyboard': '#111111',
-                'brass': '#111111',
-                'vocals': '#F012BE',
-                'other': '#F012BE'
-            }
-        };
 
         const samplesPerInterval = Math.floor(frequencyData.length / intervalCount);
 
@@ -535,28 +453,12 @@ export class MusicService {
     }
     getGenreFromFrequency(frequency) {
         // Define frequency ranges for each genre
-        const genres = {
-            'rock': { min: 80, max: 800 },
-            'pop': { min: 400, max: 4000 },
-            'electronic': { min: 1000, max: 10000 },
-            'hipHop': { min: 100, max: 1000 },
-            'classical': { min: 40, max: 400 },
-            'jazz': { min: 200, max: 2000 },
-            'other': { min: 20, max: 200 }
-        };
+        let localGenreWeights = { ...genreWeights };
 
         let bestMatch = null;
         let bestMatchDistance = Infinity;
         let totalWeight = 0;
-        let genreWeights = {
-            'rock': 3,
-            'pop': 3,
-            'electronic': 2,
-            'hipHop': 1,
-            'classical': 1,
-            'jazz': 1,
-            'other': 1
-        };
+
 
         // Check if the frequency falls within a range of any genre
         for (let genre in genres) {
@@ -564,18 +466,18 @@ export class MusicService {
             if (frequency >= range.min && frequency <= range.max) {
                 const rangeCenter = (range.max + range.min) / 2;
                 const distance = Math.sqrt(Math.pow(rangeCenter - frequency, 2));
-                const weightedDistance = distance / genreWeights[genre];
+                const weightedDistance = distance / localGenreWeights[genre];
                 if (weightedDistance < bestMatchDistance) {
                     bestMatch = genre;
                     bestMatchDistance = weightedDistance;
                 }
-                totalWeight += genreWeights[genre];
+                totalWeight += localGenreWeights[genre];
             }
         }
 
         // Normalize the genre weights so that they add up to 1
-        for (let genre in genreWeights) {
-            genreWeights[genre] /= totalWeight;
+        for (let genre in localGenreWeights) {
+            localGenreWeights[genre] /= totalWeight;
         }
 
         // Calculate the final genre based on the weighted distance
@@ -584,7 +486,7 @@ export class MusicService {
             const range = genres[genre];
             const rangeCenter = (range.max + range.min) / 2;
             const distance = Math.sqrt(Math.pow(rangeCenter - frequency, 2));
-            const weightedDistance = distance / genreWeights[genre];
+            const weightedDistance = distance / localGenreWeights[genre];
             weightedGenres[genre] = weightedDistance;
         }
         // Sort the genres by their weighted distance
@@ -592,8 +494,8 @@ export class MusicService {
 
         // Check if the best match is 'rock', and if so, check if it's a better match than 'other'
         if (bestMatch === 'rock') {
-            const rockWeight = genreWeights['rock'];
-            const otherWeight = genreWeights['other'];
+            const rockWeight = localGenreWeights['rock'];
+            const otherWeight = localGenreWeights['other'];
             if (rockWeight > otherWeight) {
                 return bestMatch;
             }
@@ -670,17 +572,7 @@ export class MusicService {
         return 'other';
     }
     mapInstrument(pitch) {
-        const instrumentPitchRanges = {
-            "bass": { min: 21, max: 48 },
-            "guitar": { min: 40, max: 88 },
-            "drums": { min: 36, max: 84 },
-            "keyboard": { min: 21, max: 96 },
-            "vocals": { min: 40, max: 88 },
-            "brass": { min: 45, max: 84 },
-            "strings": { min: 33, max: 84 },
-            "woodwinds": { min: 36, max: 84 },
-            "synth": { min: 21, max: 96 },
-        };
+
 
         let bestInstrument = null;
         let smallestDifference = Infinity;
@@ -717,7 +609,7 @@ export class MusicService {
         let maxMatch = 0; //minimum match percentege
 
         // Check each sentiment word
-        for (const [sentimentWord, sentimentValue] of Object.entries(this.sentimentDict)) {
+        for (const [sentimentWord, sentimentValue] of Object.entries(sentimentDict)) {
             const matchCount = words.filter(word => word.includes(sentimentWord)).length;
 
             // If more than 50% of words match the sentiment word, set the sentiment

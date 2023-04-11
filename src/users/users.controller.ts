@@ -1,8 +1,8 @@
-import { Body, Controller, Get, Param, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Genres } from 'src/Model/genres.enum';
 import { UsersService } from './users.service';
-import { AllowedMimes } from 'src/Defaults/conts';
+import { AllowedMimes } from 'src/Defaults/consts';
 import { ColorOptionsDto } from 'src/Model/Dto/ColorOptions.dto';
 
 
@@ -10,20 +10,24 @@ import { ColorOptionsDto } from 'src/Model/Dto/ColorOptions.dto';
 export class UsersController {
     constructor(private readonly userService: UsersService) { }
 
-    @Post('create')
-    async User(@Body() name: string) {
-        return this.userService.create(name);
+    @Post()
+    create(@Body() name: string) {
+        return this.userService.createUser(name);
+    }
+
+    @Delete()
+    delete(@Query('id') id: string) {
+        return this.userService.deleteUser(id);
     }
 
     @Post('init')
-    async Init(@Param("id") id: string) {
-        return this.userService.init(id);
+    createConfig(@Query('id') id: string) {
+        return this.userService.createConfig(id);
     }
-
-    @Post('generate')
-    @UseInterceptors(FileInterceptor('audio'))
-    async generateColors(colorOptionsDto: ColorOptionsDto, @UploadedFile() audio: Express.Multer.File) {
-        return await this.userService.generateColors(colorOptionsDto, audio);
+    
+    @Get('genres')
+    getGenress() {
+        return Genres;
     }
 
     @Post('test')
@@ -37,63 +41,7 @@ export class UsersController {
     async test(@UploadedFile() audio: Express.Multer.File) {
         return await this.userService.test2(audio);
     }
-
-    // @Post('syn')
-    // @UseInterceptors(FileInterceptor('file'))
-    // async getBySynesthesia(@UploadedFile() file: Express.Multer.File) {
-    //     if (!AllowedMimes.includes(file.mimetype)) {
-    //         return `pls send me audio,you send:${file.mimetype}`;
-    //     }
-    //     let fileAttributes = file.originalname.split('.');
-    //     let fileAttribute = fileAttributes[fileAttributes.length - 1];
-    //     if (fileAttribute != 'mp3') {
-    //         return `invalid file type:${fileAttribute}`;
-    //     }
-    //     return await this.userService.getBySynesthesia(file.buffer);
-    // }
-
-    // @Post('gen')
-    // @UseInterceptors(FileInterceptor('file'))
-    // async GetByGenre(@UploadedFile() file: Express.Multer.File) {
-    //     if (!AllowedMimes.includes(file.mimetype)) {
-    //         return `pls send me audio,you send:${file.mimetype}`;
-    //     }
-    //     let fileAttributes = file.originalname.split('.');
-    //     let fileAttribute = fileAttributes[fileAttributes.length - 1];
-    //     if (fileAttribute != 'mp3') {
-    //         return `invalid file type:${fileAttribute}`;
-    //     }
-    //     return await this.userService.GetByGenre(file.buffer);
-    // }
-
-    // @Post('bpm')
-    // @UseInterceptors(FileInterceptor('file'))
-    // async GetByTempo(@UploadedFile() file: Express.Multer.File) {
-    //     if (!AllowedMimes.includes(file.mimetype)) {
-    //         return `pls send me audio,you send:${file.mimetype}`;
-    //     }
-    //     let fileAttributes = file.originalname.split('.');
-    //     let fileAttribute = fileAttributes[fileAttributes.length - 1];
-    //     if (fileAttribute != 'mp3') {
-    //         return `invalid file type:${fileAttribute}`;
-    //     }
-    //     return await this.userService.GetByTempo(file.buffer);
-    // }
-
-    //gettingcategory
-    // @Get('genres/sound')
-    // getGenreBySound() {
-    //     return this.userService.getGenreByAudio();
-    // }
-
-    // @Get('genres/name')
-    // getGenreByMusicName() {
-    //     return this.userService.getGenreByMusicName();
-    // }
-
-    @Get('genres')
-    getGenress() {
-        return Genres;
-    }
+    
+    
 }
 

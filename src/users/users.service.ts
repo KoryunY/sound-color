@@ -13,45 +13,30 @@ export class UsersService {
     constructor(
         @InjectModel(User.name) private userModel: Model<User>,
         @InjectModel(Config.name) private configModel: Model<Config>,
-        @InjectModel("Audio") private audioModel: Model<Audio>,
+        @InjectModel(Audio.name) private audioModel: Model<Audio>,
         private musicService: MusicService
     ) { }
 
-    create(name: string) {
-
+    async createUser(name: string) {
+        return (await this.userModel.create({ name }))._id;
     }
 
-    init(_id: string) { //FORUSER
-        // const user = new this.userModel({ name: "Vzgo" });
+    async deleteUser(id: string) {
+        return (await this.userModel.findByIdAndRemove(id))._id;
+    }
+
+    createConfig(id: string) { //FORUSER
+        // 
         // const config = new this.configModel({ name: "mycolors", colors: ["#9684b1", "#bc3f67", "#22223b"] });
         // user.userConfigs.push(config.id);
         // config.userConfigs.push(user.id);
-        // await user.save();
+        // 
         // await config.save();
 
         //init default colors;
     }
 
-    async generateColors(options: ColorOptionsDto, audio: any) {
-        const type: ConvertingType = options.type;
-        const intervalCount = options.intervalCount;
-        const [fft, frequency, amplitude, bpm, duration, intervalDuration, originalLength, paddedLength, pitch] = await this.musicService.generateIntervalData(audio, intervalCount);
 
-        switch (type) {
-            case ConvertingType.SYNESTHESIA:
-                return this.musicService.generateBySynesthesia(frequency, amplitude, null, intervalDuration, intervalCount);
-            case ConvertingType.GENRE:
-                return this.musicService.generateByGenre(frequency, amplitude, null, intervalDuration, intervalCount);
-            case ConvertingType.TEMPO:
-                return this.musicService.generateByTempo(frequency, amplitude, intervalDuration, intervalCount, bpm);
-            case ConvertingType.INSTRUMENT:
-                return this.musicService.generateByInstrument(amplitude, pitch, intervalDuration, intervalCount);
-            case ConvertingType.ENERGY:
-                return this.musicService.generateByEnergy(amplitude, intervalDuration, intervalCount);
-            case ConvertingType.SPEECH:
-                return //this.musicService.generateBySentiment(amplitude, intervalDuration, intervalCount, bpm);
-        }
-    }
 
     async test2(audio: any) {
         return await this.musicService.parseMetadata(audio);
@@ -85,68 +70,4 @@ export class UsersService {
     }
 
 
-    // async generateBySynesthesia(audio: any) {
-    //     let decodedAudio = await this.musicService.decodeAudio(audio);
-    //     let fft = this.musicService.getFft(decodedAudio);
-    //     let duration = this.musicService.getDuration(decodedAudio);
-    //     let frequency = this.musicService.getFrequencyData(fft, decodedAudio._channelData[0].length);
-    //     let peaks = this.musicService.getPeaks(decodedAudio);
-    //     let bpm = this.musicService.calculateBPM(decodedAudio);
-    //     let amplitude = this.musicService.getPeaks(decodedAudio);
-    //     let intervalCount = 64;
-    //     let intervalDuration = duration / intervalCount;
-    //     let colors = this.musicService.generateIntervalData(frequency, amplitude, intervalDuration, intervalCount);
-    //     const audioEntity = new this.audioModel({ data: colors });
-
-    //     return `id: ${(await audioEntity.save())._id}`;
-
-    // }
-
-    // async GetByGenre(audio: any) {
-    //     let decodedAudio = await this.musicService.decodeAudio(audio);
-    //     let fft = this.musicService.getFft(decodedAudio);
-    //     let duration = this.musicService.getDuration(decodedAudio);
-    //     let frequency = this.musicService.getFrequencyData(fft, decodedAudio._channelData[0].length);
-
-    //     let amplitude = this.musicService.getPeaks(decodedAudio);
-    //     let intervalCount = 64;
-    //     let intervalDuration = duration / intervalCount;
-    //     let colors = this.musicService.generateIntervalDataByGenre(frequency, amplitude, intervalDuration, intervalCount);
-    //     return colors;
-    //     //const audioEntity = new this.audioModel({ data: colors });
-
-    //     //return `id: ${(await audioEntity.save())._id}`;
-
-    // }
-
-    // async GetByTempo(audio: any) {
-
-
-
-    //     let decodedAudio = await this.musicService.decodeAudio(audio);
-    //     let duration = this.musicService.getDuration(decodedAudio);
-
-    //     let bpm = this.musicService.calculateBPM(decodedAudio);
-    //     let amplitude = this.musicService.getPeaks(decodedAudio);
-    //     let intervalCount = 64;
-    //     let intervalDuration = duration / intervalCount;
-
-    //     let colors = this.musicService.generateIntervalDataByTempo(amplitude, intervalDuration, intervalCount, bpm);
-    //     return colors;
-    // }
-
-    // async Get(audio: any) {
-
-
-    //     let decodedAudio = await this.musicService.decodeAudio(audio);
-    //     let duration = this.musicService.getDuration(decodedAudio);
-
-    //     let bpm = this.musicService.calculateBPM(decodedAudio);
-    //     let amplitude = this.musicService.getPeaks(decodedAudio);
-    //     let intervalCount = 64;
-    //     let intervalDuration = duration / intervalCount;
-
-    //     let colors = this.musicService.generateIntervalDataByTempo(amplitude, intervalDuration, intervalCount, bpm);
-
-    // }
 }

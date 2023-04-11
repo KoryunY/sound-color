@@ -10,6 +10,9 @@ export class User {
 
     @Prop({ type: [{ type: Types.ObjectId, ref: 'UserConfig' }] })
     userConfigs: Types.ObjectId[];
+
+    @Prop({ type: [{ type: Types.ObjectId, ref: 'Audio' }] })
+    audios: Types.ObjectId[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

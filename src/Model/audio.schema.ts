@@ -1,15 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 import { Genres } from './genres.enum';
+import { IData } from 'src/Defaults/types';
 
 export type AudioDocument = HydratedDocument<Audio>;
 
-type IData = {
-    start: number;
-    end: number;
-    intensity: number;
-    color: string;
-}
+
 
 // interface IDataDocument extends Document {
 //     data: IData[];
@@ -17,6 +13,12 @@ type IData = {
 
 @Schema()
 export class Audio {
+    @Prop()
+    name: string;
+
+    @Prop({ type: Types.ObjectId, ref: 'User' })
+    user: Types.ObjectId;
+
     @Prop({ type: [{ start: Number, end: Number, intensity: Number, color: String }], required: true })
     data: Types.Array<IData>;
 }
