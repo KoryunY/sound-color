@@ -3,6 +3,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ConvertingType } from 'src/Defaults/types';
 import { ColorOptionsDto } from 'src/Model/Dto/ColorOptions.dto';
+import { ConfigDto } from 'src/Model/Dto/Config.dto';
+import { UpdateConfigDto } from 'src/Model/Dto/UpdateConfig.dto';
 import { Audio } from 'src/Model/audio.schema';
 import { Config } from 'src/Model/configs.schema';
 import { User } from 'src/Model/user.schema';
@@ -13,7 +15,6 @@ export class UsersService {
     constructor(
         @InjectModel(User.name) private userModel: Model<User>,
         @InjectModel(Config.name) private configModel: Model<Config>,
-        @InjectModel(Audio.name) private audioModel: Model<Audio>,
         private musicService: MusicService
     ) { }
 
@@ -25,15 +26,32 @@ export class UsersService {
         return (await this.userModel.findByIdAndRemove(id))._id;
     }
 
-    createConfig(id: string) { //FORUSER
-        const config = new this.configModel({ name: "mycolors", colors: ["#9684b1", "#bc3f67", "#22223b"] });
-        //con
-        // user.userConfigs.push(config.id);
-        // config.userConfigs.push(user.id);
-        // 
-        // await config.save();
+    async getUserConfig(id: string) {
+        return await this.userModel
+            .findById(id)
+            .populate('configs')
+            .exec();
+    }
 
-        //init default colors;
+    async getUserAudios(id: string) {
+        return await this.userModel
+            .findById(id)
+            .populate('audios')
+            .exec();
+    }
+
+    async createConfig(id:string,dto: ConfigDto) { //FORUSER
+        //const config = new this.configModel({ name: "mycolors", colors: ["#9684b1", "#bc3f67", "#22223b"] });
+
+        return (await this.configModel.create({ user:id,...dto }))._id;
+    }
+
+    async updateConfig(id: string, dto: UpdateConfigDto) {
+        return (await this.configModel.findByIdAndUpdate(id, { ...dto }));
+    }
+
+    removeConfig(id: string) {
+        return this.configModel.findByIdAndRemove(id);
     }
 
     async shazamAudio(audio: any) {

@@ -1,9 +1,11 @@
-import { Body, Controller, Delete, Get, Param, Post, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UsersService } from './users.service';
 import { AllowedMimes } from 'src/Defaults/consts';
 import { ColorOptionsDto } from 'src/Model/Dto/ColorOptions.dto';
-import { Genre, Tempo } from 'src/Defaults/types';
+import { Energy, Genre, Instrument, Sentiment, Tempo } from 'src/Defaults/types';
+import { UpdateConfigDto } from 'src/Model/Dto/UpdateConfig.dto';
+import { ConfigDto } from 'src/Model/Dto/Config.dto';
 
 
 @Controller('users')
@@ -20,19 +22,34 @@ export class UsersController {
         return this.userService.deleteUser(id);
     }
 
-    @Post('config')
-    createConfig(@Query('id') id: string) {
-        return this.userService.createConfig(id);
+    @Get('configs')
+    getConfigs(@Query('id') id: string) {
+        return this.userService.getUserConfig(id);
     }
 
-    @Delete('config')
+    @Get('audioss')
+    getAudios(@Query('id') id: string) {
+        return this.userService.getUserAudios(id);
+    }
+
+    @Post('configs')
+    createConfig(@Query('id') id: string, dto: ConfigDto) {
+        return this.userService.createConfig(id, dto);
+    }
+
+    @Put('configs')
+    updateConfig(@Query('id') id: string, @Body() dto: UpdateConfigDto) {
+        return this.userService.updateConfig(id, dto);
+    }
+
+    @Delete('configs')
     removeConfig(@Query('id') id: string) {
-        return this.userService.createConfig(id);
+        return this.userService.removeConfig(id);
     }
 
     @Get('defaults')
     getGenress() {
-        return { genres: Genre, tempos: Tempo };
+        return { genres: Genre, tempos: Tempo, energys: Energy, instruments: Instrument, sentiments: Sentiment };
     }
 
     @Post('shazam-audio')

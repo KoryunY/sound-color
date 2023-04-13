@@ -4,7 +4,7 @@ import axios from 'axios';
 import fs from 'fs';
 
 import { ConvertingType } from 'src/Defaults/types';
-import { instrumentPitchRanges, energyColors, genreColors, instrumentColors, sentimentsColors, sentimentDict, tempoColors, frequencyBandColors, genres, genreWeights } from 'src/Defaults/consts';
+import { instrumentPitchRanges, energyColors, genreColors, instrumentColors, sentimentsColors, sentimentDict, tempoColors, frequencyBandColors, genres, genreWeights, tempos } from 'src/Defaults/consts';
 
 
 @Injectable()
@@ -517,14 +517,7 @@ export class MusicService {
         return bpms;
     }
 
-    getTempoFromBpm(bpm) {
-        // Define tempo ranges and corresponding hue values
-        const tempos = {
-            'slow': { min: 0, max: 80, hue: 0 },
-            'medium': { min: 80, max: 140, hue: 120 },
-            'fast': { min: 140, max: 220, hue: 240 },
-        };
-
+    getTempoFromBpm(bpm) {        
         // Loop through tempos object and return matching tempo for given bpm
         for (let tempo in tempos) {
             const range = tempos[tempo];

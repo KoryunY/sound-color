@@ -10,7 +10,6 @@ import { Audio, AudioSchema } from 'src/Model/audio.schema';
 @Module({
   imports: [MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
   MongooseModule.forFeature([{ name: Config.name, schema: ConfigSchema }]),
-  MongooseModule.forFeature([{ name: Audio.name, schema: AudioSchema }])
   ],
   providers: [UsersService, MusicService],
   controllers: [UsersController]
