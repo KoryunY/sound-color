@@ -26,8 +26,8 @@ export class UsersService {
     }
 
     createConfig(id: string) { //FORUSER
-        // 
-        // const config = new this.configModel({ name: "mycolors", colors: ["#9684b1", "#bc3f67", "#22223b"] });
+        const config = new this.configModel({ name: "mycolors", colors: ["#9684b1", "#bc3f67", "#22223b"] });
+        //con
         // user.userConfigs.push(config.id);
         // config.userConfigs.push(user.id);
         // 
@@ -41,7 +41,7 @@ export class UsersService {
     }
 
     async shazamText(text: string) {
-        return await this.musicService.getMetadata(null,text);
+        return await this.musicService.getMetadata(null, text);
     }
 
     async metadata(audio: any) {

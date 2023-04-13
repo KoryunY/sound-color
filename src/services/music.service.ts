@@ -1,9 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import DSP from 'dsp.js';
 import axios from 'axios';
-import fs, { ReadStream } from 'fs';
-import { Readable } from 'stream';
-import { promisify } from 'util';
+import fs from 'fs';
+
 import { ConvertingType } from 'src/Defaults/types';
 import { instrumentPitchRanges, energyColors, genreColors, instrumentColors, sentimentsColors, sentimentDict, tempoColors, frequencyBandColors, genres, genreWeights } from 'src/Defaults/consts';
 
