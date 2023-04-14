@@ -3,10 +3,12 @@ import { ObjectId } from "mongoose";
 import { ConvertingType } from "src/Defaults/types";
 
 export interface ColorOptionsDto {
+    name: string,
     type: ConvertingType,
-    saturation?: number | 100,
-    ligthness?: number | 50,
-    intervalCount?: number | 64,
-    user: ObjectId,
+    useIntervals: false;
+    intervalCount?: number | 128,
+    //saturation?: number | 100,
+   // ligthness?: number | 50,
     config?: ObjectId
+    user: ObjectId,
 }

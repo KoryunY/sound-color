@@ -3,7 +3,7 @@ import DSP from 'dsp.js';
 import axios from 'axios';
 import fs from 'fs';
 
-import { ConvertingType } from 'src/Defaults/types';
+import { ConvertingType, Genre } from 'src/Defaults/types';
 import { instrumentPitchRanges, energyColors, genreColors, instrumentColors, sentimentsColors, sentimentDict, tempoColors, frequencyBandColors, genres, genreWeights, tempos } from 'src/Defaults/consts';
 
 
@@ -88,9 +88,14 @@ export class MusicService {
         return intervalData;
     }
 
-    generateByGenre(frequencyArray, amplitudeArray, duration = null, intervalDuration = null, intervalCount = null) {
-        let length;
+    generateByGenre(config,frequencyArray, amplitudeArray, duration = null, intervalDuration = null, intervalCount = null) {
+        let colors:string[],type:Genre;
 
+        if (config && typeof config.type === "number" && Object.values(Genre).includes(config.type)) {
+            colors = config.colors;
+        }
+        
+        let length;
         // check for valid inputs
         if (intervalDuration && intervalCount) {
             length = intervalCount;

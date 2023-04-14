@@ -40,20 +40,6 @@ export class UsersService {
             .exec();
     }
 
-    async createConfig(id:string,dto: ConfigDto) { //FORUSER
-        //const config = new this.configModel({ name: "mycolors", colors: ["#9684b1", "#bc3f67", "#22223b"] });
-
-        return (await this.configModel.create({ user:id,...dto }))._id;
-    }
-
-    async updateConfig(id: string, dto: UpdateConfigDto) {
-        return (await this.configModel.findByIdAndUpdate(id, { ...dto }));
-    }
-
-    removeConfig(id: string) {
-        return this.configModel.findByIdAndRemove(id);
-    }
-
     async shazamAudio(audio: any) {
         return await this.musicService.getMetadata(audio);
     }
@@ -66,4 +52,8 @@ export class UsersService {
         return await this.musicService.parseMetadata(audio);
     }
 
+    async isExist(id: string): Promise<boolean> {
+        const count = await this.userModel.countDocuments({ _id: id }).exec();
+        return count > 0;
+    }
 }

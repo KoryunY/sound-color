@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, ObjectId } from 'mongoose';
 import { AllowedMimes } from 'src/Defaults/consts';
 import { ConvertingType } from 'src/Defaults/types';
 import { AudioDto } from 'src/Model/Dto/Audio.dto';
@@ -8,6 +8,7 @@ import { ColorOptionsDto } from 'src/Model/Dto/ColorOptions.dto';
 import { Audio } from 'src/Model/audio.schema';
 import { Config } from 'src/Model/configs.schema';
 import { User } from 'src/Model/user.schema';
+import { ConfigService } from 'src/config/config.service';
 import { MusicService } from 'src/services/music.service';
 
 @Injectable()
@@ -16,7 +17,9 @@ export class AudioService {
         @InjectModel(User.name) private userModel: Model<User>,
         @InjectModel(Config.name) private configModel: Model<Config>,
         @InjectModel(Audio.name) private audioModel: Model<Audio>,
-        private musicService: MusicService
+        private musicService: MusicService,
+        private configService: ConfigService
+
     ) { }
 
     async create(dto: AudioDto) {
@@ -28,53 +31,130 @@ export class AudioService {
     }
 
     async generateBySynesthesia(options: ColorOptionsDto, audio: any) {
+        let name: string = options.name;
         const type: ConvertingType = options.type;
-        const intervalCount = options.intervalCount;
-        let [frequency, amplitude, duration, intervalDuration] = await this.musicService.generateIntervalData(audio, type);
+        let intervalCount: number;
+        let useIntervals: boolean = options.useIntervals;
+        let user: ObjectId = options.user;
 
-        return this.musicService.generateBySynesthesia(frequency, amplitude, duration, intervalDuration, intervalCount);
+        if (useIntervals) {
+            intervalCount = options.intervalCount;
+        }
+
+        let [frequency, amplitude, duration, intervalDuration] = await this.musicService.generateIntervalData(audio, type, intervalCount);
+
+        const data = this.musicService.generateBySynesthesia(frequency, amplitude, duration, intervalDuration, intervalCount);
+
+        return (await this.audioModel.create({ name, data, user }))._id;
 
     }
 
     async generateByGenre(options: ColorOptionsDto, audio: any) {
+        let name: string = options.name;
         const type: ConvertingType = options.type;
-        const intervalCount = options.intervalCount;
-        let [frequency, amplitude, duration, intervalDuration] = await this.musicService.generateIntervalData(audio, type);
+        let intervalCount: number;
+        let useIntervals: boolean = options.useIntervals;
+        // let saturation: number = options.saturation;
+        // let ligthness: number = options.ligthness;
+        let configId: ObjectId = options.config;      
+        let user: ObjectId = options.user;
 
-        return this.musicService.generateByGenre(frequency, amplitude, duration, intervalDuration, intervalCount);
+        if (useIntervals) {
+            intervalCount = options.intervalCount;
+        }
+
+        let config;
+
+        if (configId) {
+            config = this.configService.getConfig(configId);
+        }
+
+        let [frequency, amplitude, duration, intervalDuration] = await this.musicService.generateIntervalData(audio, type, intervalCount);
+        const data = this.musicService.generateByGenre(config,frequency, amplitude, duration, intervalDuration, intervalCount);
+
+        return (await this.audioModel.create({ name, data, user }))._id;
     }
 
     async generateByTempo(options: ColorOptionsDto, audio: any) {
+        let name: string = options.name;
         const type: ConvertingType = options.type;
-        const intervalCount = options.intervalCount;
-        let [frequency, amplitude, intervalDuration, bpm] = await this.musicService.generateIntervalData(audio, type);
+        let intervalCount: number;
+        let useIntervals: boolean = options.useIntervals;
+        // let saturation: number = options.saturation;
+        // let ligthness: number = options.ligthness;
+        let config: ObjectId = options.config;
+        let user: ObjectId = options.user;
 
-        return this.musicService.generateByTempo(frequency, amplitude, intervalDuration, intervalCount, bpm);
+        if (useIntervals) {
+            intervalCount = options.intervalCount;
+        }
+
+        let [frequency, amplitude, intervalDuration, bpm] = await this.musicService.generateIntervalData(audio, type, intervalCount);
+        const data = this.musicService.generateByTempo(frequency, amplitude, intervalDuration, intervalCount, bpm);
+
+        return (await this.audioModel.create({ name, data, user }))._id;
     }
 
     async generateByInstrument(options: ColorOptionsDto, audio: any) {
+        let name: string = options.name;
         const type: ConvertingType = options.type;
-        const intervalCount = options.intervalCount;
-        let [amplitude, intervalDuration, pitch] = await this.musicService.generateIntervalData(audio, type);
+        let intervalCount: number;
+        let useIntervals: boolean = options.useIntervals;
+        // let saturation: number = options.saturation;
+        // let ligthness: number = options.ligthness;
+        let config: ObjectId = options.config;
+        let user: ObjectId = options.user;
 
-        return this.musicService.generateByInstrument(amplitude, pitch, intervalDuration, intervalCount);
+        if (useIntervals) {
+            intervalCount = options.intervalCount;
+        }
+
+        let [amplitude, intervalDuration, pitch] = await this.musicService.generateIntervalData(audio, type, intervalCount);
+        const data = this.musicService.generateByInstrument(amplitude, pitch, intervalDuration, intervalCount);
+
+        return (await this.audioModel.create({ name, data, user }))._id;
     }
 
     async generateByEnergy(options: ColorOptionsDto, audio: any) {
+        let name: string = options.name;
         const type: ConvertingType = options.type;
-        const intervalCount = options.intervalCount;
-        let [amplitude, intervalDuration] = await this.musicService.generateIntervalData(audio, type);
+        let intervalCount: number;
+        let useIntervals: boolean = options.useIntervals;
+        // let saturation: number = options.saturation;
+        //  let ligthness: number = options.ligthness;
+        let config: ObjectId = options.config;
+        let user: ObjectId = options.user;
 
-        return this.musicService.generateByEnergy(amplitude, intervalDuration, intervalCount);
+        if (useIntervals) {
+            intervalCount = options.intervalCount;
+        }
+
+        let [amplitude, intervalDuration] = await this.musicService.generateIntervalData(audio, type, intervalCount);
+        const data = this.musicService.generateByEnergy(amplitude, intervalDuration, intervalCount);
+
+        return (await this.audioModel.create({ name, data, user }))._id;
     }
 
     async generateBySentiment(options: ColorOptionsDto, audio: any) {
+        let name: string = options.name;
         const type: ConvertingType = options.type;
-        const intervalCount = options.intervalCount;
-        const [sentiment] = (await this.musicService.getMetadata(audio));
-        let [frequency, intervalDuration] = await this.musicService.generateIntervalData(audio, type);
+        let intervalCount: number;
+        let useIntervals: boolean = options.useIntervals;
+        // let saturation: number = options.saturation;
+        // let ligthness: number = options.ligthness;
+        let config: ObjectId = options.config;
+        let user: ObjectId = options.user;
 
-        return await this.musicService.generateBySentiment(frequency, sentiment, intervalDuration, intervalCount);
+        if (useIntervals) {
+            intervalCount = options.intervalCount;
+        }
+
+        const [sentiment] = (await this.musicService.getMetadata(audio));
+        let [frequency, intervalDuration] = await this.musicService.generateIntervalData(audio, type, intervalCount);
+
+        const data = this.musicService.generateBySentiment(frequency, sentiment, intervalDuration, intervalCount);
+
+        return (await this.audioModel.create({ name, data, user }))._id;
     }
 
     checkAttr(mimetype, originalname) {
@@ -88,5 +168,10 @@ export class AudioService {
         }
 
         return 'isOk';
+    }
+
+    async isExist(id: string): Promise<boolean> {
+        const count = await this.audioModel.countDocuments({ _id: id }).exec();
+        return count > 0;
     }
 }

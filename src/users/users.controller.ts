@@ -32,21 +32,7 @@ export class UsersController {
         return this.userService.getUserAudios(id);
     }
 
-    @Post('configs')
-    createConfig(@Query('id') id: string, dto: ConfigDto) {
-        return this.userService.createConfig(id, dto);
-    }
-
-    @Put('configs')
-    updateConfig(@Query('id') id: string, @Body() dto: UpdateConfigDto) {
-        return this.userService.updateConfig(id, dto);
-    }
-
-    @Delete('configs')
-    removeConfig(@Query('id') id: string) {
-        return this.userService.removeConfig(id);
-    }
-
+    
     @Get('defaults')
     getGenress() {
         return { genres: Genre, tempos: Tempo, energys: Energy, instruments: Instrument, sentiments: Sentiment };

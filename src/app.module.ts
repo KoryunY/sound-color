@@ -5,9 +5,10 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
 import { AudioModule } from './audio/audio.module';
+import { ConfigModule } from './config/config.module';
 
 @Module({
-  imports: [ConfigModule.forRoot(), MongooseModule.forRoot(process.env.DB), UsersModule, AudioModule],
+  imports: [ConfigModule.forRoot(), MongooseModule.forRoot(process.env.DB), UsersModule, AudioModule, ConfigModule],
   controllers: [AppController],
   providers: [AppService],
 })

@@ -6,13 +6,14 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Config, ConfigSchema } from 'src/Model/configs.schema';
 import { Audio, AudioSchema } from 'src/Model/audio.schema';
 import { User, UserSchema } from 'src/Model/user.schema';
+import { ConfigService } from 'src/config/config.service';
 
 @Module({
   imports: [MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
   MongooseModule.forFeature([{ name: Config.name, schema: ConfigSchema }]),
   MongooseModule.forFeature([{ name: Audio.name, schema: AudioSchema }])
   ],
-  providers: [AudioService,MusicService],
+  providers: [AudioService, MusicService, ConfigService],
   controllers: [AudioController],
 })
-export class AudioModule {}
+export class AudioModule { }

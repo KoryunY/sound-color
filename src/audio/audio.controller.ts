@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Param, Post, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { AudioService } from './audio.service';
 import { AudioDto } from 'src/Model/Dto/Audio.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -70,6 +70,11 @@ export class AudioController {
         if (checkAttrMessage != "isOk")
             return checkAttrMessage;
         return this.audioService.generateBySentiment(colorOptionsDto, audio);
+    }
+
+    @Get('check')
+    exist(@Query('id') id: string) {
+        return this.audioService.isExist(id);
     }
 
 }
