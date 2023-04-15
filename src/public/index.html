@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Mapped Values Visualization</title>
+    <style>
+        .square {
+            width: 100px;
+            height: 100px;
+            background-color: red;
+            transition: background-color 0.2s ease;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="square"></div>
+    <button onclick="startInterval()">Start Interval</button>
+    <button onclick="stopInterval()">Stop Interval</button>
+    <script id="data">
+
+        const square = document.querySelector('.square');
+
+        let intervalId = null;
+        let currentDataIndex = 0;
+
+        function startInterval() {
+            const currentData = data[currentDataIndex];
+            const intervalDuration = (currentData.end - currentData.start) * 1000;
+            const timeoutDuration = currentData.start * 1000;
+            setTimeout(() => {
+                startColorChange();
+            }, timeoutDuration);
+        }
+
+        function startColorChange() {
+            const currentData = data[currentDataIndex];
+            const currentColor = square.style.backgroundColor;
+            const nextColor = currentData.color;
+            if (currentColor !== nextColor) {
+                square.style.backgroundColor = nextColor;
+            }
+            setTimeout(() => {
+                currentDataIndex++;
+                if (currentDataIndex >= data.length) {
+                    currentDataIndex = 0;
+                }
+                startColorChange();
+            }, (currentData.end - currentData.start) * 1000);
+        }
+
+        function stopInterval() {
+            clearInterval(intervalId);
+            intervalId = null;
+        }
+    </script>
+</body>
+
+</html>

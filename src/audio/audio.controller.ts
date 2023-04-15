@@ -7,6 +7,7 @@ import { GenreOptionsDto } from 'src/Model/Dto/GenreOptions.dto';
 import { TempoOptionsDto } from 'src/Model/Dto/TempoOptions.dto';
 import { InstrumentOptionsDto } from 'src/Model/Dto/InstrumentOptions.dto';
 import { EnergyOptionsDto } from 'src/Model/Dto/EnergyOptions.dto';
+import { options } from 'axios';
 
 @Controller('audio')
 export class AudioController {

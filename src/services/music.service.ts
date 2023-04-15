@@ -19,12 +19,13 @@ export class MusicService {
     }
 
     //getIntervals
-    async generateIntervalData(type: ConvertingType, audio: any, intervalCount?: number) { //xary count logic
+    async generateIntervalData(audio: any, type: ConvertingType, intervalCount?: number) { //xary count logic
+        console.log(intervalCount)
         const decodedAudio = await this.decodeAudio(audio);
         let fft = this.getFft(decodedAudio);
         let duration = this.getDuration(decodedAudio);
         let frequency = this.getFrequencyData(fft, decodedAudio._channelData[0].length, intervalCount);
-        let bpm = this.calculateBPM(decodedAudio, intervalCount);
+        //let bpm = this.calculateBPM(decodedAudio, intervalCount);
         const originalLength = decodedAudio._channelData[0].length;
         const paddedLength = Math.pow(2, Math.ceil(Math.log2(originalLength)));
         const intervalAudioLength = Math.floor(originalLength / intervalCount);
@@ -33,13 +34,13 @@ export class MusicService {
 
         let intervalDuration = duration / intervalCount;
 
-        switch (type) {
+        switch (ConvertingType[type.toString()]) {
             case ConvertingType.SYNESTHESIA:
                 return [fft, frequency, amplitude, duration, intervalDuration];
             case ConvertingType.GENRE:
                 return [fft, frequency, amplitude, duration, intervalDuration];
             case ConvertingType.TEMPO:
-                return [fft, frequency, amplitude, duration, bpm];
+                return [fft, frequency, amplitude, duration,]// bpm];
             case ConvertingType.INSTRUMENT:
                 return [amplitude, intervalDuration, pitch];
             case ConvertingType.ENERGY:
@@ -528,7 +529,7 @@ export class MusicService {
 
         // Create an array to store the beats for each interval
         const intervalBeats = new Array(intervalCount).fill(0).map(() => []);
-
+        console.log(intervalBeats)
         // Loop through the audio data, checking for beats
         for (let i = 0; i < audioData.length - frameLength; i += frameLength) {
             // Calculate the average amplitude of this frame
@@ -540,6 +541,7 @@ export class MusicService {
             // Check if this frame contains a beat
             if (avgAmplitude > 0.1) {
                 const intervalIndex = Math.floor(i / intervalSize);
+                console.log(intervalIndex)
                 intervalBeats[intervalIndex].push(i);
             }
         }

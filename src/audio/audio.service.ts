@@ -14,6 +14,7 @@ import { Config } from 'src/Model/configs.schema';
 import { User } from 'src/Model/user.schema';
 import { ConfigService } from 'src/config/config.service';
 import { MusicService } from 'src/services/music.service';
+import fs from 'fs';
 
 @Injectable()
 export class AudioService {
@@ -37,19 +38,25 @@ export class AudioService {
     async generateBySynesthesia(options: SynesthesiaOptionsDto, audio: any) {
         let name: string = options.name;
         const type: ConvertingType = options.type;
-        let intervalCount: number;
+        let intervalCount: number = options.intervalCount;
         let useIntervals: boolean = options.useIntervals;
         let user: ObjectId = options.user;
-
-        if (useIntervals) {
-            intervalCount = options.intervalCount;
-        }
+        console.log(intervalCount)
+        // if (useIntervals) {
+        //     intervalCount = options.intervalCount;
+        // }
 
         let [frequency, amplitude, duration, intervalDuration] = await this.musicService.generateIntervalData(audio, type, intervalCount);
 
         const data = this.musicService.generateBySynesthesia(frequency, amplitude, duration, intervalDuration, intervalCount);
+        const replaceData = JSON.stringify(data);
+        const html = fs.readFileSync('./src/public/index.html', 'utf-8');
+        //html.indexOf('<script id="data">')
+        let replacedhtml = html.replace('<script id="data">', `<script id="data">\n        const data = ${replaceData};`);
 
-        return (await this.audioModel.create({ name, data, user }))._id;
+        return replacedhtml;
+        //return a;
+        //return (await this.audioModel.create({ name, data, user }))._id;
 
     }
 

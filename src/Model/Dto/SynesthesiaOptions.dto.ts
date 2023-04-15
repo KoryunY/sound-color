@@ -10,5 +10,5 @@ export interface SynesthesiaOptionsDto {
     //saturation?: number | 100,
     // ligthness?: number | 50,
     config?: ObjectId
-    user: ObjectId,
+    user: ObjectId
 }
