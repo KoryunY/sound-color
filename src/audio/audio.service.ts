@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
 import { AllowedMimes } from 'src/Defaults/consts';
-import { ConvertingType } from 'src/Defaults/types';
+import { ConvertingType, Genre } from 'src/Defaults/types';
 import { AudioDto } from 'src/Model/Dto/Audio.dto';
-import { ColorOptionsDto } from 'src/Model/Dto/ColorOptions.dto';
+import { SynesthesiaOptionsDto } from 'src/Model/Dto/SynesthesiaOptions.dto';
 import { Audio } from 'src/Model/audio.schema';
 import { Config } from 'src/Model/configs.schema';
 import { User } from 'src/Model/user.schema';
@@ -30,7 +30,7 @@ export class AudioService {
         return (await this.audioModel.findByIdAndRemove(id))._id;
     }
 
-    async generateBySynesthesia(options: ColorOptionsDto, audio: any) {
+    async generateBySynesthesia(options: SynesthesiaOptionsDto, audio: any) {
         let name: string = options.name;
         const type: ConvertingType = options.type;
         let intervalCount: number;
@@ -49,15 +49,16 @@ export class AudioService {
 
     }
 
-    async generateByGenre(options: ColorOptionsDto, audio: any) {
+    async generateByGenre(options: SynesthesiaOptionsDto, audio: any) {
         let name: string = options.name;
         const type: ConvertingType = options.type;
-        let intervalCount: number;
         let useIntervals: boolean = options.useIntervals;
+        let user: ObjectId = options.user;
+        let intervalCount: number;
+        let configId: ObjectId = options.config;
+        let genre: Genre;
         // let saturation: number = options.saturation;
         // let ligthness: number = options.ligthness;
-        let configId: ObjectId = options.config;      
-        let user: ObjectId = options.user;
 
         if (useIntervals) {
             intervalCount = options.intervalCount;
@@ -70,12 +71,12 @@ export class AudioService {
         }
 
         let [frequency, amplitude, duration, intervalDuration] = await this.musicService.generateIntervalData(audio, type, intervalCount);
-        const data = this.musicService.generateByGenre(config,frequency, amplitude, duration, intervalDuration, intervalCount);
+        const data = this.musicService.generateByGenre(config, genre, frequency, amplitude, duration, intervalDuration, intervalCount);
 
         return (await this.audioModel.create({ name, data, user }))._id;
     }
 
-    async generateByTempo(options: ColorOptionsDto, audio: any) {
+    async generateByTempo(options: SynesthesiaOptionsDto, audio: any) {
         let name: string = options.name;
         const type: ConvertingType = options.type;
         let intervalCount: number;
@@ -95,7 +96,7 @@ export class AudioService {
         return (await this.audioModel.create({ name, data, user }))._id;
     }
 
-    async generateByInstrument(options: ColorOptionsDto, audio: any) {
+    async generateByInstrument(options: SynesthesiaOptionsDto, audio: any) {
         let name: string = options.name;
         const type: ConvertingType = options.type;
         let intervalCount: number;
@@ -115,7 +116,7 @@ export class AudioService {
         return (await this.audioModel.create({ name, data, user }))._id;
     }
 
-    async generateByEnergy(options: ColorOptionsDto, audio: any) {
+    async generateByEnergy(options: SynesthesiaOptionsDto, audio: any) {
         let name: string = options.name;
         const type: ConvertingType = options.type;
         let intervalCount: number;
@@ -135,7 +136,7 @@ export class AudioService {
         return (await this.audioModel.create({ name, data, user }))._id;
     }
 
-    async generateBySentiment(options: ColorOptionsDto, audio: any) {
+    async generateBySentiment(options: SynesthesiaOptionsDto, audio: any) {
         let name: string = options.name;
         const type: ConvertingType = options.type;
         let intervalCount: number;

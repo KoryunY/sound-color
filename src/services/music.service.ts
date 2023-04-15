@@ -88,13 +88,19 @@ export class MusicService {
         return intervalData;
     }
 
-    generateByGenre(config,frequencyArray, amplitudeArray, duration = null, intervalDuration = null, intervalCount = null) {
-        let colors:string[],type:Genre;
+    generateByGenre(config, type, frequencyArray, amplitudeArray, duration = null, intervalDuration = null, intervalCount = null) {
+        let inputColors: string[], inputGenre: Genre;
 
         if (config && typeof config.type === "number" && Object.values(Genre).includes(config.type)) {
-            colors = config.colors;
+            if (type && config.type !== type) {
+                throw new Error("Invalid input parameters");
+            }
+            inputColors = config.colors;
+            inputGenre = config.type
+        } else if (type) {
+            inputGenre = type;
         }
-        
+
         let length;
         // check for valid inputs
         if (intervalDuration && intervalCount) {
@@ -130,8 +136,8 @@ export class MusicService {
             const intensity = Math.sqrt(amplitude);
 
             // Map frequency to hue value using genreColors object
-            const genre = this.getGenreFromFrequency(frequency);//, sumAmplitude / intervalCount);
-            const colors = genreColors[genre];
+            const genre = inputGenre ? inputGenre : this.getGenreFromFrequency(frequency);//, sumAmplitude / intervalCount);
+            const colors = inputColors ? inputColors : genreColors[genre];
             const colorIndex = Math.floor(Math.random() * colors.length);
             const [red, green, blue] = this.hexToRgb(colors[colorIndex])
             const color = `rgb(${red}, ${green}, ${blue})`;
@@ -142,7 +148,7 @@ export class MusicService {
         return intervalData;
     }
 
-    generateByTempo(frequency, amplitudeArray, intervalDuration, intervalCount, bpm) {
+    generateByTempo(config, type, frequency, amplitudeArray, intervalDuration, intervalCount, bpm) {
         const intervalData = [];
         const tempo = this.getTempoFromBpm(bpm);
         console.log(tempo)
@@ -522,7 +528,7 @@ export class MusicService {
         return bpms;
     }
 
-    getTempoFromBpm(bpm) {        
+    getTempoFromBpm(bpm) {
         // Loop through tempos object and return matching tempo for given bpm
         for (let tempo in tempos) {
             const range = tempos[tempo];

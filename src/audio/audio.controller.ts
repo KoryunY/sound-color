@@ -2,7 +2,8 @@ import { Body, Controller, Delete, Get, Param, Post, Query, UploadedFile, UseInt
 import { AudioService } from './audio.service';
 import { AudioDto } from 'src/Model/Dto/Audio.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ColorOptionsDto } from 'src/Model/Dto/ColorOptions.dto';
+import { SynesthesiaOptionsDto } from 'src/Model/Dto/SynesthesiaOptions.dto';
+import { GenreOptionsDto } from 'src/Model/Dto/GenreOptions.dto';
 
 @Controller('audio')
 export class AudioController {
@@ -20,7 +21,7 @@ export class AudioController {
 
     @Post('synesthesia')
     @UseInterceptors(FileInterceptor('audio'))
-    generateSynesthesiaColors(@Body() colorOptionsDto: ColorOptionsDto, @UploadedFile() audio: Express.Multer.File) {
+    generateSynesthesiaColors(@Body() colorOptionsDto: SynesthesiaOptionsDto, @UploadedFile() audio: Express.Multer.File) {
         const checkAttrMessage = this.audioService.checkAttr(audio.mimetype, audio.originalname);
         if (checkAttrMessage != "isOk")
             return checkAttrMessage;
@@ -29,7 +30,7 @@ export class AudioController {
 
     @Post('genre')
     @UseInterceptors(FileInterceptor('audio'))
-    generateGenreColors(@Body() colorOptionsDto: ColorOptionsDto, @UploadedFile() audio: Express.Multer.File) {
+    generateGenreColors(@Body() colorOptionsDto: GenreOptionsDto, @UploadedFile() audio: Express.Multer.File) {
         const checkAttrMessage = this.audioService.checkAttr(audio.mimetype, audio.originalname);
         if (checkAttrMessage != "isOk")
             return checkAttrMessage;
@@ -38,7 +39,7 @@ export class AudioController {
 
     @Post('tempo')
     @UseInterceptors(FileInterceptor('audio'))
-    generateTempoColors(@Body() colorOptionsDto: ColorOptionsDto, @UploadedFile() audio: Express.Multer.File) {
+    generateTempoColors(@Body() colorOptionsDto: SynesthesiaOptionsDto, @UploadedFile() audio: Express.Multer.File) {
         const checkAttrMessage = this.audioService.checkAttr(audio.mimetype, audio.originalname);
         if (checkAttrMessage != "isOk")
             return checkAttrMessage;
@@ -47,7 +48,7 @@ export class AudioController {
 
     @Post('insrument')
     @UseInterceptors(FileInterceptor('audio'))
-    generateInstrumentColors(@Body() colorOptionsDto: ColorOptionsDto, @UploadedFile() audio: Express.Multer.File) {
+    generateInstrumentColors(@Body() colorOptionsDto: SynesthesiaOptionsDto, @UploadedFile() audio: Express.Multer.File) {
         const checkAttrMessage = this.audioService.checkAttr(audio.mimetype, audio.originalname);
         if (checkAttrMessage != "isOk")
             return checkAttrMessage;
@@ -56,7 +57,7 @@ export class AudioController {
 
     @Post('energy')
     @UseInterceptors(FileInterceptor('audio'))
-    generateEnergyColors(@Body() colorOptionsDto: ColorOptionsDto, @UploadedFile() audio: Express.Multer.File) {
+    generateEnergyColors(@Body() colorOptionsDto: SynesthesiaOptionsDto, @UploadedFile() audio: Express.Multer.File) {
         const checkAttrMessage = this.audioService.checkAttr(audio.mimetype, audio.originalname);
         if (checkAttrMessage != "isOk")
             return checkAttrMessage;
@@ -65,7 +66,7 @@ export class AudioController {
 
     @Post('sentiment')
     @UseInterceptors(FileInterceptor('audio'))
-    generateSentimentColors(@Body() colorOptionsDto: ColorOptionsDto, @UploadedFile() audio: Express.Multer.File) {
+    generateSentimentColors(@Body() colorOptionsDto: SynesthesiaOptionsDto, @UploadedFile() audio: Express.Multer.File) {
         const checkAttrMessage = this.audioService.checkAttr(audio.mimetype, audio.originalname);
         if (checkAttrMessage != "isOk")
             return checkAttrMessage;

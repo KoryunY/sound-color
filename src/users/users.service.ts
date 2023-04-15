@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ConvertingType } from 'src/Defaults/types';
-import { ColorOptionsDto } from 'src/Model/Dto/ColorOptions.dto';
+import { SynesthesiaOptionsDto } from 'src/Model/Dto/SynesthesiaOptions.dto';
 import { ConfigDto } from 'src/Model/Dto/Config.dto';
 import { UpdateConfigDto } from 'src/Model/Dto/UpdateConfig.dto';
 import { Audio } from 'src/Model/audio.schema';

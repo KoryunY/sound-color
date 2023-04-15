@@ -1,14 +1,13 @@
 import { Optional } from "@nestjs/common";
 import { ObjectId } from "mongoose";
-import { ConvertingType } from "src/Defaults/types";
+import { ConvertingType, Genre } from "src/Defaults/types";
 
-export interface ColorOptionsDto {
+export interface GenreOptionsDto {
     name: string,
     type: ConvertingType,
+    user: ObjectId,
     useIntervals: false;
     intervalCount?: number | 128,
-    //saturation?: number | 100,
-   // ligthness?: number | 50,
+    genre?: Genre;
     config?: ObjectId
-    user: ObjectId,
 }

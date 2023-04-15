@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, Param, Post, Put, Query, UploadedFile, U
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UsersService } from './users.service';
 import { AllowedMimes } from 'src/Defaults/consts';
-import { ColorOptionsDto } from 'src/Model/Dto/ColorOptions.dto';
+import { SynesthesiaOptionsDto } from 'src/Model/Dto/SynesthesiaOptions.dto';
 import { Energy, Genre, Instrument, Sentiment, Tempo } from 'src/Defaults/types';
 import { UpdateConfigDto } from 'src/Model/Dto/UpdateConfig.dto';
 import { ConfigDto } from 'src/Model/Dto/Config.dto';
@@ -32,7 +32,7 @@ export class UsersController {
         return this.userService.getUserAudios(id);
     }
 
-    
+
     @Get('defaults')
     getGenress() {
         return { genres: Genre, tempos: Tempo, energys: Energy, instruments: Instrument, sentiments: Sentiment };
