@@ -27,11 +27,10 @@ export class UsersController {
         return this.userService.getUserConfig(id);
     }
 
-    @Get('audioss')
+    @Get('audios')
     getAudios(@Query('id') id: string) {
         return this.userService.getUserAudios(id);
     }
-
 
     @Get('defaults')
     getGenress() {

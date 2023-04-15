@@ -9,5 +9,5 @@ export interface EnergyOptionsDto {
     useIntervals: false;
     intervalCount?: number | 128,
     energyLevel?: Energy;
-    config?: ObjectId
+    config?: string
 }

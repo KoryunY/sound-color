@@ -10,4 +10,4 @@ import { Config, ConfigSchema } from 'src/Model/configs.schema';
   controllers: [ConfigController],
   exports: [ConfigService]
 })
-export class ConfigModule { }
+export class ConfigsModule { }

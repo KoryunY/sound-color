@@ -5,10 +5,10 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
 import { AudioModule } from './audio/audio.module';
-import { ConfigModule } from './config/config.module';
+import { ConfigsModule } from './config/config.module';
 
 @Module({
-  imports: [ConfigModule.forRoot(), MongooseModule.forRoot(process.env.DB), UsersModule, AudioModule, ConfigModule],
+  imports: [ConfigModule.forRoot(), MongooseModule.forRoot(process.env.DB), UsersModule, AudioModule, ConfigsModule],
   controllers: [AppController],
   providers: [AppService],
 })
@@ -21,3 +21,5 @@ export class AppModule { }
 
 //genreWeights
 //energyLevel
+
+//add postman test fix,fix clean all code create front

@@ -9,5 +9,5 @@ export interface GenreOptionsDto {
     useIntervals: false;
     intervalCount?: number | 128,
     genre?: Genre;
-    config?: ObjectId
+    config?: string
 }

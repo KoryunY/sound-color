@@ -59,7 +59,7 @@ export class AudioService {
         let useIntervals: boolean = options.useIntervals;
         let user: ObjectId = options.user;
         let intervalCount: number;
-        let configId: ObjectId = options.config;
+        let configId: string = options.config;
         let genre: Genre = options.genre;
         // let saturation: number = options.saturation;
         // let ligthness: number = options.ligthness;
@@ -89,7 +89,7 @@ export class AudioService {
         let useIntervals: boolean = options.useIntervals;
         // let saturation: number = options.saturation;
         // let ligthness: number = options.ligthness;
-        let configId: ObjectId = options.config;
+        let configId: string = options.config;
         let tempo: Tempo = options.tempo;
         let user: ObjectId = options.user;
 
@@ -116,7 +116,7 @@ export class AudioService {
         let useIntervals: boolean = options.useIntervals;
         // let saturation: number = options.saturation;
         // let ligthness: number = options.ligthness;
-        let configId: ObjectId = options.config;
+        let configId: string = options.config;
         let user: ObjectId = options.user;
         let instrument: Instrument = options.instrument;
 
@@ -143,7 +143,7 @@ export class AudioService {
         let useIntervals: boolean = options.useIntervals;
         // let saturation: number = options.saturation;
         //  let ligthness: number = options.ligthness;
-        let configId: ObjectId = options.config;
+        let configId: string = options.config;
         let user: ObjectId = options.user;
         let energyLevel: Energy = options.energyLevel;
 

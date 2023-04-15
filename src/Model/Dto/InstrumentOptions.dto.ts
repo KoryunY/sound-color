@@ -9,5 +9,5 @@ export interface InstrumentOptionsDto {
     useIntervals: false;
     intervalCount?: number | 128,
     instrument?: Instrument;
-    config?: ObjectId
+    config?: string
 }

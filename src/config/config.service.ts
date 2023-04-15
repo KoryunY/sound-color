@@ -10,9 +10,9 @@ import { MusicService } from 'src/services/music.service';
 @Injectable()
 export class ConfigService {
     constructor(
-        @InjectModel(User.name) private userModel: Model<User>,
+        // @InjectModel(User.name) private userModel: Model<User>,
         @InjectModel(Config.name) private configModel: Model<Config>,
-        private musicService: MusicService
+        // private musicService: MusicService
     ) { }
     async createConfig(id: string, dto: ConfigDto) { //FORUSER
         //const config = new this.configModel({ name: "mycolors", colors: ["#9684b1", "#bc3f67", "#22223b"] });
@@ -28,7 +28,7 @@ export class ConfigService {
         return this.configModel.findByIdAndRemove(id);
     }
 
-    async getConfig(id: ObjectId) {
+    async getConfig(id: string) {
         return await this.configModel.findById(id);
     }
 

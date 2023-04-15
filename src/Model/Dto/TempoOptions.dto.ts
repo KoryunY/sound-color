@@ -9,5 +9,5 @@ export interface TempoOptionsDto {
     useIntervals: false;
     intervalCount?: number | 128,
     tempo?: Tempo;
-    config?: ObjectId
+    config?: string
 }
