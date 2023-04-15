@@ -4,6 +4,9 @@ import { AudioDto } from 'src/Model/Dto/Audio.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { SynesthesiaOptionsDto } from 'src/Model/Dto/SynesthesiaOptions.dto';
 import { GenreOptionsDto } from 'src/Model/Dto/GenreOptions.dto';
+import { TempoOptionsDto } from 'src/Model/Dto/TempoOptions.dto';
+import { InstrumentOptionsDto } from 'src/Model/Dto/InstrumentOptions.dto';
+import { EnergyOptionsDto } from 'src/Model/Dto/EnergyOptions.dto';
 
 @Controller('audio')
 export class AudioController {
@@ -39,7 +42,7 @@ export class AudioController {
 
     @Post('tempo')
     @UseInterceptors(FileInterceptor('audio'))
-    generateTempoColors(@Body() colorOptionsDto: SynesthesiaOptionsDto, @UploadedFile() audio: Express.Multer.File) {
+    generateTempoColors(@Body() colorOptionsDto: TempoOptionsDto, @UploadedFile() audio: Express.Multer.File) {
         const checkAttrMessage = this.audioService.checkAttr(audio.mimetype, audio.originalname);
         if (checkAttrMessage != "isOk")
             return checkAttrMessage;
@@ -48,7 +51,7 @@ export class AudioController {
 
     @Post('insrument')
     @UseInterceptors(FileInterceptor('audio'))
-    generateInstrumentColors(@Body() colorOptionsDto: SynesthesiaOptionsDto, @UploadedFile() audio: Express.Multer.File) {
+    generateInstrumentColors(@Body() colorOptionsDto: InstrumentOptionsDto, @UploadedFile() audio: Express.Multer.File) {
         const checkAttrMessage = this.audioService.checkAttr(audio.mimetype, audio.originalname);
         if (checkAttrMessage != "isOk")
             return checkAttrMessage;
@@ -57,7 +60,7 @@ export class AudioController {
 
     @Post('energy')
     @UseInterceptors(FileInterceptor('audio'))
-    generateEnergyColors(@Body() colorOptionsDto: SynesthesiaOptionsDto, @UploadedFile() audio: Express.Multer.File) {
+    generateEnergyColors(@Body() colorOptionsDto: EnergyOptionsDto, @UploadedFile() audio: Express.Multer.File) {
         const checkAttrMessage = this.audioService.checkAttr(audio.mimetype, audio.originalname);
         if (checkAttrMessage != "isOk")
             return checkAttrMessage;

@@ -3,7 +3,7 @@ import DSP from 'dsp.js';
 import axios from 'axios';
 import fs from 'fs';
 
-import { ConvertingType, Genre } from 'src/Defaults/types';
+import { ConvertingType, Energy, Genre, Instrument, Tempo } from 'src/Defaults/types';
 import { instrumentPitchRanges, energyColors, genreColors, instrumentColors, sentimentsColors, sentimentDict, tempoColors, frequencyBandColors, genres, genreWeights, tempos } from 'src/Defaults/consts';
 
 
@@ -149,11 +149,21 @@ export class MusicService {
     }
 
     generateByTempo(config, type, frequency, amplitudeArray, intervalDuration, intervalCount, bpm) {
+        let inputColors: string[], inputTempo: Genre;
+
+        if (config && typeof config.type === "number" && Object.values(Tempo).includes(config.type)) {
+            if (type && config.type !== type) {
+                throw new Error("Invalid input parameters");
+            }
+            inputColors = config.colors;
+            inputTempo = config.type
+        } else if (type) {
+            inputTempo = type;
+        }
+
         const intervalData = [];
-        const tempo = this.getTempoFromBpm(bpm);
-        console.log(tempo)
-        const colorr = tempoColors[tempo];
-        console.log(colorr)
+        const tempo = inputTempo ? inputTempo : this.getTempoFromBpm(bpm);
+        const colorr = inputColors ? inputColors : tempoColors[tempo];
         for (let i = 0; i < intervalCount; i++) {
             const amplitude = amplitudeArray[i];
             const intervalStart = i * intervalDuration;
@@ -200,19 +210,31 @@ export class MusicService {
         return matchScore;
     }
 
-    generateByInstrument(amplitudeArray, pitchArray, intervalDuration, intervalCount) {
+    generateByInstrument(config, type, amplitudeArray, pitchArray, intervalDuration, intervalCount) {
+        let inputColors: string[], inputInstrument: Instrument;
+
+        if (config && typeof config.type === "number" && Object.values(Instrument).includes(config.type)) {
+            if (type && config.type !== type) {
+                throw new Error("Invalid input parameters");
+            }
+            inputColors = config.colors;
+            inputInstrument = config.type
+        } else if (type) {
+            inputInstrument = type;
+        }
+
         const intervalData = [];
         // Iterate through intervals
         for (let i = 0; i < intervalCount; i++) {
             const amplitude = amplitudeArray[i];
-            const instrument = this.mapInstrument(pitchArray[i]);
+            const instrument = inputInstrument ? inputInstrument : this.mapInstrument(pitchArray[i]);
             if (!instrument) continue;
-            console.log(instrument)
+            //console.log(instrument)
             const intervalStart = i * intervalDuration;
             const intervalEnd = (i + 1) * intervalDuration;
             const intensity = Math.sqrt(amplitude);
 
-            const instrumentColor = instrumentColors[instrument];
+            const instrumentColor = inputColors ? inputColors : instrumentColors[instrument];
             const [red, green, blue] = this.hexToRgb(instrumentColor[0]);
 
             const color = `rgb(${red}, ${green}, ${blue})`;
@@ -223,17 +245,29 @@ export class MusicService {
         return intervalData;
     }
 
-    async generateByEnergy(amplitudeArray, intervalDuration, intervalCount) {
+    async generateByEnergy(config, type, amplitudeArray, intervalDuration, intervalCount) {
+        let inputColors: string[], inputEnergy: Energy;
+
+        if (config && typeof config.type === "number" && Object.values(Energy).includes(config.type)) {
+            if (type && config.type !== type) {
+                throw new Error("Invalid input parameters");
+            }
+            inputColors = config.colors;
+            inputEnergy = config.type
+        } else if (type) {
+            inputEnergy = type;
+        }
+
         const intervalData = [];
 
         for (let i = 0; i < intervalCount; i++) {
             const amplitude = amplitudeArray[i];
-            const energyLevel = this.mapEnergy(amplitude);
+            const energyLevel = inputEnergy ? inputEnergy : this.mapEnergy(amplitude);
             const intervalStart = i * intervalDuration;
             const intervalEnd = (i + 1) * intervalDuration;
             const intensity = Math.sqrt(amplitude);
 
-            const energyColor = energyColors[energyLevel];
+            const energyColor = inputColors ? inputColors : energyColors[energyLevel];
             const [red, green, blue] = this.hexToRgb(energyColor);
 
             const color = `rgb(${red}, ${green}, ${blue})`;
@@ -244,7 +278,7 @@ export class MusicService {
     }
 
     async generateBySentiment(frequencyData, sentiment, intervalDuration, intervalCount) {
-
+        //checkThis
         let sentimentColors = sentimentsColors[sentiment];
 
         const intervalData = [];
