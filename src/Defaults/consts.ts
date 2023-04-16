@@ -1,22 +1,57 @@
+import { Genre } from "./types";
+
 export const AllowedMimes = ['audio/mp3', 'audio/mpeg'];
 export const defaultIntervalCOunt = 256;
 
 export const genreColors = {
-    ROCK: ["#ff0000", "#000000", "#ffffff"], // red, black, white
-    POP: ["#ff8800", "#ffff00", "#00ffff"], // orange, yellow, cyan
-    ELECTRONIC: ["#ffff00", "#00ff00", "#0000ff"], // yellow, green, blue
-    HIPHOP: ["#00ff00", "#ff00ff", "#ff0000"], // green, magenta, red
-    CLASSICAL: ["#ff8800", "#ffff00", "#00ffff"],
-    OTHER: ["#ffff00", "#00ff00", "#0000ff"],
-    JAZZ: ["#ffff00", "#00ff00", "#0000ff"]
+    'ROCK': ['#ff0000', '#000000', '#ffffff'], // red, black, white
+    'POP': ['#ff8800', '#ffff00', '#00ffff'], // orange, yellow, cyan
+    'ELECTRONIC': ['#ffff00', '#00ff00', '#0000ff'], // yellow, green, blue
+    'HIP_HOP': ['#00ff00', '#ff00ff', '#ff0000'], // green, magenta, red
+    'JAZZ': ['#6600cc', '#006600', '#ffff00'], // purple, green, yellow
+    'BLUES': ['#0000ff', '#ff8800', '#ffffff'], // blue, orange, white
+    'COUNTRY': ['#ff8800', '#ffff00', '#ffffff'], // orange, yellow, white
+    'CLASSICAL': ['#ff8800', '#ffff00', '#00ffff'], // orange, yellow, cyan
+    'REGGAE': ['#ff8800', '#000000', '#ffffff'], // orange, black, white
+    'FOLK': ['#ff8800', '#6600cc', '#ffffff'], // orange, purple, white
+    'WORLD': ['#ff8800', '#6600cc', '#ffffff'], // orange, purple, white
+    'LATIN': ['#ff8800', '#ffff00', '#ffffff'], // orange, yellow, white
+    'RNB': ['#ff8800', '#6600cc', '#ffffff'], // orange, purple, white
+    'METAL': ['#ff0000', '#000000', '#ffffff'], // red, black, white
+    'PUNK': ['#ff0000', '#000000', '#ffffff'], // red, black, white
+    'FUNK': ['#ff8800', '#ffff00', '#ffffff'], // orange, yellow, white
+    'SOUL': ['#ff8800', '#ffff00', '#ffffff'], // orange, yellow, white
+    'DISCO': ['#ff8800', '#ffff00', '#ffffff'], // orange, yellow, white
+    'GOSPEL': ['#ff8800', '#6600cc', '#ffffff'], // orange, purple, white
+    'OTHER': ['#ffff00', '#00ff00', '#0000ff'] // yellow, green, blue
 };
 
 export const tempoColors = {
-    'slow': ["#00ff00", "#ff00ff", "#ff0000"],
-    'medium': ["#ff8800", "#ffff00", "#00ffff"],
-    'fast': ["#ff8800", "#ffff00", "#00ffff"],
-    'other': ["#ff0000", "#000000", "#ffffff"]
+    'LARGHISSIMO': ['#ff0000', '#000000', '#ffffff'], // red, black, white
+    'ADAGISSIMO': ['#ff5050', '#000000', '#ffffff'], // red-orange, black, white
+    'GRAVE': ['#ff5050', '#000000', '#ffffff'], // red-orange, black, white
+    'LARGO': ['#ff9933', '#000000', '#ffffff'], // orange, black, white
+    'ADAGIO': ['#ffcc66', '#000000', '#000000'], // light orange, black
+    'LARGHETTO': ['#ffcc66', '#000000', '#000000'], // light orange, black
+    'ADAGIETTO': ['#ffe0b3', '#000000', '#000000'], // lightest orange, black
+    'LENTO': ['#ccffcc', '#000000', '#000000'], // light green, black
+    'ANDANTE': ['#66ff66', '#000000', '#000000'], // green, black
+    'ANDANTINO': ['#66ff66', '#000000', '#000000'], // green, black
+    'MARCIA_MODERATO': ['#00cc99', '#ffffff', '#ffffff'], // teal, white
+    'ANDANTE_MODERATO': ['#00cc99', '#ffffff', '#ffffff'], // teal, white
+    'MODERATO': ['#0099cc', '#ffffff', '#ffff00'], // blue, white
+    'ALLEGRETTO': ['#6666ff', '#ffffff', '#ffffff'], // dark blue, white
+    'ALLEGRO_MODERATO': ['#6666ff', '#ffffff', '#ffffff'], // dark blue, white
+    'ALLEGRO': ['#3333ff', '#ffffff', '#ffffff'], // indigo, white
+    'MOLTO_ALLEGRO': ['#0000ff', '#ffffff', '#ffffff'], // blue, white
+    'VIVACE': ['#ff00ff', '#ffffff', '#ffffff'], // magenta, white
+    'VIVACISSIMO': ['#ff33cc', '#ffffff', '#ffffff'], // pink, white
+    'ALLEGRISIMO': ['#ff33cc', '#ffffff', '#ffffff'], // pink, white
+    'PRESTO': ['#ff0066', '#ffffff', '#ffffff'], // red, white
+    'PRESTISSIMO': ['#ff0000', '#ff5050', '#ffffff'], // red, white
+    'OTHER': ['#000000', '#ffffff', '#ffffff'], // black, white
 };
+
 export const energyColors = {
     high: '#ff0000',  // red
     mid: '#ffff00',  // yellow
@@ -199,13 +234,26 @@ export const genres = {
 };
 
 export const genreWeights = {
-    'rock': 3,
-    'pop': 3,
-    'electronic': 2,
-    'hipHop': 1,
-    'classical': 1,
-    'jazz': 1,
-    'other': 1
+    [Genre.ROCK]: 3,
+    [Genre.POP]: 3,
+    [Genre.ELECTRONIC]: 2,
+    [Genre.HIP_HOP]: 1,
+    [Genre.CLASSICAL]: 1,
+    [Genre.JAZZ]: 1,
+    [Genre.BLUES]: 1,
+    [Genre.COUNTRY]: 1,
+    [Genre.REGGAE]: 1,
+    [Genre.FOLK]: 1,
+    [Genre.WORLD]: 1,
+    [Genre.LATIN]: 1,
+    [Genre.RNB]: 1,
+    [Genre.METAL]: 1,
+    [Genre.PUNK]: 1,
+    [Genre.FUNK]: 1,
+    [Genre.SOUL]: 1,
+    [Genre.DISCO]: 1,
+    [Genre.GOSPEL]: 1,
+    [Genre.OTHER]: 1
 };
 
 // Define tempo ranges and corresponding hue values

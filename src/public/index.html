@@ -14,16 +14,18 @@
 
 <body class="square">
     <div class="square"></div>
-    <button onclick="startInterval()"
+    <audio id="myAudio"></audio>
+    <button id="myButton" onclick="startInterval()"
         style="width:300px; background-color: rgb(255, 255, 255); text-decoration-color: rgb(255, 0, 0); ">
         <p style="color: rgb(0, 0, 0);">Start</p>
     </button>
-    <audio id="myAudio"></audio>
 
     <script id="data">
 
         const square = document.querySelector('.square');
         const audio = document.getElementById('myAudio');
+        const button = document.getElementById('myButton');
+
         audio.src = URL.createObjectURL(audioFile);
 
         let intervalId = null;
@@ -38,6 +40,7 @@
             }, timeoutDuration);
             audio.currentTime = currentData.start;
             audio.play();
+            button.disabled = true;
         }
 
         function startColorChange() {

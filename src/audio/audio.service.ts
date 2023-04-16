@@ -92,16 +92,13 @@ export class AudioService {
         let config;
 
         if (configId) {
-            config = this.configService.getConfig(configId);
+            config = await this.configService.getConfig(configId);
         }
 
-        //return config
-        //if()
-
+        //nullcheck
         let [frequency, amplitude, duration, intervalDuration] = await this.musicService.generateIntervalData(audio, type, intervalCount);
         const data = this.musicService.generateByGenre(config, genre, frequency, amplitude, duration, intervalDuration, intervalCount);
 
-        return data;
         const replaceData = JSON.stringify(data);
         const html = fs.readFileSync('./src/public/index.html', 'utf-8');
         const audioBuffer = audio.buffer.toString('base64');
@@ -125,44 +122,54 @@ export class AudioService {
     async generateByTempo(options: TempoOptionsDto, audio: any) {
         let name: string = options.name;
         const type: ConvertingType = options.type;
-        let intervalCount: number;
-        let useIntervals: boolean = options.useIntervals;
-        // let saturation: number = options.saturation;
-        // let ligthness: number = options.ligthness;
+        const saveAndReturnOption: SaveAndReturnOption = options.saveAndReturnOption;
         let configId: string = options.config;
         let tempo: Tempo = options.tempo;
         let user: ObjectId = options.user;
 
-        if (useIntervals) {
-            intervalCount = options.intervalCount;
-        }
+        let intervalCount: number = options.intervalCount;
 
         let config;
 
         if (configId) {
-            config = this.configService.getConfig(configId);
+            config = await this.configService.getConfig(configId);
         }
 
         let [frequency, amplitude, intervalDuration, bpm] = await this.musicService.generateIntervalData(audio, type, intervalCount);
         const data = this.musicService.generateByTempo(config, tempo, frequency, amplitude, intervalDuration, intervalCount, bpm);
 
-        return (await this.audioModel.create({ name, data, user }))._id;
+        return data
+        const replaceData = JSON.stringify(data);
+        const html = fs.readFileSync('./src/public/index.html', 'utf-8');
+        const audioBuffer = audio.buffer.toString('base64');
+        const audioMimeType = audio.mimetype;
+        const audioSrc = `data:${audioMimeType};base64,${audioBuffer}`;
+
+        let replacedhtml = html.replace('<script id="data">', `<script id="data">\n        const data = ${replaceData};`);
+        const replacedHtml = replacedhtml.replace('audio.src = URL.createObjectURL(audioFile);', `audio.src = "${audioSrc}";`);
+
+        switch (saveAndReturnOption) {
+            case SaveAndReturnOption.SAVE_AND_RETURN_ID:
+                return (await this.audioModel.create({ name, data, user }))._id;
+            case SaveAndReturnOption.SAVE_AND_RETURN_DEMO:
+                await this.audioModel.create({ name, data, user })
+                return replacedHtml;
+            case SaveAndReturnOption.RETURN_DEMO:
+                return replacedHtml;
+        }
     }
 
     async generateByInstrument(options: InstrumentOptionsDto, audio: any) {
         let name: string = options.name;
         const type: ConvertingType = options.type;
-        let intervalCount: number;
-        let useIntervals: boolean = options.useIntervals;
+        const saveAndReturnOption: SaveAndReturnOption = options.saveAndReturnOption;
+
+        let intervalCount: number = options.intervalCount;
         // let saturation: number = options.saturation;
         // let ligthness: number = options.ligthness;
         let configId: string = options.config;
         let user: ObjectId = options.user;
         let instrument: Instrument = options.instrument;
-
-        if (useIntervals) {
-            intervalCount = options.intervalCount;
-        }
 
         let config;
 
@@ -173,23 +180,37 @@ export class AudioService {
         let [amplitude, intervalDuration, pitch] = await this.musicService.generateIntervalData(audio, type, intervalCount);
         const data = this.musicService.generateByInstrument(config, instrument, amplitude, pitch, intervalDuration, intervalCount);
 
-        return (await this.audioModel.create({ name, data, user }))._id;
+        const replaceData = JSON.stringify(data);
+        const html = fs.readFileSync('./src/public/index.html', 'utf-8');
+        const audioBuffer = audio.buffer.toString('base64');
+        const audioMimeType = audio.mimetype;
+        const audioSrc = `data:${audioMimeType};base64,${audioBuffer}`;
+
+        let replacedhtml = html.replace('<script id="data">', `<script id="data">\n        const data = ${replaceData};`);
+        const replacedHtml = replacedhtml.replace('audio.src = URL.createObjectURL(audioFile);', `audio.src = "${audioSrc}";`);
+
+        switch (saveAndReturnOption) {
+            case SaveAndReturnOption.SAVE_AND_RETURN_ID:
+                return (await this.audioModel.create({ name, data, user }))._id;
+            case SaveAndReturnOption.SAVE_AND_RETURN_DEMO:
+                await this.audioModel.create({ name, data, user })
+                return replacedHtml;
+            case SaveAndReturnOption.RETURN_DEMO:
+                return replacedHtml;
+        }
     }
 
     async generateByEnergy(options: EnergyOptionsDto, audio: any) {
         let name: string = options.name;
         const type: ConvertingType = options.type;
-        let intervalCount: number;
-        let useIntervals: boolean = options.useIntervals;
+        let intervalCount: number = options.intervalCount;
+        const saveAndReturnOption: SaveAndReturnOption = options.saveAndReturnOption;
+
         // let saturation: number = options.saturation;
         //  let ligthness: number = options.ligthness;
         let configId: string = options.config;
         let user: ObjectId = options.user;
         let energyLevel: Energy = options.energyLevel;
-
-        if (useIntervals) {
-            intervalCount = options.intervalCount;
-        }
 
         let config;
 
@@ -200,7 +221,24 @@ export class AudioService {
         let [amplitude, intervalDuration] = await this.musicService.generateIntervalData(audio, type, intervalCount);
         const data = this.musicService.generateByEnergy(config, energyLevel, amplitude, intervalDuration, intervalCount);
 
-        return (await this.audioModel.create({ name, data, user }))._id;
+        const replaceData = JSON.stringify(data);
+        const html = fs.readFileSync('./src/public/index.html', 'utf-8');
+        const audioBuffer = audio.buffer.toString('base64');
+        const audioMimeType = audio.mimetype;
+        const audioSrc = `data:${audioMimeType};base64,${audioBuffer}`;
+
+        let replacedhtml = html.replace('<script id="data">', `<script id="data">\n        const data = ${replaceData};`);
+        const replacedHtml = replacedhtml.replace('audio.src = URL.createObjectURL(audioFile);', `audio.src = "${audioSrc}";`);
+
+        switch (saveAndReturnOption) {
+            case SaveAndReturnOption.SAVE_AND_RETURN_ID:
+                return (await this.audioModel.create({ name, data, user }))._id;
+            case SaveAndReturnOption.SAVE_AND_RETURN_DEMO:
+                await this.audioModel.create({ name, data, user })
+                return replacedHtml;
+            case SaveAndReturnOption.RETURN_DEMO:
+                return replacedHtml;
+        }
     }
 
     async generateBySentiment(options: SynesthesiaOptionsDto, audio: any) {

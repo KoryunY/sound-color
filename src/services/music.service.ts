@@ -92,7 +92,7 @@ export class MusicService {
     generateByGenre(config, type, frequencyArray, amplitudeArray, duration = null, intervalDuration = null, intervalCount = null) {
         let inputColors: string[], inputGenre: Genre;
 
-        if (config && typeof config.type === "number" && Object.values(Genre).includes(config.type)) {
+        if (config) {// && typeof config.type === "number" && Object.values(Genre).includes(config.type)) {
             if (type && config.type !== type) {
                 throw new Error("Invalid input parameters");
             }
@@ -112,9 +112,10 @@ export class MusicService {
             length = frequencyArray.length;
         } else if (amplitudeArray) {
             length = amplitudeArray.length;
-        } else {
-            throw new Error("Invalid input parameters");
         }
+        // else {
+        //     throw new Error("Invalid input parameters");
+        // }
 
         const intervalData = [];
         let sumAmplitude = 0;
@@ -124,9 +125,10 @@ export class MusicService {
             intervalDuration = (length > 0) ? (duration / length) : 0;
         } else if (!duration && intervalDuration && length) {
             duration = intervalDuration * length;
-        } else {
-            throw new Error("Invalid input parameters");
         }
+        // else {
+        //     throw new Error("Invalid input parameters");
+        // }
 
         for (let i = 0; i < length; i++) {
             const frequency = frequencyArray[i];
@@ -138,7 +140,6 @@ export class MusicService {
 
             // Map frequency to hue value using genreColors object
             const genre = inputGenre ? inputGenre : this.getGenreFromFrequency(frequency);//, sumAmplitude / intervalCount);
-            console.log(genre)
             const colors = inputColors ? inputColors : genreColors[genre];
             const colorIndex = Math.floor(Math.random() * colors.length);
             const [red, green, blue] = this.hexToRgb(colors[colorIndex])
@@ -153,10 +154,10 @@ export class MusicService {
     generateByTempo(config, type, frequency, amplitudeArray, intervalDuration, intervalCount, bpm) {
         let inputColors: string[], inputTempo: Genre;
 
-        if (config && typeof config.type === "number" && Object.values(Tempo).includes(config.type)) {
-            if (type && config.type !== type) {
-                throw new Error("Invalid input parameters");
-            }
+        if (config) {//&& typeof config.type === "number" && Object.values(Tempo).includes(config.type)) {
+            // if (type && config.type !== type) {
+            //     throw new Error("Invalid input parameters");
+            // }
             inputColors = config.colors;
             inputTempo = config.type
         } else if (type) {
@@ -164,14 +165,15 @@ export class MusicService {
         }
 
         const intervalData = [];
-        const tempo = inputTempo ? inputTempo : this.getTempoFromBpm(bpm);
+        const tempo = inputTempo ? inputTempo : this.getTempoFromBpm(bpm[0]);
         const colorr = inputColors ? inputColors : tempoColors[tempo];
+
         for (let i = 0; i < intervalCount; i++) {
             const amplitude = amplitudeArray[i];
             const intervalStart = i * intervalDuration;
             const intervalEnd = (i + 1) * intervalDuration;
             const intensity = Math.sqrt(amplitude);
-            const colorrr = this.getMatchingColor(bpm, frequency[i], colorr)
+            const colorrr = this.getMatchingColor(bpm[0], frequency[i], colorr)
             // Map tempo to hue value using tempoColors object
             // const colorIndex = Math.floor(Math.random() * colors.length);
             const [red, green, blue] = this.hexToRgb(colorrr)//colors[colorIndex])
@@ -191,7 +193,7 @@ export class MusicService {
             const color = colors[i];
             const [r, g, b] = this.hexToRgb(color);
             const matchScore = this.calculateMatchScore(bpm, frequency, r, g, b);
-
+            console.log(matchScore)
             if (matchScore < bestMatchScore) {
                 bestMatchScore = matchScore;
                 bestColor = color;
@@ -207,7 +209,7 @@ export class MusicService {
         const frequencyDiff = Math.abs(frequency - g);
 
         // Calculate a weighted score based on the differences
-        const matchScore = Math.sqrt((bpmDiff * bpmDiff) + (frequencyDiff * frequencyDiff)) + b;
+        const matchScore = Math.sqrt((bpmDiff * bpmDiff) + (frequencyDiff * frequencyDiff) - b);
 
         return matchScore;
     }
@@ -215,10 +217,10 @@ export class MusicService {
     generateByInstrument(config, type, amplitudeArray, pitchArray, intervalDuration, intervalCount) {
         let inputColors: string[], inputInstrument: Instrument;
 
-        if (config && typeof config.type === "number" && Object.values(Instrument).includes(config.type)) {
-            if (type && config.type !== type) {
-                throw new Error("Invalid input parameters");
-            }
+        if (config) {// && typeof config.type === "number" && Object.values(Instrument).includes(config.type)) {
+            // if (type && config.type !== type) {
+            //     throw new Error("Invalid input parameters");
+            // }
             inputColors = config.colors;
             inputInstrument = config.type
         } else if (type) {
@@ -249,10 +251,11 @@ export class MusicService {
     async generateByEnergy(config, type, amplitudeArray, intervalDuration, intervalCount) {
         let inputColors: string[], inputEnergy: Energy;
 
-        if (config && typeof config.type === "number" && Object.values(Energy).includes(config.type)) {
-            if (type && config.type !== type) {
-                throw new Error("Invalid input parameters");
-            }
+        if (config) {
+            // && typeof config.type === "number" && Object.values(Energy).includes(config.type)) {
+            // if (type && config.type !== type) {
+            //     throw new Error("Invalid input parameters");
+            // }
             inputColors = config.colors;
             inputEnergy = config.type
         } else if (type) {
@@ -518,9 +521,9 @@ export class MusicService {
 
     //changeForOne
     calculateBPM(audioBuffer, intervalCount) {
-        if (!intervalCount) {
-            intervalCount = 1;
-        }
+        //if (!intervalCount) {
+        intervalCount = 1;
+        // }
 
         // Get the audio data from the first channel
         const audioData = audioBuffer._channelData[0];
@@ -547,7 +550,7 @@ export class MusicService {
                 intervalBeats[intervalIndex].push(i);
             }
         }
-
+        //return intervalBeats
         // Calculate the BPM for each interval
         const bpms = intervalBeats.map((interval) => {
             // Calculate the time difference between each beat
@@ -576,11 +579,10 @@ export class MusicService {
         }
 
         // If no tempo is matched, return 'other'
-        return 'other';
+        return 'OTHER';
     }
+
     mapInstrument(pitch) {
-
-
         let bestInstrument = null;
         let smallestDifference = Infinity;
 

@@ -7,7 +7,7 @@ import { GenreOptionsDto } from 'src/Model/Dto/GenreOptions.dto';
 import { TempoOptionsDto } from 'src/Model/Dto/TempoOptions.dto';
 import { InstrumentOptionsDto } from 'src/Model/Dto/InstrumentOptions.dto';
 import { EnergyOptionsDto } from 'src/Model/Dto/EnergyOptions.dto';
-import { ConvertingType, Genre, SaveAndReturnOption } from 'src/Defaults/types';
+import { ConvertingType, Energy, Genre, Instrument, SaveAndReturnOption, Tempo } from 'src/Defaults/types';
 
 @Controller('audio')
 export class AudioController {
@@ -65,29 +65,61 @@ export class AudioController {
 
     @Post('tempo')
     @UseInterceptors(FileInterceptor('audio'))
-    generateTempoColors(@Body() colorOptionsDto: TempoOptionsDto, @UploadedFile() audio: Express.Multer.File) {
+    generateTempoColors(@Body() colorOptionsDto: any, @UploadedFile() audio: Express.Multer.File) {
         const checkAttrMessage = this.audioService.checkAttr(audio.mimetype, audio.originalname);
         if (checkAttrMessage != "isOk")
             return checkAttrMessage;
-        return this.audioService.generateByTempo(colorOptionsDto, audio);
+
+        const dto: TempoOptionsDto = {
+            name: colorOptionsDto.name,
+            type: ConvertingType[colorOptionsDto.type],
+            saveAndReturnOption: SaveAndReturnOption[colorOptionsDto.saveAndReturnOption],
+            intervalCount: parseInt(colorOptionsDto.intervalCount),
+            tempo: Tempo[colorOptionsDto.tempo],
+            config: colorOptionsDto.config,
+            user: colorOptionsDto.user
+        };
+
+        return this.audioService.generateByTempo(dto, audio);
     }
 
     @Post('insrument')
     @UseInterceptors(FileInterceptor('audio'))
-    generateInstrumentColors(@Body() colorOptionsDto: InstrumentOptionsDto, @UploadedFile() audio: Express.Multer.File) {
+    generateInstrumentColors(@Body() colorOptionsDto: any, @UploadedFile() audio: Express.Multer.File) {
         const checkAttrMessage = this.audioService.checkAttr(audio.mimetype, audio.originalname);
         if (checkAttrMessage != "isOk")
             return checkAttrMessage;
-        return this.audioService.generateByInstrument(colorOptionsDto, audio);
+
+        const dto: InstrumentOptionsDto = {
+            name: colorOptionsDto.name,
+            type: ConvertingType[colorOptionsDto.type],
+            saveAndReturnOption: SaveAndReturnOption[colorOptionsDto.saveAndReturnOption],
+            intervalCount: parseInt(colorOptionsDto.intervalCount),
+            instrument: Instrument[colorOptionsDto.tempo],
+            config: colorOptionsDto.config,
+            user: colorOptionsDto.user
+        };
+
+        return this.audioService.generateByInstrument(dto, audio);
     }
 
     @Post('energy')
     @UseInterceptors(FileInterceptor('audio'))
-    generateEnergyColors(@Body() colorOptionsDto: EnergyOptionsDto, @UploadedFile() audio: Express.Multer.File) {
+    generateEnergyColors(@Body() colorOptionsDto: any, @UploadedFile() audio: Express.Multer.File) {
         const checkAttrMessage = this.audioService.checkAttr(audio.mimetype, audio.originalname);
         if (checkAttrMessage != "isOk")
             return checkAttrMessage;
-        return this.audioService.generateByEnergy(colorOptionsDto, audio);
+
+        const dto: EnergyOptionsDto = {
+            name: colorOptionsDto.name,
+            type: ConvertingType[colorOptionsDto.type],
+            saveAndReturnOption: SaveAndReturnOption[colorOptionsDto.saveAndReturnOption],
+            intervalCount: parseInt(colorOptionsDto.intervalCount),
+            energyLevel: Energy[colorOptionsDto.tempo],
+            config: colorOptionsDto.config,
+            user: colorOptionsDto.user
+        };
+        return this.audioService.generateByEnergy(dto, audio);
     }
 
     @Post('sentiment')

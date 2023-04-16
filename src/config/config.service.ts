@@ -16,7 +16,6 @@ export class ConfigService {
     ) { }
     async createConfig(id: string, dto: ConfigDto) { //FORUSER
         //const config = new this.configModel({ name: "mycolors", colors: ["#9684b1", "#bc3f67", "#22223b"] });
-
         return (await this.configModel.create({ user: id, ...dto }))._id;
     }
 

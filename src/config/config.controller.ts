@@ -8,7 +8,7 @@ export class ConfigController {
     constructor(private readonly configService: ConfigService) { }
 
     @Post()
-    createConfig(@Query('id') id: string, dto: ConfigDto) {
+    createConfig(@Query('id') id: string, @Body() dto: ConfigDto) {
         return this.configService.createConfig(id, dto);
     }
 
