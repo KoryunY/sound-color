@@ -1,13 +1,14 @@
 export const AllowedMimes = ['audio/mp3', 'audio/mpeg'];
+export const defaultIntervalCOunt = 256;
 
 export const genreColors = {
-    rock: ["#ff0000", "#000000", "#ffffff"], // red, black, white
-    pop: ["#ff8800", "#ffff00", "#00ffff"], // orange, yellow, cyan
-    electronic: ["#ffff00", "#00ff00", "#0000ff"], // yellow, green, blue
-    hipHop: ["#00ff00", "#ff00ff", "#ff0000"], // green, magenta, red
-    classical: ["#ff8800", "#ffff00", "#00ffff"],
-    other: ["#ffff00", "#00ff00", "#0000ff"],
-    jazz: ["#ffff00", "#00ff00", "#0000ff"]
+    ROCK: ["#ff0000", "#000000", "#ffffff"], // red, black, white
+    POP: ["#ff8800", "#ffff00", "#00ffff"], // orange, yellow, cyan
+    ELECTRONIC: ["#ffff00", "#00ff00", "#0000ff"], // yellow, green, blue
+    HIPHOP: ["#00ff00", "#ff00ff", "#ff0000"], // green, magenta, red
+    CLASSICAL: ["#ff8800", "#ffff00", "#00ffff"],
+    OTHER: ["#ffff00", "#00ff00", "#0000ff"],
+    JAZZ: ["#ffff00", "#00ff00", "#0000ff"]
 };
 
 export const tempoColors = {

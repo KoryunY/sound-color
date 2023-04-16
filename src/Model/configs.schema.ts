@@ -10,7 +10,7 @@ export class Config {
     name: string;
 
     @Prop()
-    type: Genre | Tempo | Energy | Sentiment | Instrument;
+    type: string//Genre | Tempo | Energy | Sentiment | Instrument;
 
     @Prop()
     colors: string[];

@@ -7,8 +7,7 @@ import { GenreOptionsDto } from 'src/Model/Dto/GenreOptions.dto';
 import { TempoOptionsDto } from 'src/Model/Dto/TempoOptions.dto';
 import { InstrumentOptionsDto } from 'src/Model/Dto/InstrumentOptions.dto';
 import { EnergyOptionsDto } from 'src/Model/Dto/EnergyOptions.dto';
-import { options } from 'axios';
-import { ConvertingType } from 'src/Defaults/types';
+import { ConvertingType, Genre, SaveAndReturnOption } from 'src/Defaults/types';
 
 @Controller('audio')
 export class AudioController {
@@ -30,9 +29,11 @@ export class AudioController {
         const checkAttrMessage = this.audioService.checkAttr(audio.mimetype, audio.originalname);
         if (checkAttrMessage != "isOk")
             return checkAttrMessage;
+
         const dto: SynesthesiaOptionsDto = {
             name: colorOptionsDto.name,
             type: ConvertingType[colorOptionsDto.type],
+            saveAndReturnOption: SaveAndReturnOption[colorOptionsDto.saveAndReturnOption],
             useIntervals: Boolean(colorOptionsDto.useIntervals),
             intervalCount: parseInt(colorOptionsDto.intervalCount),
             user: colorOptionsDto.user
@@ -43,11 +44,23 @@ export class AudioController {
 
     @Post('genre')
     @UseInterceptors(FileInterceptor('audio'))
-    generateGenreColors(@Body() colorOptionsDto: GenreOptionsDto, @UploadedFile() audio: Express.Multer.File) {
+    generateGenreColors(@Body() colorOptionsDto: any, @UploadedFile() audio: Express.Multer.File) {
         const checkAttrMessage = this.audioService.checkAttr(audio.mimetype, audio.originalname);
         if (checkAttrMessage != "isOk")
             return checkAttrMessage;
-        return this.audioService.generateByGenre(colorOptionsDto, audio);
+
+        const dto: GenreOptionsDto = {
+            name: colorOptionsDto.name,
+            type: ConvertingType[colorOptionsDto.type],
+            saveAndReturnOption: SaveAndReturnOption[colorOptionsDto.saveAndReturnOption],
+            useIntervals: Boolean(colorOptionsDto.useIntervals),
+            intervalCount: parseInt(colorOptionsDto.intervalCount),
+            genre: Genre[colorOptionsDto.genre],
+            config: colorOptionsDto.config,
+            user: colorOptionsDto.user
+        };
+
+        return this.audioService.generateByGenre(dto, audio);
     }
 
     @Post('tempo')

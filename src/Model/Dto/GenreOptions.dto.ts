@@ -1,13 +1,14 @@
 import { Optional } from "@nestjs/common";
 import { ObjectId } from "mongoose";
-import { ConvertingType, Genre } from "src/Defaults/types";
+import { ConvertingType, Genre, SaveAndReturnOption } from "src/Defaults/types";
 
 export interface GenreOptionsDto {
     name: string,
     type: ConvertingType,
-    user: ObjectId,
-    useIntervals: false;
-    intervalCount?: number | 128,
+    saveAndReturnOption: SaveAndReturnOption,
+    useIntervals: boolean;
+    intervalCount?: number,
     genre?: Genre;
     config?: string
+    user: ObjectId,
 }

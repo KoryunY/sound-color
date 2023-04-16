@@ -138,6 +138,7 @@ export class MusicService {
 
             // Map frequency to hue value using genreColors object
             const genre = inputGenre ? inputGenre : this.getGenreFromFrequency(frequency);//, sumAmplitude / intervalCount);
+            console.log(genre)
             const colors = inputColors ? inputColors : genreColors[genre];
             const colorIndex = Math.floor(Math.random() * colors.length);
             const [red, green, blue] = this.hexToRgb(colors[colorIndex])
@@ -517,6 +518,10 @@ export class MusicService {
 
     //changeForOne
     calculateBPM(audioBuffer, intervalCount) {
+        if (!intervalCount) {
+            intervalCount = 1;
+        }
+
         // Get the audio data from the first channel
         const audioData = audioBuffer._channelData[0];
 

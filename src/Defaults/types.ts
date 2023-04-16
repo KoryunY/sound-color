@@ -1,3 +1,10 @@
+export type IData = {
+    start: number;
+    end: number;
+    intensity: number;
+    color: string;
+}
+
 export enum ConvertingType {
     SYNESTHESIA = "SYNESTHESIA",
     GENRE = "GENRE",
@@ -7,28 +14,36 @@ export enum ConvertingType {
     SPEECH = "SPEECH"
 }
 
-export enum Genre {
-    ROCK,
-    POP,
-    ELECTRONIC,
-    HIP_HOP,
-    JAZZ,
-    BLUES,
-    COUNTRY,
-    CLASSICAL,
-    REGGAE,
-    FOLK,
-    WORLD,
-    LATIN,
-    RNB,
-    METAL,
-    PUNK,
-    FUNK,
-    SOUL,
-    DISCO,
-    GOSPEL,
-    OTHER
+export enum SaveAndReturnOption {
+    SAVE_AND_RETURN_ID = "SAVE_AND_RETURN_ID",
+    SAVE_AND_RETURN_DEMO = "SAVE_AND_RETURN_DEMO",
+    RETURN_DEMO = "RETURN_DEMO",
+
 }
+
+export enum Genre {
+    ROCK = "ROCK",
+    POP = "POP",
+    ELECTRONIC = "ELECTRONIC",
+    HIP_HOP = "HIP_HOP",
+    JAZZ = "JAZZ",
+    BLUES = "BLUES",
+    COUNTRY = "COUNTRY",
+    CLASSICAL = "CLASSICAL",
+    REGGAE = "REGGAE",
+    FOLK = "FOLK",
+    WORLD = "WORLD",
+    LATIN = "LATIN",
+    RNB = "RNB",
+    METAL = "METAL",
+    PUNK = "PUNK",
+    FUNK = "FUNK",
+    SOUL = "SOUL",
+    DISCO = "DISCO",
+    GOSPEL = "GOSPEL",
+    OTHER = "OTHER"
+}
+
 
 export enum Tempo {
     LARGHISSIMO,
@@ -153,10 +168,5 @@ export enum Sentiment {
     NEUTRAL
 }
 
-export type IData = {
-    start: number;
-    end: number;
-    intensity: number;
-    color: string;
-}
+
 
