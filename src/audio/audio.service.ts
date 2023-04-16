@@ -251,15 +251,30 @@ export class AudioService {
             config = await this.configService.getConfig(configId);
         }
 
-        //if (!sentiment && config)
-        [sentiment] = (await this.musicService.getMetadata(audio));
+        if (!sentiment && !config)
+            [, , sentiment] = (await this.musicService.getMetadata(audio));
 
-        return sentiment
         let [amplitude, intervalDuration] = await this.musicService.generateIntervalData(audio, type, intervalCount);
 
         const data = await this.musicService.generateBySentiment(config, sentiment, amplitude, intervalDuration, intervalCount);
-        return data;
-        return (await this.audioModel.create({ name, data, user }))._id;
+        const replaceData = JSON.stringify(data);
+        const html = fs.readFileSync('./src/public/index.html', 'utf-8');
+        const audioBuffer = audio.buffer.toString('base64');
+        const audioMimeType = audio.mimetype;
+        const audioSrc = `data:${audioMimeType};base64,${audioBuffer}`;
+
+        let replacedhtml = html.replace('<script id="data">', `<script id="data">\n        const data = ${replaceData};`);
+        const replacedHtml = replacedhtml.replace('audio.src = URL.createObjectURL(audioFile);', `audio.src = "${audioSrc}";`);
+
+        switch (saveAndReturnOption) {
+            case SaveAndReturnOption.SAVE_AND_RETURN_ID:
+                return (await this.audioModel.create({ name, data, user }))._id;
+            case SaveAndReturnOption.SAVE_AND_RETURN_DEMO:
+                await this.audioModel.create({ name, data, user })
+                return replacedHtml;
+            case SaveAndReturnOption.RETURN_DEMO:
+                return replacedHtml;
+        }
     }
 
     checkAttr(mimetype, originalname) {

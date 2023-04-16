@@ -305,7 +305,6 @@ export class MusicService {
             const intensity = Math.sqrt(amplitude);
 
             const sentimentColors = inputColors ? inputColors : sentimentsColors[sentiment];
-            return sentimentColors
             const colorIndex = Math.floor(Math.random() * sentimentColors.length);
             const [red, green, blue] = this.hexToRgb(sentimentColors[colorIndex]);
 
@@ -745,6 +744,7 @@ export class MusicService {
 
         const genres = data.track.genres;
         const words = data.track.sections[1].text
+        console.log(words)
         const sentiment = this.sentimentFromWords(this.extractUniqueWords(words));
         const name = data.track.share.subject;
 

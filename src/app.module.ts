@@ -23,3 +23,5 @@ export class AppModule { }
 //energyLevel
 
 //add postman test fix,fix clean all code create front
+//color family
+//gradient
