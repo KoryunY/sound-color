@@ -8,6 +8,7 @@ import { TempoOptionsDto } from 'src/Model/Dto/TempoOptions.dto';
 import { InstrumentOptionsDto } from 'src/Model/Dto/InstrumentOptions.dto';
 import { EnergyOptionsDto } from 'src/Model/Dto/EnergyOptions.dto';
 import { options } from 'axios';
+import { ConvertingType } from 'src/Defaults/types';
 
 @Controller('audio')
 export class AudioController {
@@ -25,11 +26,19 @@ export class AudioController {
 
     @Post('synesthesia')
     @UseInterceptors(FileInterceptor('audio'))
-    generateSynesthesiaColors(@Body() colorOptionsDto: SynesthesiaOptionsDto, @UploadedFile() audio: Express.Multer.File) {
+    generateSynesthesiaColors(@Body() colorOptionsDto: any, @UploadedFile() audio: Express.Multer.File) {
         const checkAttrMessage = this.audioService.checkAttr(audio.mimetype, audio.originalname);
         if (checkAttrMessage != "isOk")
             return checkAttrMessage;
-        return this.audioService.generateBySynesthesia(colorOptionsDto, audio);
+        const dto: SynesthesiaOptionsDto = {
+            name: colorOptionsDto.name,
+            type: ConvertingType[colorOptionsDto.type],
+            useIntervals: Boolean(colorOptionsDto.useIntervals),
+            intervalCount: parseInt(colorOptionsDto.intervalCount),
+            user: colorOptionsDto.user
+        };
+
+        return this.audioService.generateBySynesthesia(dto, audio);
     }
 
     @Post('genre')

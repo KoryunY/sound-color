@@ -6,21 +6,25 @@
     <title>Mapped Values Visualization</title>
     <style>
         .square {
-            width: 100px;
-            height: 100px;
-            background-color: red;
+            background-color: rgb(0, 0, 0);
             transition: background-color 0.2s ease;
         }
     </style>
 </head>
 
-<body>
+<body class="square">
     <div class="square"></div>
-    <button onclick="startInterval()">Start Interval</button>
-    <button onclick="stopInterval()">Stop Interval</button>
+    <button onclick="startInterval()"
+        style="width:300px; background-color: rgb(255, 255, 255); text-decoration-color: rgb(255, 0, 0); ">
+        <p style="color: rgb(0, 0, 0);">Start</p>
+    </button>
+    <audio id="myAudio"></audio>
+
     <script id="data">
 
         const square = document.querySelector('.square');
+        const audio = document.getElementById('myAudio');
+        audio.src = URL.createObjectURL(audioFile);
 
         let intervalId = null;
         let currentDataIndex = 0;
@@ -32,6 +36,8 @@
             setTimeout(() => {
                 startColorChange();
             }, timeoutDuration);
+            audio.currentTime = currentData.start;
+            audio.play();
         }
 
         function startColorChange() {
@@ -46,14 +52,25 @@
                 if (currentDataIndex >= data.length) {
                     currentDataIndex = 0;
                 }
-                startColorChange();
+                if (currentDataIndex === 0) {
+                    clearInterval(intervalId);
+                    intervalId = null;
+                    audio.pause();
+                } else {
+                    startColorChange();
+                }
             }, (currentData.end - currentData.start) * 1000);
         }
 
-        function stopInterval() {
-            clearInterval(intervalId);
-            intervalId = null;
-        }
+        // function stopInterval() {
+        //     clearInterval(intervalId);
+        //     intervalId = null;
+        //     audio.pause();
+        //     audio.currentTime = 0;
+        //     square.style.backgroundColor = 'red';
+        //     currentDataIndex = 0;     <button onclick="stopInterval()">Stop Interval</button>
+
+        // }
     </script>
 </body>
 

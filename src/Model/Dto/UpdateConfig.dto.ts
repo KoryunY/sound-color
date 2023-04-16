@@ -5,5 +5,5 @@ import { ConvertingType, Energy, Genre, IData, Instrument, Sentiment, Tempo } fr
 export interface UpdateConfigDto {
     name?: string,
     type?: Genre | Tempo | Energy | Sentiment | Instrument,
-    colors?: string[];
+    colors?: string[]
 }

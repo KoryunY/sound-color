@@ -20,12 +20,12 @@ export class MusicService {
 
     //getIntervals
     async generateIntervalData(audio: any, type: ConvertingType, intervalCount?: number) { //xary count logic
-        console.log(intervalCount)
         const decodedAudio = await this.decodeAudio(audio);
         let fft = this.getFft(decodedAudio);
         let duration = this.getDuration(decodedAudio);
         let frequency = this.getFrequencyData(fft, decodedAudio._channelData[0].length, intervalCount);
-        //let bpm = this.calculateBPM(decodedAudio, intervalCount);
+
+        let bpm = this.calculateBPM(decodedAudio, intervalCount);
         const originalLength = decodedAudio._channelData[0].length;
         const paddedLength = Math.pow(2, Math.ceil(Math.log2(originalLength)));
         const intervalAudioLength = Math.floor(originalLength / intervalCount);
@@ -34,13 +34,13 @@ export class MusicService {
 
         let intervalDuration = duration / intervalCount;
 
-        switch (ConvertingType[type.toString()]) {
+        switch (type) {
             case ConvertingType.SYNESTHESIA:
-                return [fft, frequency, amplitude, duration, intervalDuration];
+                return [frequency, amplitude, duration, intervalDuration];
             case ConvertingType.GENRE:
-                return [fft, frequency, amplitude, duration, intervalDuration];
+                return [frequency, amplitude, duration, intervalDuration];
             case ConvertingType.TEMPO:
-                return [fft, frequency, amplitude, duration,]// bpm];
+                return [frequency, amplitude, duration, bpm];
             case ConvertingType.INSTRUMENT:
                 return [amplitude, intervalDuration, pitch];
             case ConvertingType.ENERGY:
@@ -190,7 +190,7 @@ export class MusicService {
             const color = colors[i];
             const [r, g, b] = this.hexToRgb(color);
             const matchScore = this.calculateMatchScore(bpm, frequency, r, g, b);
-            console.log(matchScore)
+
             if (matchScore < bestMatchScore) {
                 bestMatchScore = matchScore;
                 bestColor = color;
@@ -230,7 +230,6 @@ export class MusicService {
             const amplitude = amplitudeArray[i];
             const instrument = inputInstrument ? inputInstrument : this.mapInstrument(pitchArray[i]);
             if (!instrument) continue;
-            //console.log(instrument)
             const intervalStart = i * intervalDuration;
             const intervalEnd = (i + 1) * intervalDuration;
             const intensity = Math.sqrt(amplitude);
@@ -529,7 +528,6 @@ export class MusicService {
 
         // Create an array to store the beats for each interval
         const intervalBeats = new Array(intervalCount).fill(0).map(() => []);
-        console.log(intervalBeats)
         // Loop through the audio data, checking for beats
         for (let i = 0; i < audioData.length - frameLength; i += frameLength) {
             // Calculate the average amplitude of this frame
@@ -541,7 +539,6 @@ export class MusicService {
             // Check if this frame contains a beat
             if (avgAmplitude > 0.1) {
                 const intervalIndex = Math.floor(i / intervalSize);
-                console.log(intervalIndex)
                 intervalBeats[intervalIndex].push(i);
             }
         }
@@ -727,7 +724,6 @@ export class MusicService {
         for (let i = 0; i < frequencies.length; i++) {
             const frequency = frequencies[i];
             const amplitude = amplitudes[i];
-            console.log(`f:${frequency} a:${amplitude}`)
             if (frequency >= 20 && frequency <= 20000) {
                 sum += frequency * amplitude;
                 count += amplitude;

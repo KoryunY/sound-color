@@ -41,7 +41,6 @@ export class AudioService {
         let intervalCount: number = options.intervalCount;
         let useIntervals: boolean = options.useIntervals;
         let user: ObjectId = options.user;
-        console.log(intervalCount)
         // if (useIntervals) {
         //     intervalCount = options.intervalCount;
         // }
@@ -51,10 +50,14 @@ export class AudioService {
         const data = this.musicService.generateBySynesthesia(frequency, amplitude, duration, intervalDuration, intervalCount);
         const replaceData = JSON.stringify(data);
         const html = fs.readFileSync('./src/public/index.html', 'utf-8');
-        //html.indexOf('<script id="data">')
-        let replacedhtml = html.replace('<script id="data">', `<script id="data">\n        const data = ${replaceData};`);
+        const audioBuffer = audio.buffer.toString('base64');
+        const audioMimeType = audio.mimetype;
+        const audioSrc = `data:${audioMimeType};base64,${audioBuffer}`;
 
-        return replacedhtml;
+        let replacedhtml = html.replace('<script id="data">', `<script id="data">\n        const data = ${replaceData};`);
+        const replacedHtml = replacedhtml.replace('audio.src = URL.createObjectURL(audioFile);', `audio.src = "${audioSrc}";`);
+
+        return replacedHtml;
         //return a;
         //return (await this.audioModel.create({ name, data, user }))._id;
 
@@ -177,7 +180,7 @@ export class AudioService {
         let useIntervals: boolean = options.useIntervals;
         // let saturation: number = options.saturation;
         // let ligthness: number = options.ligthness;
-        let config: ObjectId = options.config;
+        //let config: ObjectId = options.config;
         let user: ObjectId = options.user;
 
         if (useIntervals) {

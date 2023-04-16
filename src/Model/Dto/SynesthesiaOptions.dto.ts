@@ -5,10 +5,9 @@ import { ConvertingType } from "src/Defaults/types";
 export interface SynesthesiaOptionsDto {
     name: string,
     type: ConvertingType,
-    useIntervals: false;
+    useIntervals: boolean;
     intervalCount?: number | 128,
     //saturation?: number | 100,
     // ligthness?: number | 50,
-    config?: ObjectId
     user: ObjectId
 }

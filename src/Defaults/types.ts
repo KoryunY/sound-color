@@ -1,10 +1,10 @@
 export enum ConvertingType {
-    SYNESTHESIA,
-    GENRE,
-    TEMPO,
-    INSTRUMENT,
-    ENERGY,
-    SPEECH
+    SYNESTHESIA = "SYNESTHESIA",
+    GENRE = "GENRE",
+    TEMPO = "TEMPO",
+    INSTRUMENT = "INSTRUMENT",
+    ENERGY = "ENERGY",
+    SPEECH = "SPEECH"
 }
 
 export enum Genre {
