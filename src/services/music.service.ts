@@ -52,7 +52,7 @@ export class MusicService {
 
     }
 
-    generateBySynesthesia(frequencyArray, amplitudeArray, duration = null, intervalDuration = null, intervalCount = null) {
+    generateBySynesthesia(frequencyArray, amplitudeArray, duration = null, intervalDuration = null, intervalCount = null, gradientSplitCount = null) {
         let length;
 
         // check for valid inputs
@@ -80,13 +80,61 @@ export class MusicService {
             const amplitude = amplitudeArray[i];
             const intervalStart = i * intervalDuration;
             const intervalEnd = (i + 1) * intervalDuration;
-            const intensity = Math.sqrt(amplitude);
+            const intensity = Math.sqrt(amplitude) * 10;
             const color = this.getColorFromFrequency(frequency);
             const interval = { start: intervalStart, end: intervalEnd, intensity, color };
             intervalData.push(interval);
         }
 
+        if (gradientSplitCount) {
+            let newIntervalData = [];
+            for (let i = 0; i < intervalData.length - 1; i++) {
+                const { start: start1, end: end1, color: color1, intensity: intensity1 } = intervalData[i];
+                const { start: start2, end: end2, color: color2, intensity: intensity2 } = intervalData[i + 1];
+                const match1 = color1.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+                const match2 = color2.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+                const r1 = parseInt(match1[1], 10);
+                const g1 = parseInt(match1[2], 10);
+                const b1 = parseInt(match1[3], 10);
+                const r2 = parseInt(match2[1], 10);
+                const g2 = parseInt(match2[2], 10);
+                const b2 = parseInt(match2[3], 10);
+                const colorObj1 = { r: r1, g: g1, b: b1 };
+                const colorObj2 = { r: r2, g: g2, b: b2 };
+                const gradient = this.getGradientRgbArray(colorObj1, colorObj2, gradientSplitCount + 1);
+
+                const intervalLength = (end1 - start1) / (gradientSplitCount + 1);
+
+                for (let j = 0; j < gradientSplitCount + 1; j++) {
+                    const intervalStart = start1 + j * intervalLength;
+                    const intervalEnd = intervalStart + intervalLength;
+                    const [red, green, blue] = gradient[j];
+                    const color = `rgb(${red}, ${green}, ${blue})`
+                    const intensity = (intensity1 + intensity2) / 2;
+                    newIntervalData.push({ start: intervalStart, end: intervalEnd, intensity, color });
+                }
+            }
+
+            return newIntervalData;
+        }
+
         return intervalData;
+    }
+
+    getGradientRgbArray(rgbColor1, rgbColor2, count) {
+        let stepR = (rgbColor2.r - rgbColor1.r) / (count - 1);
+        let stepG = (rgbColor2.g - rgbColor1.g) / (count - 1);
+        let stepB = (rgbColor2.b - rgbColor1.b) / (count - 1);
+        let gradient = [];
+
+        for (let i = 0; i < count; i++) {
+            let r = Math.round(rgbColor1.r + stepR * i);
+            let g = Math.round(rgbColor1.g + stepG * i);
+            let b = Math.round(rgbColor1.b + stepB * i);
+            gradient.push([r, g, b]);
+        }
+
+        return gradient;
     }
 
     generateByGenre(config, type, frequencyArray, amplitudeArray, duration = null, intervalDuration = null, intervalCount = null) {
@@ -601,8 +649,14 @@ export class MusicService {
 
     //others
 
-
-
+    rgbToHex(rgb) {
+        // Convert the red, green, and blue values to hex strings
+        const rHex = rgb[0].toString(16).padStart(2, '0');
+        const gHex = rgb[1].toString(16).padStart(2, '0');
+        const bHex = rgb[2].toString(16).padStart(2, '0');
+        // Combine the hex strings and return the result
+        return `#${rHex}${gHex}${bHex}`;
+    }
 
     hexToRgb(hex) {
         // Convert hex string to integer value

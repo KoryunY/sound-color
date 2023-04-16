@@ -37,7 +37,8 @@ export class AudioController {
             saveAndReturnOption: SaveAndReturnOption[colorOptionsDto.saveAndReturnOption],
             useIntervals: Boolean(colorOptionsDto.useIntervals),
             intervalCount: parseInt(colorOptionsDto.intervalCount),
-            user: colorOptionsDto.user
+            user: colorOptionsDto.user,
+            gradientSplitCount: parseInt(colorOptionsDto.gradientSplitCount)
         };
 
         return this.audioService.generateBySynesthesia(dto, audio);

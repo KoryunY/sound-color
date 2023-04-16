@@ -43,6 +43,7 @@ export class AudioService {
         let user: ObjectId = options.user;
         let useIntervals: boolean = options.useIntervals;
         let intervalCount: number;
+        let gradientSplitCount: number = options.gradientSplitCount;
 
         if (useIntervals) {
             intervalCount = options.intervalCount;
@@ -51,8 +52,9 @@ export class AudioService {
         }
 
         let [frequency, amplitude, duration, intervalDuration] = await this.musicService.generateIntervalData(audio, type, intervalCount);
+        const data = this.musicService.generateBySynesthesia(frequency, amplitude, duration, intervalDuration, intervalCount, gradientSplitCount);
+        //return data
 
-        const data = this.musicService.generateBySynesthesia(frequency, amplitude, duration, intervalDuration, intervalCount);
         const replaceData = JSON.stringify(data);
         const html = fs.readFileSync('./src/public/index.html', 'utf-8');
         const audioBuffer = audio.buffer.toString('base64');

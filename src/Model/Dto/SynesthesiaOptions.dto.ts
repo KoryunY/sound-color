@@ -8,5 +8,6 @@ export interface SynesthesiaOptionsDto {
     saveAndReturnOption: SaveAndReturnOption
     useIntervals: boolean;
     intervalCount?: number,
-    user: ObjectId
+    user: ObjectId,
+    gradientSplitCount?: number,
 }
