@@ -157,15 +157,15 @@ export enum Instrument {
 }
 
 export enum Sentiment {
-    LOVE,
-    JOY,
-    ANGER,
-    SADNESS,
-    FEAR,
-    SURPRISE,
-    TRUST,
-    DISGUST,
-    NEUTRAL
+    LOVE = "LOVE",
+    JOY = "JOY",
+    ANGER = "ANGER",
+    SADNESS = "SADNESS",
+    FEAR = "FEAR",
+    SURPRISE = "SURPRISE",
+    TRUST = "TRUST",
+    DISGUST = "DISGUST",
+    NEUTRAL = "NEUTRAL",
 }
 
 

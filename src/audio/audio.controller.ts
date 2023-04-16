@@ -7,7 +7,8 @@ import { GenreOptionsDto } from 'src/Model/Dto/GenreOptions.dto';
 import { TempoOptionsDto } from 'src/Model/Dto/TempoOptions.dto';
 import { InstrumentOptionsDto } from 'src/Model/Dto/InstrumentOptions.dto';
 import { EnergyOptionsDto } from 'src/Model/Dto/EnergyOptions.dto';
-import { ConvertingType, Energy, Genre, Instrument, SaveAndReturnOption, Tempo } from 'src/Defaults/types';
+import { ConvertingType, Energy, Genre, Instrument, SaveAndReturnOption, Sentiment, Tempo } from 'src/Defaults/types';
+import { SentimentOptionsDto } from 'src/Model/Dto/SentimentOptions.dto';
 
 @Controller('audio')
 export class AudioController {
@@ -123,11 +124,22 @@ export class AudioController {
 
     @Post('sentiment')
     @UseInterceptors(FileInterceptor('audio'))
-    generateSentimentColors(@Body() colorOptionsDto: SynesthesiaOptionsDto, @UploadedFile() audio: Express.Multer.File) {
+    generateSentimentColors(@Body() colorOptionsDto: any, @UploadedFile() audio: Express.Multer.File) {
         const checkAttrMessage = this.audioService.checkAttr(audio.mimetype, audio.originalname);
         if (checkAttrMessage != "isOk")
             return checkAttrMessage;
-        return this.audioService.generateBySentiment(colorOptionsDto, audio);
+
+        const dto: SentimentOptionsDto = {
+            name: colorOptionsDto.name,
+            type: ConvertingType[colorOptionsDto.type],
+            saveAndReturnOption: SaveAndReturnOption[colorOptionsDto.saveAndReturnOption],
+            intervalCount: parseInt(colorOptionsDto.intervalCount),
+            config: colorOptionsDto.config,
+            user: colorOptionsDto.user,
+            sentiment: Sentiment[colorOptionsDto.sentiment]
+        };
+
+        return this.audioService.generateBySentiment(dto, audio);
     }
 
     @Get('check')

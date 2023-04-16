@@ -59,13 +59,81 @@ export const energyColors = {
 };
 
 export const instrumentColors = {
-    bass: ["#ff0000", "#000000", "#ffffff"], // red, black, white
-    guitar: ["#ff8800", "#ffff00", "#00ffff"], // orange, yellow, cyan
-    drums: ["#ffff00", "#00ff00", "#0000ff"], // yellow, green, blue
-    vocals: ["#00ff00", "#ff00ff", "#ff0000"], // green, magenta, red
-    keyboard: ["#ff8800", "#ffff00", "#00ffff"],
-    brass: ["#ffff00", "#00ff00", "#0000ff"],
-    other: ["#ffff00", "#00ff00", "#0000ff"]
+    ACOUSTIC_BASS: ["#ff0000", "#000000", "#ffffff"], // red, black, white
+    ACOUSTIC_GUITAR: ["#008000", "#ffffff", "#000000"], // green, white, black
+    ALTO_SAXOPHONE: ["#ffa500", "#000000", "#ffffff"], // orange, black, white
+    BACKING_VOCALS: ["#808080", "#ffffff", "#000000"], // gray, white, black
+    BANJO: ["#8b4513", "#ffffff", "#000000"], // saddlebrown, white, black
+    BARITONE_SAXOPHONE: ["#8b008b", "#ffffff", "#000000"], // darkmagenta, white, black
+    BASS: ["#0000ff", "#ffffff", "#000000"], // blue, white, black
+    BASS_CLARINET: ["#000080", "#ffffff", "#000000"], // navy, white, black
+    BASS_GUITAR: ["#8b0000", "#ffffff", "#000000"], // darkred, white, black
+    BASS_SYNTH: ["#9932cc", "#ffffff", "#000000"], // darkorchid, white, black
+    CELLO: ["#800000", "#ffffff", "#000000"], // maroon, white, black
+    CHURCH_ORGAN: ["#ff69b4", "#000000", "#ffffff"], // hotpink, black, white
+    CLARINET: ["#1e90ff", "#ffffff", "#000000"], // dodgerblue, white, black
+    CLASSICAL_GUITAR: ["#ffe4c4", "#000000", "#ffffff"], // bisque, black, white
+    CONTRABASS: ["#8b0000", "#ffffff", "#000000"], // darkred, white, black
+    COWBELL: ["#d3d3d3", "#000000", "#ffffff"], // lightgray, black, white
+    DRUMS: ["#808080", "#ffffff", "#000000"], // gray, white, black
+    ELECTRIC_BASS: ["#0000ff", "#ffffff", "#000000"], // blue, white, black
+    ELECTRIC_GUITAR: ["#ff8c00", "#ffffff", "#000000"], // darkorange, white, black
+    ELECTRIC_PIANO: ["#ff1493", "#000000", "#ffffff"], // deeppink, black, white
+    FLUTE: ["#00ff7f", "#000000", "#ffffff"], // springgreen, black, white
+    FRENCH_HORN: ["#daa520", "#000000", "#ffffff"], // goldenrod, black, white
+    GRAND_PIANO: ["#000000", "#ffffff", "#000000"], // black, white, black
+    HAMMOND_ORGAN: ["#7cfc00", "#000000", "#ffffff"], // lawngreen, black, white
+    HARP: ["#ff69b4", "#000000", "#ffffff"], // hotpink, black, white
+    HARPSICHORD: ["#ffd700", "#000000", "#ffffff"], // gold, black, white
+    HORN_SECTION: ["#4b0082", "#ffffff", "#000000"], // indigo, white, black
+    KEYBOARD: ["#ffff00", "#000000", "#ffffff"], // yellow, black, white
+    LEAD_GUITAR: ["#ff6600", "#000000", "#ffffff"], // orange, black, white
+    LEAD_SYNTH: ["#800080", "#000000", "#ffffff"], // purple, black, white
+    MARACAS: ["#ff9900", "#000000", "#ffffff"], // orange, black, white
+    MARIMBA: ["#00ff00", "#000000", "#ffffff"], // green, black, white
+    MIXING_DESK: ["#808080", "#000000", "#ffffff"], // gray, black, white
+    OBOE: ["#ffff99", "#000000", "#ffffff"], // light yellow, black, white
+    ORCHESTRA_HIT: ["#800000", "#000000", "#ffffff"], // maroon, black, white
+    ORGAN: ["#800080", "#000000", "#ffffff"], // purple, black, white
+    OTHER: ["#c0c0c0", "#000000", "#ffffff"], // silver, black, white
+    OUD: ["#ffff99", "#000000", "#ffffff"], // light yellow, black, white
+    OVERDRIVEN_GUITAR: ["#ff6600", "#000000", "#ffffff"], // orange, black, white
+    PAD_SYNTH: ["#ff00ff", "#000000", "#ffffff"], // magenta, black, white
+    PERCUSSION: ["#808080", "#000000", "#ffffff"], // gray, black, white
+    PIANO: ["#ffff00", "#000000", "#ffffff"], // yellow, black, white
+    RHYTHM_GUITAR: ["#ff6600", "#000000", "#ffffff"], // orange, black, white
+    SAXOPHONE: ["#ff9999", "#000000", "#ffffff"], // pink, black, white
+    SHAKER: ["#ff9900", "#000000", "#ffffff"], // orange, black, white
+    SLIDE_GUITAR: ["#ff6600", "#000000", "#ffffff"], // orange, black, white
+    SOPRANO_SAXOPHONE: ["#ff9999", "#000000", "#ffffff"], // pink, black, white
+    STEEL_DRUMS: ["#00ff00", "#000000", "#ffffff"], // green, black, white
+    STRINGS: ["#00ff00", "#000000", "#ffffff"], // green, black, white
+    SYNTH_BASS: ["#ff00ff", "#000000", "#ffffff"], // magenta, black, white
+    SYNTH_BRASS: ["#ff00ff", "#000000", "#ffffff"], // magenta, black, white
+    SYNTH_CHOIR: ["#ff00ff", "#000000", "#ffffff"], // magenta, black, white
+    SYNTH_DRUMS: ["#ff00ff", "#000000", "#ffffff"], // magenta, black, white
+    SYNTH_GUITAR: ["#ff00ff", "#000000", "#ffffff"], // magenta, black, white
+    SYNTH_KEYS: ["#ff00ff", "#000000", "#ffffff"], // magenta, black, white
+    SYNTH_LEAD: ["#ff00ff", "#000000", "#ffffff"], // magenta, black, white
+    SYNTH_ORCHESTRA: ["#336699", "#ffffff", "#000000"], // blue, white, black
+    SYNTH_PAD: ["#99ccff", "#003366", "#ffffff"], // light blue, dark blue, white
+    SYNTH_PLUCK: ["#ff9933", "#000000", "#ffffff"], // orange, black, white
+    TALKING_DRUM: ["#996633", "#ffffff", "#000000"], // brown, white, black
+    TAMBORA: ["#663300", "#ffffff", "#000000"], // dark brown, white, black
+    TAMBOURINE: ["#cc33ff", "#ffffff", "#000000"], // purple, white, black
+    TENOR_SAXOPHONE: ["#cc0000", "#ffffff", "#000000"], // red, white, black
+    TIMBALES: ["#99ff33", "#000000", "#ffffff"], // lime green, black, white
+    TIMPANI: ["#666666", "#ffffff", "#cc9900"], // gray, white, gold
+    TRUMPET: ["#ffcc00", "#000000", "#ffffff"], // yellow, black, white
+    TROMBONE: ["#ff99cc", "#000000", "#ffffff"], // pink, black, white
+    TUBA: ["#0000cc", "#ffffff", "#ffcc00"], // blue, white, gold
+    UKULELE: ["#ffcc99", "#000000", "#ffffff"], // peach, black, white
+    VIOLA: ["#9966cc", "#ffffff", "#000000"], // purple, white, black
+    VIOLIN: ["#ff0066", "#000000", "#ffffff"], // magenta, black, white
+    VOCALS: ["#660000", "#ffffff", "#ccff99"], // maroon, white, light green
+    WHISTLE: ["#ff6600", "#000000", "#ffffff"], // orange, black, white
+    WURLITZER_PIANO: ["#cccccc", "#000000", "#ffffff"], // light gray, black, white
+    XYLOPHONE: ["#33cc33", "#ffffff", "#000000"] // green, white, black
 };
 
 export const sentimentDict = {
@@ -99,12 +167,17 @@ export const sentimentDict = {
 };
 
 export const sentimentsColors = {
-    romantic: ["#FF1493", "#FF69B4", "#FFC0CB"], // deep pink, hot pink, pink
-    sad: ["#6495ED", "#1E90FF", "#4169E1"], // cornflower blue, dodger blue, royal blue
-    political: ["#FF8C00", "#FFA500", "#FFD700"], // dark orange, orange, gold
-    angry: ["#B22222", "#DC143C", "#FF0000"], // firebrick, crimson, red
-    neutral: ["#808080", "#A9A9A9", "#D3D3D3"] // gray, dark gray, light gray
+    LOVE: ["#FF1493", "#FF69B4", "#FFC0CB"], // deep pink, hot pink, pink
+    JOY: ["#FFFF00", "#FFD700", "#F0E68C"], // yellow, gold, khaki
+    ANGER: ["#FF0000", "#FF6347", "#8B0000"], // red, tomato, dark red
+    SADNESS: ["#00BFFF", "#1E90FF", "#ADD8E6"], // deep sky blue, dodger blue, light blue
+    FEAR: ["#708090", "#2F4F4F", "#778899"], // slate gray, dark slate gray, light slate gray
+    SURPRISE: ["#FFA07A", "#FA8072", "#FF7F50"], // light salmon, salmon, coral
+    TRUST: ["#00FF7F", "#00FA9A", "#98FB98"], // spring green, medium spring green, pale green
+    DISGUST: ["#800080", "#BA55D3", "#DA70D6"], // purple, medium orchid, orchid
+    NEUTRAL: ["#808080", "#A9A9A9", "#D3D3D3"] // gray, dark gray, light gray
 };
+
 
 export const instrumentPitchRanges = {
     "ACOUSTIC_BASS": { min: 21, max: 48 },

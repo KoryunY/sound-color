@@ -40,13 +40,13 @@ export class MusicService {
             case ConvertingType.GENRE:
                 return [frequency, amplitude, duration, intervalDuration];
             case ConvertingType.TEMPO:
-                return [frequency, amplitude, duration, bpm];
+                return [frequency, amplitude, intervalDuration, bpm];
             case ConvertingType.INSTRUMENT:
                 return [amplitude, intervalDuration, pitch];
             case ConvertingType.ENERGY:
                 return [amplitude, intervalDuration];
             case ConvertingType.SPEECH:
-                return [frequency, intervalDuration];
+                return [amplitude, intervalDuration];
 
         }
 
@@ -152,7 +152,7 @@ export class MusicService {
     }
 
     generateByTempo(config, type, frequency, amplitudeArray, intervalDuration, intervalCount, bpm) {
-        let inputColors: string[], inputTempo: Genre;
+        let inputColors: string[], inputTempo: Tempo;
 
         if (config) {//&& typeof config.type === "number" && Object.values(Tempo).includes(config.type)) {
             // if (type && config.type !== type) {
@@ -193,7 +193,6 @@ export class MusicService {
             const color = colors[i];
             const [r, g, b] = this.hexToRgb(color);
             const matchScore = this.calculateMatchScore(bpm, frequency, r, g, b);
-            console.log(matchScore)
             if (matchScore < bestMatchScore) {
                 bestMatchScore = matchScore;
                 bestColor = color;
@@ -206,12 +205,13 @@ export class MusicService {
     calculateMatchScore(bpm, frequency, r, g, b) {
         // Calculate the difference between the given BPM and frequency and the color components
         const bpmDiff = Math.abs(bpm - r);
-        const frequencyDiff = Math.abs(frequency - g);
+        const frequencyDiff = Math.abs(frequency - g) + (Math.random() * 1000 - 500);
 
         // Calculate a weighted score based on the differences
         const matchScore = Math.sqrt((bpmDiff * bpmDiff) + (frequencyDiff * frequencyDiff) - b);
 
         return matchScore;
+
     }
 
     generateByInstrument(config, type, amplitudeArray, pitchArray, intervalDuration, intervalCount) {
@@ -232,13 +232,15 @@ export class MusicService {
         for (let i = 0; i < intervalCount; i++) {
             const amplitude = amplitudeArray[i];
             const instrument = inputInstrument ? inputInstrument : this.mapInstrument(pitchArray[i]);
-            if (!instrument) continue;
+
             const intervalStart = i * intervalDuration;
             const intervalEnd = (i + 1) * intervalDuration;
             const intensity = Math.sqrt(amplitude);
 
             const instrumentColor = inputColors ? inputColors : instrumentColors[instrument];
-            const [red, green, blue] = this.hexToRgb(instrumentColor[0]);
+            const colorIndex = Math.floor(Math.random() * instrumentColor.length);
+
+            const [red, green, blue] = this.hexToRgb(instrumentColor[colorIndex]);
 
             const color = `rgb(${red}, ${green}, ${blue})`;
             const interval = { start: intervalStart, end: intervalEnd, intensity, color };
@@ -249,7 +251,7 @@ export class MusicService {
     }
 
     async generateByEnergy(config, amplitudeArray, intervalDuration, intervalCount) {
-        let inputColors: string[];// inputEnergy: Energy;
+        let inputColors: string[], inputEnergy: Energy;
         //fixconfig
         if (config) {
             // && typeof config.type === "number" && Object.values(Energy).includes(config.type)) {
@@ -257,16 +259,15 @@ export class MusicService {
             //     throw new Error("Invalid input parameters");
             // }
             inputColors = config.colors;
-            //inputEnergy = config.type
+            inputEnergy = config.type
         }
-        // else if (type) {
-        //     inputEnergy = type;
-        // }
         const intervalData = [];
 
         for (let i = 0; i < intervalCount; i++) {
             const amplitude = amplitudeArray[i];
-            const energyLevel = this.mapEnergy(amplitude);// inputEnergy ? inputEnergy : 
+            let energyLevel;
+            if (!inputEnergy)
+                energyLevel = this.mapEnergy(amplitude);// inputEnergy ? inputEnergy : 
             const intervalStart = i * intervalDuration;
             const intervalEnd = (i + 1) * intervalDuration;
             const intensity = Math.sqrt(amplitude);
@@ -282,69 +283,36 @@ export class MusicService {
         return intervalData;
     }
 
-    async generateBySentiment(frequencyData, sentiment, intervalDuration, intervalCount) {
-        //checkThis
-        let sentimentColors = sentimentsColors[sentiment];
+    async generateBySentiment(config, sentiment, amplitudeArray, intervalDuration, intervalCount) {
+        let inputColors: string[], inputSentiment: Energy;
+        //fixconfig
+        if (config) {
+            // && typeof config.type === "number" && Object.values(Energy).includes(config.type)) {
+            // if (type && config.type !== type) {
+            //     throw new Error("Invalid input parameters");
+            // }
+            inputColors = config.colors;
+            inputSentiment = config.type
+        }
 
         const intervalData = [];
 
-        const frequencyBands = [{ min: 20, max: 200, name: "bass" }, { min: 200, max: 400, name: "guitar" }, { min: 400, max: 800, name: "keyboard" }, { min: 800, max: 1600, name: "brass" }, { min: 1600, max: 3200, name: "vocals" }, { min: 3200, max: 22050, name: "other" }];
-
-        const samplesPerInterval = Math.floor(frequencyData.length / intervalCount);
-
         for (let i = 0; i < intervalCount; i++) {
+            const amplitude = amplitudeArray[i];
+
             const intervalStart = i * intervalDuration;
             const intervalEnd = (i + 1) * intervalDuration;
+            const intensity = Math.sqrt(amplitude);
 
-            const startIndex = i * samplesPerInterval;
-            const endIndex = (i + 1) * samplesPerInterval;
-            const intervalDataSlice = frequencyData.slice(startIndex, endIndex);
+            const sentimentColors = inputColors ? inputColors : sentimentsColors[sentiment];
+            return sentimentColors
+            const colorIndex = Math.floor(Math.random() * sentimentColors.length);
+            const [red, green, blue] = this.hexToRgb(sentimentColors[colorIndex]);
 
-            const fftSize = intervalDataSlice.length * 2;
-            const fft = new DSP.FFT(fftSize, 44100);
-
-            const buffer = new Float32Array(fftSize);
-            buffer.set(intervalDataSlice);
-            fft.forward(buffer);
-
-            const frequencyCounts = new Array(frequencyBands.length).fill(0);
-
-            for (let j = 0; j < fftSize / 2; j++) {
-                const frequency = j * 44100 / fftSize;
-                for (let k = 0; k < frequencyBands.length; k++) {
-                    const band = frequencyBands[k];
-                    if (frequency >= band.min && frequency < band.max) {
-                        frequencyCounts[k] += Math.abs(fft.spectrum[j]);
-                        break;
-                    }
-                }
-            }
-
-            let dominantBandIndex = 0;
-            let dominantBandCount = frequencyCounts[0];
-
-            for (let j = 1; j < frequencyCounts.length; j++) {
-                if (frequencyCounts[j] > dominantBandCount) {
-                    dominantBandIndex = j;
-                    dominantBandCount = frequencyCounts[j];
-                }
-            }
-
-            const dominantBand = frequencyBands[dominantBandIndex];
-
-            const dominantSentimentColors = frequencyBandColors[sentiment][dominantBand.name];
-            const colorIndex = Math.floor(Math.random() * dominantSentimentColors.length);
-            const color = dominantSentimentColors[colorIndex];
-
-            const interval = {
-                start: intervalStart,
-                end: intervalEnd,
-                color: color
-            };
-
+            const color = `rgb(${red}, ${green}, ${blue})`;
+            const interval = { start: intervalStart, end: intervalEnd, intensity, color };
             intervalData.push(interval);
         }
-
         return intervalData;
     }
 
@@ -597,7 +565,7 @@ export class MusicService {
             }
         }
         if (!bestInstrument)
-            return 'other';
+            return 'OTHER';
         return bestInstrument
     }
 

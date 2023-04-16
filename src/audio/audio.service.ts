@@ -15,6 +15,7 @@ import { User } from 'src/Model/user.schema';
 import { ConfigService } from 'src/config/config.service';
 import { MusicService } from 'src/services/music.service';
 import fs from 'fs';
+import { SentimentOptionsDto } from 'src/Model/Dto/SentimentOptions.dto';
 
 @Injectable()
 export class AudioService {
@@ -138,7 +139,6 @@ export class AudioService {
         let [frequency, amplitude, intervalDuration, bpm] = await this.musicService.generateIntervalData(audio, type, intervalCount);
         const data = this.musicService.generateByTempo(config, tempo, frequency, amplitude, intervalDuration, intervalCount, bpm);
 
-        return data
         const replaceData = JSON.stringify(data);
         const html = fs.readFileSync('./src/public/index.html', 'utf-8');
         const audioBuffer = audio.buffer.toString('base64');
@@ -179,7 +179,7 @@ export class AudioService {
 
         let [amplitude, intervalDuration, pitch] = await this.musicService.generateIntervalData(audio, type, intervalCount);
         const data = this.musicService.generateByInstrument(config, instrument, amplitude, pitch, intervalDuration, intervalCount);
-        return data
+
         const replaceData = JSON.stringify(data);
         const html = fs.readFileSync('./src/public/index.html', 'utf-8');
         const audioBuffer = audio.buffer.toString('base64');
@@ -206,8 +206,6 @@ export class AudioService {
         let intervalCount: number = options.intervalCount;
         const saveAndReturnOption: SaveAndReturnOption = options.saveAndReturnOption;
 
-        // let saturation: number = options.saturation;
-        //  let ligthness: number = options.ligthness;
         let configId: string = options.config;
         let user: ObjectId = options.user;
         let config;
@@ -217,8 +215,7 @@ export class AudioService {
         }
 
         let [amplitude, intervalDuration] = await this.musicService.generateIntervalData(audio, type, intervalCount);
-        const data = this.musicService.generateByEnergy(config, amplitude, intervalDuration, intervalCount);
-        return data
+        const data = await this.musicService.generateByEnergy(config, amplitude, intervalDuration, intervalCount);
         const replaceData = JSON.stringify(data);
         const html = fs.readFileSync('./src/public/index.html', 'utf-8');
         const audioBuffer = audio.buffer.toString('base64');
@@ -239,25 +236,29 @@ export class AudioService {
         }
     }
 
-    async generateBySentiment(options: SynesthesiaOptionsDto, audio: any) {
+    async generateBySentiment(options: SentimentOptionsDto, audio: any) {
         let name: string = options.name;
         const type: ConvertingType = options.type;
-        let intervalCount: number;
-        let useIntervals: boolean = options.useIntervals;
-        // let saturation: number = options.saturation;
-        // let ligthness: number = options.ligthness;
-        //let config: ObjectId = options.config;
-        let user: ObjectId = options.user;
+        let intervalCount: number = options.intervalCount;
+        let configId: string = options.config;
+        const saveAndReturnOption: SaveAndReturnOption = options.saveAndReturnOption;
 
-        if (useIntervals) {
-            intervalCount = options.intervalCount;
+        let user: ObjectId = options.user;
+        let sentiment = options.sentiment;
+        let config;
+
+        if (configId) {
+            config = await this.configService.getConfig(configId);
         }
 
-        const [sentiment] = (await this.musicService.getMetadata(audio));
-        let [frequency, intervalDuration] = await this.musicService.generateIntervalData(audio, type, intervalCount);
+        //if (!sentiment && config)
+        [sentiment] = (await this.musicService.getMetadata(audio));
 
-        const data = this.musicService.generateBySentiment(frequency, sentiment, intervalDuration, intervalCount);
+        return sentiment
+        let [amplitude, intervalDuration] = await this.musicService.generateIntervalData(audio, type, intervalCount);
 
+        const data = await this.musicService.generateBySentiment(config, sentiment, amplitude, intervalDuration, intervalCount);
+        return data;
         return (await this.audioModel.create({ name, data, user }))._id;
     }
 

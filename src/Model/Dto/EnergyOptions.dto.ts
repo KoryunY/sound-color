@@ -8,5 +8,5 @@ export interface EnergyOptionsDto {
     saveAndReturnOption: SaveAndReturnOption,
     user: ObjectId,
     intervalCount?: number,
-    config?: string
+    config?: string,
 }
