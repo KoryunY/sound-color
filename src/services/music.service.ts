@@ -9,6 +9,7 @@ import { ConvertingType, Energy, Genre, Instrument, Tempo } from 'src/Defaults/t
 
 @Injectable()
 export class MusicService {
+    //#region MAIN
 
     //decode audio
     async decodeAudio(audioBuffer: any) {
@@ -120,26 +121,10 @@ export class MusicService {
         return intervalData;
     }
 
-    getGradientRgbArray(rgbColor1, rgbColor2, count) {
-        let stepR = (rgbColor2.r - rgbColor1.r) / (count - 1);
-        let stepG = (rgbColor2.g - rgbColor1.g) / (count - 1);
-        let stepB = (rgbColor2.b - rgbColor1.b) / (count - 1);
-        let gradient = [];
-
-        for (let i = 0; i < count; i++) {
-            let r = Math.round(rgbColor1.r + stepR * i);
-            let g = Math.round(rgbColor1.g + stepG * i);
-            let b = Math.round(rgbColor1.b + stepB * i);
-            gradient.push([r, g, b]);
-        }
-
-        return gradient;
-    }
-
     generateByGenre(config, type, frequencyArray, amplitudeArray, duration = null, intervalDuration = null, intervalCount = null) {
         let inputColors: string[], inputGenre: Genre;
 
-        if (config) {// && typeof config.type === "number" && Object.values(Genre).includes(config.type)) {
+        if (config) {
             if (type && config.type !== type) {
                 throw new Error("Invalid input parameters");
             }
@@ -160,9 +145,6 @@ export class MusicService {
         } else if (amplitudeArray) {
             length = amplitudeArray.length;
         }
-        // else {
-        //     throw new Error("Invalid input parameters");
-        // }
 
         const intervalData = [];
         let sumAmplitude = 0;
@@ -173,9 +155,6 @@ export class MusicService {
         } else if (!duration && intervalDuration && length) {
             duration = intervalDuration * length;
         }
-        // else {
-        //     throw new Error("Invalid input parameters");
-        // }
 
         for (let i = 0; i < length; i++) {
             const frequency = frequencyArray[i];
@@ -186,7 +165,7 @@ export class MusicService {
             const intensity = Math.sqrt(amplitude);
 
             // Map frequency to hue value using genreColors object
-            const genre = inputGenre ? inputGenre : this.getGenreFromFrequency(frequency);//, sumAmplitude / intervalCount);
+            const genre = inputGenre ? inputGenre : this.getGenreFromFrequency(frequency);
             const colors = inputColors ? inputColors : genreColors[genre];
             const colorIndex = Math.floor(Math.random() * colors.length);
             const [red, green, blue] = this.hexToRgb(colors[colorIndex])
@@ -201,10 +180,7 @@ export class MusicService {
     generateByTempo(config, type, frequency, amplitudeArray, intervalDuration, intervalCount, bpm) {
         let inputColors: string[], inputTempo: Tempo;
 
-        if (config) {//&& typeof config.type === "number" && Object.values(Tempo).includes(config.type)) {
-            // if (type && config.type !== type) {
-            //     throw new Error("Invalid input parameters");
-            // }
+        if (config) {
             inputColors = config.colors;
             inputTempo = config.type
         } else if (type) {
@@ -222,8 +198,7 @@ export class MusicService {
             const intensity = Math.sqrt(amplitude);
             const colorrr = this.getMatchingColor(bpm[0], frequency[i], colorr)
             // Map tempo to hue value using tempoColors object
-            // const colorIndex = Math.floor(Math.random() * colors.length);
-            const [red, green, blue] = this.hexToRgb(colorrr)//colors[colorIndex])
+            const [red, green, blue] = this.hexToRgb(colorrr);
 
             const color = `rgb(${red}, ${green}, ${blue})`;
             const interval = { start: intervalStart, end: intervalEnd, intensity, color };
@@ -232,42 +207,10 @@ export class MusicService {
         return intervalData;
     }
 
-    getMatchingColor(bpm, frequency, colors) {
-        let bestColor = '';
-        let bestMatchScore = Number.MAX_VALUE;
-
-        for (let i = 0; i < colors.length; i++) {
-            const color = colors[i];
-            const [r, g, b] = this.hexToRgb(color);
-            const matchScore = this.calculateMatchScore(bpm, frequency, r, g, b);
-            if (matchScore < bestMatchScore) {
-                bestMatchScore = matchScore;
-                bestColor = color;
-            }
-        }
-
-        return bestColor;
-    }
-
-    calculateMatchScore(bpm, frequency, r, g, b) {
-        // Calculate the difference between the given BPM and frequency and the color components
-        const bpmDiff = Math.abs(bpm - r);
-        const frequencyDiff = Math.abs(frequency - g) + (Math.random() * 1000 - 500);
-
-        // Calculate a weighted score based on the differences
-        const matchScore = Math.sqrt((bpmDiff * bpmDiff) + (frequencyDiff * frequencyDiff) - b);
-
-        return matchScore;
-
-    }
-
     generateByInstrument(config, type, amplitudeArray, pitchArray, intervalDuration, intervalCount) {
         let inputColors: string[], inputInstrument: Instrument;
 
-        if (config) {// && typeof config.type === "number" && Object.values(Instrument).includes(config.type)) {
-            // if (type && config.type !== type) {
-            //     throw new Error("Invalid input parameters");
-            // }
+        if (config) {
             inputColors = config.colors;
             inputInstrument = config.type
         } else if (type) {
@@ -301,10 +244,6 @@ export class MusicService {
         let inputColors: string[], inputEnergy: Energy;
         //fixconfig
         if (config) {
-            // && typeof config.type === "number" && Object.values(Energy).includes(config.type)) {
-            // if (type && config.type !== type) {
-            //     throw new Error("Invalid input parameters");
-            // }
             inputColors = config.colors;
             inputEnergy = config.type
         }
@@ -314,7 +253,7 @@ export class MusicService {
             const amplitude = amplitudeArray[i];
             let energyLevel;
             if (!inputEnergy)
-                energyLevel = this.mapEnergy(amplitude);// inputEnergy ? inputEnergy : 
+                energyLevel = this.mapEnergy(amplitude);
             const intervalStart = i * intervalDuration;
             const intervalEnd = (i + 1) * intervalDuration;
             const intensity = Math.sqrt(amplitude);
@@ -332,12 +271,7 @@ export class MusicService {
 
     async generateBySentiment(config, sentiment, amplitudeArray, intervalDuration, intervalCount, familyCount) {
         let inputColors: string[], inputSentiment: Energy;
-        //fixconfig
         if (config) {
-            // && typeof config.type === "number" && Object.values(Energy).includes(config.type)) {
-            // if (type && config.type !== type) {
-            //     throw new Error("Invalid input parameters");
-            // }
             inputColors = config.colors;
             inputSentiment = config.type
         }
@@ -369,15 +303,57 @@ export class MusicService {
         }
         return intervalData;
     }
+    //#endregion
 
-    //helpers
+    //#region helpers
+
+    getGradientRgbArray(rgbColor1, rgbColor2, count) {
+        let stepR = (rgbColor2.r - rgbColor1.r) / (count - 1);
+        let stepG = (rgbColor2.g - rgbColor1.g) / (count - 1);
+        let stepB = (rgbColor2.b - rgbColor1.b) / (count - 1);
+        let gradient = [];
+
+        for (let i = 0; i < count; i++) {
+            let r = Math.round(rgbColor1.r + stepR * i);
+            let g = Math.round(rgbColor1.g + stepG * i);
+            let b = Math.round(rgbColor1.b + stepB * i);
+            gradient.push([r, g, b]);
+        }
+
+        return gradient;
+    }
+
+    getMatchingColor(bpm, frequency, colors) {
+        let bestColor = '';
+        let bestMatchScore = Number.MAX_VALUE;
+
+        for (let i = 0; i < colors.length; i++) {
+            const color = colors[i];
+            const [r, g, b] = this.hexToRgb(color);
+            const matchScore = this.calculateMatchScore(bpm, frequency, r, g, b);
+            if (matchScore < bestMatchScore) {
+                bestMatchScore = matchScore;
+                bestColor = color;
+            }
+        }
+
+        return bestColor;
+    }
+
+    calculateMatchScore(bpm, frequency, r, g, b) {
+        // Calculate the difference between the given BPM and frequency and the color components
+        const bpmDiff = Math.abs(bpm - r);
+        const frequencyDiff = Math.abs(frequency - g) + (Math.random() * 1000 - 500);
+
+        // Calculate a weighted score based on the differences
+        const matchScore = Math.sqrt((bpmDiff * bpmDiff) + (frequencyDiff * frequencyDiff) - b);
+
+        return matchScore;
+
+    }
+
 
     getColorFromFrequency(frequency) {
-        //let shiftedFrequency = frequency;
-        // if (shiftedFrequency < 20) {
-        //     shiftedFrequency = 20;
-        // }
-        //shiftedFrequency -= 20;
         const hue = Math.round(frequency) % 360;
         const saturation = Math.max(30, Math.min(70, frequency * 2.5));
         const lightness = Math.max(10, Math.min(90, frequency * 1.5));
@@ -654,7 +630,7 @@ export class MusicService {
         return { sentiment, maxMatch };
     }
 
-    //others
+    //other
 
     rgbToHex(rgb) {
         // Convert the red, green, and blue values to hex strings
@@ -769,6 +745,47 @@ export class MusicService {
         return sum / count;
     }
 
+    getColorFamily(color, count) {
+        // Parse the input color from hex to RGB format
+        const r = parseInt(color.substring(1, 3), 16);
+        const g = parseInt(color.substring(3, 5), 16);
+        const b = parseInt(color.substring(5, 7), 16);
+        // Define a function to interpolate between two colors
+        function interpolateColor(color1, color2, factor) {
+            const r1 = parseInt(color1.substring(1, 3), 16);
+            const g1 = parseInt(color1.substring(3, 5), 16);
+            const b1 = parseInt(color1.substring(5, 7), 16);
+            const r2 = parseInt(color2.substring(1, 3), 16);
+            const g2 = parseInt(color2.substring(3, 5), 16);
+            const b2 = parseInt(color2.substring(5, 7), 16);
+            const r = Math.round(r1 + factor * (r2 - r1));
+            const g = Math.round(g1 + factor * (g2 - g1));
+            const b = Math.round(b1 + factor * (b2 - b1));
+            return "#" + r.toString(16).padStart(2, "0") +
+                g.toString(16).padStart(2, "0") +
+                b.toString(16).padStart(2, "0");
+        }
+        // Define the parent colors as slightly darker versions of the input color
+        const parents = [];
+        for (let i = 0; i < count / 2; i++) {
+            const factor = (i + 1) / (count / 2 + 1);
+            const parent = interpolateColor("#000000", color, factor);
+            parents.push(parent);
+        }
+        // Define the child colors as slightly lighter versions of the input color
+        const children = [];
+        for (let i = 0; i < count / 2; i++) {
+            const factor = (i + 1) / (count / 2 + 1);
+            const child = interpolateColor(color, "#ffffff", factor);
+            children.push(child);
+        }
+        // Return the combined array of parent and child colors
+        return parents.concat(children);
+    }
+    //#endregion
+
+    //#region metadata
+    //metadata
     async requestToShazam(decodeAudio: any) {
         const rawData = await this.convertAudioBufferToRawPcm(decodeAudio.buffer);
 
@@ -837,46 +854,12 @@ export class MusicService {
         return [name, genre];
     }
 
-    getColorFamily(color, count) {
-        // Parse the input color from hex to RGB format
-        const r = parseInt(color.substring(1, 3), 16);
-        const g = parseInt(color.substring(3, 5), 16);
-        const b = parseInt(color.substring(5, 7), 16);
-        // Define a function to interpolate between two colors
-        function interpolateColor(color1, color2, factor) {
-            const r1 = parseInt(color1.substring(1, 3), 16);
-            const g1 = parseInt(color1.substring(3, 5), 16);
-            const b1 = parseInt(color1.substring(5, 7), 16);
-            const r2 = parseInt(color2.substring(1, 3), 16);
-            const g2 = parseInt(color2.substring(3, 5), 16);
-            const b2 = parseInt(color2.substring(5, 7), 16);
-            const r = Math.round(r1 + factor * (r2 - r1));
-            const g = Math.round(g1 + factor * (g2 - g1));
-            const b = Math.round(b1 + factor * (b2 - b1));
-            return "#" + r.toString(16).padStart(2, "0") +
-                g.toString(16).padStart(2, "0") +
-                b.toString(16).padStart(2, "0");
-        }
-        // Define the parent colors as slightly darker versions of the input color
-        const parents = [];
-        for (let i = 0; i < count / 2; i++) {
-            const factor = (i + 1) / (count / 2 + 1);
-            const parent = interpolateColor("#000000", color, factor);
-            parents.push(parent);
-        }
-        // Define the child colors as slightly lighter versions of the input color
-        const children = [];
-        for (let i = 0; i < count / 2; i++) {
-            const factor = (i + 1) / (count / 2 + 1);
-            const child = interpolateColor(color, "#ffffff", factor);
-            children.push(child);
-        }
-        // Return the combined array of parent and child colors
-        return parents.concat(children);
-    }
+    //#endregion
+
 }
 
- //addShazam maybe others to
+//#region todo
+    //addShazam maybe others to
 
     //generateByCoverColors
     //real-timeprocessing
@@ -885,3 +868,15 @@ export class MusicService {
     //test context==true?2 options:1 for now
     //one function to do all,
     //endpoints//above parts
+
+    //dto passing param using
+    //defaults creating and update add delete to for others
+    //audio-metadata getting from shazam and others
+
+    //genreWeights
+    //energyLevel
+
+    //add postman test fix,fix clean all code create front
+    //color family
+    //gradient
+    //#endregion

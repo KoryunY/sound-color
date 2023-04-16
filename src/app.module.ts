@@ -13,15 +13,3 @@ import { Module } from '@nestjs/common';
   providers: [AppService],
 })
 export class AppModule { }
-
-
-//dto passing param using
-//defaults creating and update add delete to for others
-//audio-metadata getting from shazam and others
-
-//genreWeights
-//energyLevel
-
-//add postman test fix,fix clean all code create front
-//color family
-//gradient
