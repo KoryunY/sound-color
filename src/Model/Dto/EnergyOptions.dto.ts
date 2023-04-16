@@ -1,6 +1,5 @@
-import { Optional } from "@nestjs/common";
+import { ConvertingType, SaveAndReturnOption } from "src/Defaults/types";
 import { ObjectId } from "mongoose";
-import { ConvertingType, Energy, Genre, Instrument, SaveAndReturnOption } from "src/Defaults/types";
 
 export interface EnergyOptionsDto {
     name: string,

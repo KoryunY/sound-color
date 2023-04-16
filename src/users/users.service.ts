@@ -1,11 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { ConvertingType } from 'src/Defaults/types';
-import { SynesthesiaOptionsDto } from 'src/Model/Dto/SynesthesiaOptions.dto';
-import { ConfigDto } from 'src/Model/Dto/Config.dto';
-import { UpdateConfigDto } from 'src/Model/Dto/UpdateConfig.dto';
-import { Audio } from 'src/Model/audio.schema';
 import { Config } from 'src/Model/configs.schema';
 import { User } from 'src/Model/user.schema';
 import { MusicService } from 'src/services/music.service';
@@ -14,7 +9,6 @@ import { MusicService } from 'src/services/music.service';
 export class UsersService {
     constructor(
         @InjectModel(User.name) private userModel: Model<User>,
-        @InjectModel(Config.name) private configModel: Model<Config>,
         private musicService: MusicService
     ) { }
 

@@ -1,12 +1,12 @@
-import { Module } from '@nestjs/common';
-import { AudioService } from './audio.service';
-import { AudioController } from './audio.controller';
-import { MusicService } from 'src/services/music.service';
-import { MongooseModule } from '@nestjs/mongoose';
 import { Config, ConfigSchema } from 'src/Model/configs.schema';
 import { Audio, AudioSchema } from 'src/Model/audio.schema';
 import { User, UserSchema } from 'src/Model/user.schema';
+import { AudioController } from './audio.controller';
+import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigService } from 'src/config/config.service';
+import { AudioService } from './audio.service';
+import { MusicService } from 'src/services/music.service';
+import { Module } from '@nestjs/common';
 
 @Module({
   imports: [MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),

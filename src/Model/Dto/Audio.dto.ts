@@ -1,6 +1,5 @@
-import { Optional } from "@nestjs/common";
 import { ObjectId, Types } from "mongoose";
-import { ConvertingType, IData } from "src/Defaults/types";
+import { IData } from "src/Defaults/types";
 
 export interface AudioDto {
     name: string,

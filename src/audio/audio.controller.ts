@@ -1,14 +1,14 @@
 import { Body, Controller, Delete, Get, Param, Post, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
-import { AudioService } from './audio.service';
-import { AudioDto } from 'src/Model/Dto/Audio.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { ConvertingType, Genre, Instrument, SaveAndReturnOption, Sentiment, Tempo } from 'src/Defaults/types';
 import { SynesthesiaOptionsDto } from 'src/Model/Dto/SynesthesiaOptions.dto';
+import { InstrumentOptionsDto } from 'src/Model/Dto/InstrumentOptions.dto';
+import { SentimentOptionsDto } from 'src/Model/Dto/SentimentOptions.dto';
+import { EnergyOptionsDto } from 'src/Model/Dto/EnergyOptions.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { GenreOptionsDto } from 'src/Model/Dto/GenreOptions.dto';
 import { TempoOptionsDto } from 'src/Model/Dto/TempoOptions.dto';
-import { InstrumentOptionsDto } from 'src/Model/Dto/InstrumentOptions.dto';
-import { EnergyOptionsDto } from 'src/Model/Dto/EnergyOptions.dto';
-import { ConvertingType, Energy, Genre, Instrument, SaveAndReturnOption, Sentiment, Tempo } from 'src/Defaults/types';
-import { SentimentOptionsDto } from 'src/Model/Dto/SentimentOptions.dto';
+import { AudioService } from './audio.service';
+import { AudioDto } from 'src/Model/Dto/Audio.dto';
 
 @Controller('audio')
 export class AudioController {

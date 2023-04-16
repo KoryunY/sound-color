@@ -1,12 +1,7 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Energy, Genre, Instrument, Sentiment, Tempo } from 'src/Defaults/types';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UsersService } from './users.service';
-import { AllowedMimes } from 'src/Defaults/consts';
-import { SynesthesiaOptionsDto } from 'src/Model/Dto/SynesthesiaOptions.dto';
-import { Energy, Genre, Instrument, Sentiment, Tempo } from 'src/Defaults/types';
-import { UpdateConfigDto } from 'src/Model/Dto/UpdateConfig.dto';
-import { ConfigDto } from 'src/Model/Dto/Config.dto';
-
 
 @Controller('users')
 export class UsersController {

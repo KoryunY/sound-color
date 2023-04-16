@@ -1,6 +1,4 @@
-import { Optional } from "@nestjs/common";
-import { ObjectId, Types } from "mongoose";
-import { ConvertingType, Energy, Genre, IData, Instrument, Sentiment, Tempo } from "src/Defaults/types";
+import { Energy, Genre, Instrument, Sentiment, Tempo } from "src/Defaults/types";
 
 export interface ConfigDto {
     name: string,

@@ -3,13 +3,12 @@ import DSP from 'dsp.js';
 import axios from 'axios';
 import fs from 'fs';
 
-import { ConvertingType, Energy, Genre, Instrument, Tempo } from 'src/Defaults/types';
 import { instrumentPitchRanges, energyColors, genreColors, instrumentColors, sentimentsColors, sentimentDict, tempoColors, frequencyBandColors, genres, genreWeights, tempos } from 'src/Defaults/consts';
+import { ConvertingType, Energy, Genre, Instrument, Tempo } from 'src/Defaults/types';
 
 
 @Injectable()
 export class MusicService {
-    //optimize all functions
 
     //decode audio
     async decodeAudio(audioBuffer: any) {
@@ -90,7 +89,7 @@ export class MusicService {
             let newIntervalData = [];
             for (let i = 0; i < intervalData.length - 1; i++) {
                 const { start: start1, end: end1, color: color1, intensity: intensity1 } = intervalData[i];
-                const { start: start2, end: end2, color: color2, intensity: intensity2 } = intervalData[i + 1];
+                const { color: color2, intensity: intensity2 } = intervalData[i + 1];
                 const match1 = color1.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
                 const match2 = color2.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
                 const r1 = parseInt(match1[1], 10);
@@ -798,8 +797,7 @@ export class MusicService {
 
         const genres = data.track.genres;
         const words = data.track.sections[1].text
-        console.log(words)
-        const sentiment = this.sentimentFromWords(this.extractUniqueWords(words));
+        const sentiment = this.sentimentFromWords(this.extractUniqueWords(words)).sentiment;
         const name = data.track.share.subject;
 
         return [name, genres, sentiment];

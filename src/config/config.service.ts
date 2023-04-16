@@ -1,11 +1,9 @@
-import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model, ObjectId } from 'mongoose';
-import { ConfigDto } from 'src/Model/Dto/Config.dto';
 import { UpdateConfigDto } from 'src/Model/Dto/UpdateConfig.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { Injectable } from '@nestjs/common';
+import { ConfigDto } from 'src/Model/Dto/Config.dto';
 import { Config } from 'src/Model/configs.schema';
-import { User } from 'src/Model/user.schema';
-import { MusicService } from 'src/services/music.service';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class ConfigService {

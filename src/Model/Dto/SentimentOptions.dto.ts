@@ -1,6 +1,5 @@
-import { Optional } from "@nestjs/common";
+import { ConvertingType, SaveAndReturnOption, Sentiment } from "src/Defaults/types";
 import { ObjectId } from "mongoose";
-import { ConvertingType, Energy, Genre, Instrument, SaveAndReturnOption, Sentiment } from "src/Defaults/types";
 
 export interface SentimentOptionsDto {
     name: string,
@@ -9,5 +8,5 @@ export interface SentimentOptionsDto {
     user: ObjectId,
     intervalCount: number,
     config?: string,
-    sentiment:Sentiment
+    sentiment: Sentiment
 }

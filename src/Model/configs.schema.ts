@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
-import { Genre, Tempo, Energy, Sentiment, Instrument } from 'src/Defaults/types';
 
 export type ConfigDocument = HydratedDocument<Config>;
 
@@ -10,7 +9,7 @@ export class Config {
     name: string;
 
     @Prop()
-    type: string//Genre | Tempo | Energy | Sentiment | Instrument;
+    type: string
 
     @Prop()
     colors: string[];

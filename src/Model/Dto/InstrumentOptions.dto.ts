@@ -1,6 +1,5 @@
-import { Optional } from "@nestjs/common";
+import { ConvertingType, Instrument, SaveAndReturnOption } from "src/Defaults/types";
 import { ObjectId } from "mongoose";
-import { ConvertingType, Genre, Instrument, SaveAndReturnOption } from "src/Defaults/types";
 
 export interface InstrumentOptionsDto {
     name: string,
