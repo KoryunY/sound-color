@@ -8,5 +8,6 @@ export interface SentimentOptionsDto {
     user: ObjectId,
     intervalCount: number,
     config?: string,
-    sentiment: Sentiment
+    sentiment?: Sentiment,
+    familyCount?: number
 }

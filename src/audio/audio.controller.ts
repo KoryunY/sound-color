@@ -137,7 +137,8 @@ export class AudioController {
             intervalCount: parseInt(colorOptionsDto.intervalCount),
             config: colorOptionsDto.config,
             user: colorOptionsDto.user,
-            sentiment: Sentiment[colorOptionsDto.sentiment]
+            sentiment: Sentiment[colorOptionsDto.sentiment],
+            familyCount: parseInt(colorOptionsDto.familyCount)
         };
 
         return this.audioService.generateBySentiment(dto, audio);

@@ -330,7 +330,7 @@ export class MusicService {
         return intervalData;
     }
 
-    async generateBySentiment(config, sentiment, amplitudeArray, intervalDuration, intervalCount) {
+    async generateBySentiment(config, sentiment, amplitudeArray, intervalDuration, intervalCount, familyCount) {
         let inputColors: string[], inputSentiment: Energy;
         //fixconfig
         if (config) {
@@ -343,6 +343,14 @@ export class MusicService {
         }
 
         const intervalData = [];
+        let sentimentColors = inputColors ? inputColors : sentimentsColors[sentiment];
+        if (familyCount && familyCount > 1) {
+            let colorFamily = [];
+            for (let i = 0; i < sentimentColors.length; i++) {
+                colorFamily.push(...this.getColorFamily(sentimentColors[i], familyCount))
+            }
+            sentimentColors = colorFamily;
+        }
 
         for (let i = 0; i < intervalCount; i++) {
             const amplitude = amplitudeArray[i];
@@ -351,8 +359,8 @@ export class MusicService {
             const intervalEnd = (i + 1) * intervalDuration;
             const intensity = Math.sqrt(amplitude);
 
-            const sentimentColors = inputColors ? inputColors : sentimentsColors[sentiment];
             const colorIndex = Math.floor(Math.random() * sentimentColors.length);
+
             const [red, green, blue] = this.hexToRgb(sentimentColors[colorIndex]);
 
             const color = `rgb(${red}, ${green}, ${blue})`;
@@ -827,6 +835,44 @@ export class MusicService {
         const name = metadata.common.title + ' - ' + metadata.common.artist;
 
         return [name, genre];
+    }
+
+    getColorFamily(color, count) {
+        // Parse the input color from hex to RGB format
+        const r = parseInt(color.substring(1, 3), 16);
+        const g = parseInt(color.substring(3, 5), 16);
+        const b = parseInt(color.substring(5, 7), 16);
+        // Define a function to interpolate between two colors
+        function interpolateColor(color1, color2, factor) {
+            const r1 = parseInt(color1.substring(1, 3), 16);
+            const g1 = parseInt(color1.substring(3, 5), 16);
+            const b1 = parseInt(color1.substring(5, 7), 16);
+            const r2 = parseInt(color2.substring(1, 3), 16);
+            const g2 = parseInt(color2.substring(3, 5), 16);
+            const b2 = parseInt(color2.substring(5, 7), 16);
+            const r = Math.round(r1 + factor * (r2 - r1));
+            const g = Math.round(g1 + factor * (g2 - g1));
+            const b = Math.round(b1 + factor * (b2 - b1));
+            return "#" + r.toString(16).padStart(2, "0") +
+                g.toString(16).padStart(2, "0") +
+                b.toString(16).padStart(2, "0");
+        }
+        // Define the parent colors as slightly darker versions of the input color
+        const parents = [];
+        for (let i = 0; i < count / 2; i++) {
+            const factor = (i + 1) / (count / 2 + 1);
+            const parent = interpolateColor("#000000", color, factor);
+            parents.push(parent);
+        }
+        // Define the child colors as slightly lighter versions of the input color
+        const children = [];
+        for (let i = 0; i < count / 2; i++) {
+            const factor = (i + 1) / (count / 2 + 1);
+            const child = interpolateColor(color, "#ffffff", factor);
+            children.push(child);
+        }
+        // Return the combined array of parent and child colors
+        return parents.concat(children);
     }
 }
 

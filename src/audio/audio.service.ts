@@ -242,6 +242,7 @@ export class AudioService {
         let name: string = options.name;
         const type: ConvertingType = options.type;
         let intervalCount: number = options.intervalCount;
+        let familyCount: number = options.familyCount;
         let configId: string = options.config;
         const saveAndReturnOption: SaveAndReturnOption = options.saveAndReturnOption;
 
@@ -258,7 +259,7 @@ export class AudioService {
 
         let [amplitude, intervalDuration] = await this.musicService.generateIntervalData(audio, type, intervalCount);
 
-        const data = await this.musicService.generateBySentiment(config, sentiment, amplitude, intervalDuration, intervalCount);
+        const data = await this.musicService.generateBySentiment(config, sentiment, amplitude, intervalDuration, intervalCount, familyCount);
         const replaceData = JSON.stringify(data);
         const html = fs.readFileSync('./src/public/index.html', 'utf-8');
         const audioBuffer = audio.buffer.toString('base64');
