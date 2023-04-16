@@ -83,7 +83,7 @@ export class AudioController {
         return this.audioService.generateByTempo(dto, audio);
     }
 
-    @Post('insrument')
+    @Post('instrument')
     @UseInterceptors(FileInterceptor('audio'))
     generateInstrumentColors(@Body() colorOptionsDto: any, @UploadedFile() audio: Express.Multer.File) {
         const checkAttrMessage = this.audioService.checkAttr(audio.mimetype, audio.originalname);
@@ -95,7 +95,7 @@ export class AudioController {
             type: ConvertingType[colorOptionsDto.type],
             saveAndReturnOption: SaveAndReturnOption[colorOptionsDto.saveAndReturnOption],
             intervalCount: parseInt(colorOptionsDto.intervalCount),
-            instrument: Instrument[colorOptionsDto.tempo],
+            instrument: Instrument[colorOptionsDto.instrument],
             config: colorOptionsDto.config,
             user: colorOptionsDto.user
         };
@@ -115,7 +115,6 @@ export class AudioController {
             type: ConvertingType[colorOptionsDto.type],
             saveAndReturnOption: SaveAndReturnOption[colorOptionsDto.saveAndReturnOption],
             intervalCount: parseInt(colorOptionsDto.intervalCount),
-            energyLevel: Energy[colorOptionsDto.tempo],
             config: colorOptionsDto.config,
             user: colorOptionsDto.user
         };

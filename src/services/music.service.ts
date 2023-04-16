@@ -248,31 +248,32 @@ export class MusicService {
         return intervalData;
     }
 
-    async generateByEnergy(config, type, amplitudeArray, intervalDuration, intervalCount) {
-        let inputColors: string[], inputEnergy: Energy;
-
+    async generateByEnergy(config, amplitudeArray, intervalDuration, intervalCount) {
+        let inputColors: string[];// inputEnergy: Energy;
+        //fixconfig
         if (config) {
             // && typeof config.type === "number" && Object.values(Energy).includes(config.type)) {
             // if (type && config.type !== type) {
             //     throw new Error("Invalid input parameters");
             // }
             inputColors = config.colors;
-            inputEnergy = config.type
-        } else if (type) {
-            inputEnergy = type;
+            //inputEnergy = config.type
         }
-
+        // else if (type) {
+        //     inputEnergy = type;
+        // }
         const intervalData = [];
 
         for (let i = 0; i < intervalCount; i++) {
             const amplitude = amplitudeArray[i];
-            const energyLevel = inputEnergy ? inputEnergy : this.mapEnergy(amplitude);
+            const energyLevel = this.mapEnergy(amplitude);// inputEnergy ? inputEnergy : 
             const intervalStart = i * intervalDuration;
             const intervalEnd = (i + 1) * intervalDuration;
             const intensity = Math.sqrt(amplitude);
 
-            const energyColor = inputColors ? inputColors : energyColors[energyLevel];
-            const [red, green, blue] = this.hexToRgb(energyColor);
+            const energyColorss = inputColors ? inputColors : energyColors[energyLevel];
+            const colorIndex = Math.floor(Math.random() * energyColorss.length);
+            const [red, green, blue] = this.hexToRgb(energyColorss[colorIndex]);
 
             const color = `rgb(${red}, ${green}, ${blue})`;
             const interval = { start: intervalStart, end: intervalEnd, intensity, color };

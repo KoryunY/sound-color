@@ -53,9 +53,9 @@ export const tempoColors = {
 };
 
 export const energyColors = {
-    high: '#ff0000',  // red
-    mid: '#ffff00',  // yellow
-    low: '#00ff00',   // green
+    high: ['#ff0000', 'ff33cc', '3333ff'],// red
+    mid: ['#ffff00', '#ff5050', '#ffffff'],// yellow
+    low: ['#00ff00', '#000000', '#ffffff']  // green
 };
 
 export const instrumentColors = {

@@ -174,12 +174,12 @@ export class AudioService {
         let config;
 
         if (configId) {
-            config = this.configService.getConfig(configId);
+            config = await this.configService.getConfig(configId);
         }
 
         let [amplitude, intervalDuration, pitch] = await this.musicService.generateIntervalData(audio, type, intervalCount);
         const data = this.musicService.generateByInstrument(config, instrument, amplitude, pitch, intervalDuration, intervalCount);
-
+        return data
         const replaceData = JSON.stringify(data);
         const html = fs.readFileSync('./src/public/index.html', 'utf-8');
         const audioBuffer = audio.buffer.toString('base64');
@@ -210,17 +210,15 @@ export class AudioService {
         //  let ligthness: number = options.ligthness;
         let configId: string = options.config;
         let user: ObjectId = options.user;
-        let energyLevel: Energy = options.energyLevel;
-
         let config;
 
         if (configId) {
-            config = this.configService.getConfig(configId);
+            config = await this.configService.getConfig(configId);
         }
 
         let [amplitude, intervalDuration] = await this.musicService.generateIntervalData(audio, type, intervalCount);
-        const data = this.musicService.generateByEnergy(config, energyLevel, amplitude, intervalDuration, intervalCount);
-
+        const data = this.musicService.generateByEnergy(config, amplitude, intervalDuration, intervalCount);
+        return data
         const replaceData = JSON.stringify(data);
         const html = fs.readFileSync('./src/public/index.html', 'utf-8');
         const audioBuffer = audio.buffer.toString('base64');
