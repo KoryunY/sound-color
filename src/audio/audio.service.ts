@@ -51,28 +51,31 @@ export class AudioService {
                 intervalCount = defaultIntervalCount
         }
 
-        let [frequency, amplitude, duration, intervalDuration] = await this.musicService.generateIntervalData(audio, type, intervalCount);
-        const data = this.musicService.generateBySynesthesia(frequency, amplitude, duration, intervalDuration, intervalCount, gradientSplitCount);
-        //return data
+        //let [frequency, amplitude, duration, intervalDuration] = 
+        let asd = await this.musicService.generateIntervalData(audio, type, intervalCount);
+        console.log(asd)
+        return
+        // const data = this.musicService.generateBySynesthesia(frequency, amplitude, duration, intervalDuration, intervalCount, gradientSplitCount);
+        // //return data
 
-        const replaceData = JSON.stringify(data);
-        const html = fs.readFileSync('./src/public/index.html', 'utf-8');
-        const audioBuffer = audio.buffer.toString('base64');
-        const audioMimeType = audio.mimetype;
-        const audioSrc = `data:${audioMimeType};base64,${audioBuffer}`;
+        // const replaceData = JSON.stringify(data);
+        // const html = fs.readFileSync('./src/public/index.html', 'utf-8');
+        // const audioBuffer = audio.buffer.toString('base64');
+        // const audioMimeType = audio.mimetype;
+        // const audioSrc = `data:${audioMimeType};base64,${audioBuffer}`;
 
-        let replacedhtml = html.replace('<script id="data">', `<script id="data">\n        const data = ${replaceData};`);
-        const replacedHtml = replacedhtml.replace('audio.src = URL.createObjectURL(audioFile);', `audio.src = "${audioSrc}";`);
+        // let replacedhtml = html.replace('<script id="data">', `<script id="data">\n        const data = ${replaceData};`);
+        // const replacedHtml = replacedhtml.replace('audio.src = URL.createObjectURL(audioFile);', `audio.src = "${audioSrc}";`);
 
-        switch (saveAndReturnOption) {
-            case SaveAndReturnOption.SAVE_AND_RETURN_ID:
-                return (await this.audioModel.create({ name, data, user }))._id;
-            case SaveAndReturnOption.SAVE_AND_RETURN_DEMO:
-                await this.audioModel.create({ name, data, user })
-                return replacedHtml;
-            case SaveAndReturnOption.RETURN_DEMO:
-                return replacedHtml;
-        }
+        // switch (saveAndReturnOption) {
+        //     case SaveAndReturnOption.SAVE_AND_RETURN_ID:
+        //         return (await this.audioModel.create({ name, data, user }))._id;
+        //     case SaveAndReturnOption.SAVE_AND_RETURN_DEMO:
+        //         await this.audioModel.create({ name, data, user })
+        //         return replacedHtml;
+        //     case SaveAndReturnOption.RETURN_DEMO:
+        //         return replacedHtml;
+        // }
     }
 
     async generateByGenre(options: GenreOptionsDto, audio: any) {
@@ -301,6 +304,12 @@ export class AudioService {
     async test(audio: any) {
         let decoded = await this.musicService.decodeAudio(audio);
 
-        return this.musicService.cooleyTukeyFFT(decoded._channelData[0]);
+        return this.musicService.fft(decoded._channelData[0])//, decoded.sampleRate);
+    }
+
+    async test2(audio: any) {
+        let decoded = await this.musicService.decodeAudio(audio);
+
+        return this.musicService.getFft(decoded);
     }
 }

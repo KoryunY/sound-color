@@ -17,63 +17,139 @@ export class MusicService {
 
         return await decode.default(audioBuffer)
     }
+    reverseBits(n, numBits) {
+        let reversed = 0;
+        for (let i = 0; i < numBits; i++) {
+            reversed = (reversed << 1) | (n & 1);
+            n >>= 1;
+        }
+        return reversed;
+    }
+
+    fft(audioBuffer) {
+        let N = 1;
+        while (N < audioBuffer.length) {
+            N *= 2;
+        }
+
+        // Perform the FFT
+        const spectrum = new Array(N / 2).fill(0);
+        const re = new Array(N).fill(0);
+        const im = new Array(N).fill(0);
+
+        // Bit-reversal permutation
+        for (let i = 0; i < N; i++) {
+            const j = this.reverseBits(i, Math.log2(N));
+            re[j] = audioBuffer[i] || 0;
+        }
+
+        // FFT butterfly computation
+        for (let n = 2; n <= N; n *= 2) {
+            const halfN = n / 2;
+            const theta = (2 * Math.PI) / n;
+
+            for (let i = 0; i < N; i += n) {
+                let wR = 1;
+                let wI = 0;
+
+                for (let j = 0; j < halfN; j++) {
+                    const tR = wR * re[i + j + halfN] - wI * im[i + j + halfN];
+                    const tI = wR * im[i + j + halfN] + wI * re[i + j + halfN];
+                    const uR = re[i + j];
+                    const uI = im[i + j];
+
+                    re[i + j] = uR + tR;
+                    im[i + j] = uI + tI;
+                    re[i + j + halfN] = uR - tR;
+                    im[i + j + halfN] = uI - tI;
+
+                    const nextWR = Math.cos(theta) * wR - Math.sin(theta) * wI;
+                    wI = Math.sin(theta) * wR + Math.cos(theta) * wI;
+                    wR = nextWR;
+                }
+            }
+        }
+
+        // Calculate the magnitude spectrum
+        for (let k = 0; k < N / 2; k++) {
+            const magnitude = Math.sqrt(re[k] ** 2 + im[k] ** 2);
+            spectrum[k] = magnitude;
+        }
+
+        // Convert the frequency domain to Hz
+        const sampleRate = 44100; // Replace with the actual sample rate of your audio file
+        const frequencyBins = new Array(N / 2).fill(0);
+        for (let k = 0; k < N / 2; k++) {
+            frequencyBins[k] = k * (sampleRate / N);
+        }
+
+        return { frequencyBins, spectrum };
+    }
 
     // Returns the sum of two complex numbers
-    add(a, b) {
-        return [a[0] + b[0], a[1] + b[1]];
-    }
+    calculateFFT(audioBuffer, sampleRate) {
+        const N = audioBuffer.length;
 
-    // Returns the product of two complex numbers
-    mul(a, b) {
-        return [(a[0] * b[0]) - (a[1] * b[1]), (a[0] * b[1]) + (a[1] * b[0])];
-    }
+        // Ensure the length of the buffer is a power of 2
 
-    // Returns a complex number from polar coordinates (magnitude, phase)
-    fromPolar(magnitude, phase) {
-        return [magnitude * Math.cos(phase), magnitude * Math.sin(phase)];
-    }
+        // Perform the FFT
+        const spectrum = new Array(N / 2).fill(0);
+        const re = new Array(N).fill(0);
+        const im = new Array(N).fill(0);
 
-    cooleyTukeyFFT(buffer) {
-        const N = buffer.length;
-
-
-        console.log(buffer.length)
-        const evenBuffer = buffer.filter((_, index) => index % 2 === 0);
-        const oddBuffer = buffer.filter((_, index) => index % 2 === 1);
-        let evenFFT
-        let oddFFT
-        if (N > 1) {
-            evenFFT = this.cooleyTukeyFFT(evenBuffer);
-            oddFFT = this.cooleyTukeyFFT(oddBuffer);
-        }
-        
-        const twiddleFactors = new Array(N);
-        for (let k = 0; k < N; k++) {
-            const omega = {
-                re: Math.cos(-2 * Math.PI * k / N),
-                im: Math.sin(-2 * Math.PI * k / N)
-            };
-            twiddleFactors[k] = omega;
+        // Bit-reversal permutation
+        for (let i = 0; i < N; i++) {
+            const j = this.reverseBits(i, Math.log2(N));
+            re[j] = audioBuffer[i];
         }
 
-        const FFT = new Array(N);
-        for (let k = 0; k < N; k++) {
-            const even = evenFFT[k % (N / 2)];
-            const odd = oddFFT[k % (N / 2)];
-            const twiddle = twiddleFactors[k];
-            FFT[k] = {
-                re: even.re + twiddle.re * odd.re - twiddle.im * odd.im,
-                im: even.im + twiddle.re * odd.im + twiddle.im * odd.re
-            };
+        // FFT butterfly computation
+        for (let n = 2; n <= N; n *= 2) {
+            const halfN = n / 2;
+            const theta = (2 * Math.PI) / n;
+
+            for (let i = 0; i < N; i += n) {
+                let wR = 1;
+                let wI = 0;
+
+                for (let j = 0; j < halfN; j++) {
+                    const tR = wR * re[i + j + halfN] - wI * im[i + j + halfN];
+                    const tI = wR * im[i + j + halfN] + wI * re[i + j + halfN];
+                    const uR = re[i + j];
+                    const uI = im[i + j];
+
+                    re[i + j] = uR + tR;
+                    im[i + j] = uI + tI;
+                    re[i + j + halfN] = uR - tR;
+                    im[i + j + halfN] = uI - tI;
+
+                    const nextWR = Math.cos(theta) * wR - Math.sin(theta) * wI;
+                    wI = Math.sin(theta) * wR + Math.cos(theta) * wI;
+                    wR = nextWR;
+                }
+            }
         }
 
-        return FFT;
+        // Calculate the magnitude spectrum
+        for (let k = 0; k < N / 2; k++) {
+            const magnitude = Math.sqrt(re[k] ** 2 + im[k] ** 2);
+            spectrum[k] = magnitude;
+        }
+
+        // Convert the frequency domain to Hz
+        const frequencyBins = new Array(N / 2).fill(0);
+        for (let k = 0; k < N / 2; k++) {
+            frequencyBins[k] = k * (sampleRate / N);
+        }
+
+        return { frequencyBins, spectrum };
     }
 
     //getIntervals
     async generateIntervalData(audio: any, type: ConvertingType, intervalCount?: number) { //xary count logic
         const decodedAudio = await this.decodeAudio(audio);
         let fft = this.getFft(decodedAudio);
+        return fft
         let duration = this.getDuration(decodedAudio);
         let frequency = this.getFrequencyData(fft, decodedAudio._channelData[0].length, intervalCount);
 
