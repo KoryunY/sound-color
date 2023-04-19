@@ -297,4 +297,10 @@ export class AudioService {
         const count = await this.audioModel.countDocuments({ _id: id }).exec();
         return count > 0;
     }
+
+    async test(audio: any) {
+        let decoded = await this.musicService.decodeAudio(audio);
+
+        return this.musicService.cooleyTukeyFFT(decoded._channelData[0]);
+    }
 }

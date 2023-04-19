@@ -18,6 +18,58 @@ export class MusicService {
         return await decode.default(audioBuffer)
     }
 
+    // Returns the sum of two complex numbers
+    add(a, b) {
+        return [a[0] + b[0], a[1] + b[1]];
+    }
+
+    // Returns the product of two complex numbers
+    mul(a, b) {
+        return [(a[0] * b[0]) - (a[1] * b[1]), (a[0] * b[1]) + (a[1] * b[0])];
+    }
+
+    // Returns a complex number from polar coordinates (magnitude, phase)
+    fromPolar(magnitude, phase) {
+        return [magnitude * Math.cos(phase), magnitude * Math.sin(phase)];
+    }
+
+    cooleyTukeyFFT(buffer) {
+        const N = buffer.length;
+
+
+        console.log(buffer.length)
+        const evenBuffer = buffer.filter((_, index) => index % 2 === 0);
+        const oddBuffer = buffer.filter((_, index) => index % 2 === 1);
+        let evenFFT
+        let oddFFT
+        if (N > 1) {
+            evenFFT = this.cooleyTukeyFFT(evenBuffer);
+            oddFFT = this.cooleyTukeyFFT(oddBuffer);
+        }
+        
+        const twiddleFactors = new Array(N);
+        for (let k = 0; k < N; k++) {
+            const omega = {
+                re: Math.cos(-2 * Math.PI * k / N),
+                im: Math.sin(-2 * Math.PI * k / N)
+            };
+            twiddleFactors[k] = omega;
+        }
+
+        const FFT = new Array(N);
+        for (let k = 0; k < N; k++) {
+            const even = evenFFT[k % (N / 2)];
+            const odd = oddFFT[k % (N / 2)];
+            const twiddle = twiddleFactors[k];
+            FFT[k] = {
+                re: even.re + twiddle.re * odd.re - twiddle.im * odd.im,
+                im: even.im + twiddle.re * odd.im + twiddle.im * odd.re
+            };
+        }
+
+        return FFT;
+    }
+
     //getIntervals
     async generateIntervalData(audio: any, type: ConvertingType, intervalCount?: number) { //xary count logic
         const decodedAudio = await this.decodeAudio(audio);
