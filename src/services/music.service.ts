@@ -11,180 +11,13 @@ import { ConvertingType, Energy, Genre, Instrument, Tempo } from 'src/Defaults/t
 export class MusicService {
     //#region MAIN
 
-    getRealAndImag2(audioBuffer) {
-        const n = Math.pow(2, Math.ceil(Math.log2(audioBuffer.length)));
-        const real = new Float32Array(n / 2);
-        const imag = new Float32Array(n / 2);
-        const tempReal = new Float32Array(n);
-        const tempImag = new Float32Array(n);
-
-        // Calculate the Fourier Transform using the Radix-2 FFT algorithm
-        function fft(input, output, inverse) {
-            const sign = inverse ? 1 : -1;
-
-            // Bit-reverse the input
-            for (let i = 0; i < input.length; i++) {
-                let j = i;
-                let k = 0;
-
-                for (let bit = 0; bit < Math.log2(input.length); bit++) {
-                    k = 2 * k + (j & 1);
-                    j >>= 1;
-                }
-
-                if (k > i) {
-                    [input[i], input[k]] = [input[k], input[i]];
-                }
-            }
-
-            // Calculate the Fourier Transform using the Radix-2 FFT algorithm
-            for (let s = 1; s <= Math.log2(input.length); s++) {
-                const m = 1 << s;
-                const wm = sign * Math.PI / (m / 2);
-
-                let w = 1;
-                const wpr = Math.cos(wm);
-                const wpi = Math.sin(wm);
-
-                for (let j = 0; j < m / 2; j++) {
-                    for (let k = j; k < input.length; k += m) {
-                        const l = k + m / 2;
-                        const tr = w * input[l] - w * output[l];
-                        const ti = w * output[l] + w * input[l];
-
-                        input[l] = input[k] - tr;
-                        output[l] = output[k] - ti;
-                        input[k] += tr;
-                        output[k] += ti;
-                    }
-
-                    const temp = w;
-                    w = w * wpr - w * wpi + w;
-                }
-            }
-
-            if (inverse) {
-                for (let i = 0; i < input.length; i++) {
-                    input[i] /= input.length;
-                    output[i] /= output.length;
-                }
-            }
-        }
-
-        // // Copy the audio buffer to a temporary buffer and apply a window function
-        // tempReal.set(audioBuffer);
-        // for (let i = 0; i < n; i++) {
-        //     tempReal[i] *= 0.54 - 0.46 * Math.cos(2 * Math.PI * i / (n - 1));
-        // }
-        tempReal.set(audioBuffer);
-        for (let i = audioBuffer.length; i < n; i++) {
-            tempReal[i] = 0;
-        }
-        // Apply the window function
-        for (let i = 0; i < n; i++) {
-            tempReal[i] *= 0.54 - 0.46 * Math.cos(2 * Math.PI * i / (n - 1));
-        }
-
-        // Calculate the Fourier Transform of the audio buffer
-        fft(tempReal, tempImag, false);
-
-        // Extract the real and imaginary parts of the Fourier Transform
-        for (let i = 0; i < n / 2; i++) {
-            real[i] = tempReal[i];
-            imag[i] = tempImag[i];
-        }
-
-        return { real, imag };
-    }
-
-    getRealAndImag(audioBuffer) {
-        const n = audioBuffer.length;
-        const real = new Float32Array(n / 2);
-        const imag = new Float32Array(n / 2);
-        const tempReal = new Float32Array(n);
-        const tempImag = new Float32Array(n);
-
-        // Use the Cooley-Tukey algorithm to calculate the Fourier Transform
-        function fft(input, output, inverse) {
-            const sign = inverse ? 1 : -1;
-            const theta = 2 * sign * Math.PI / input.length;
-            const len = input.length / 2;
-
-            // Bit-reverse the input
-            for (let i = 0; i < input.length; i++) {
-                let j = i;
-                let k = 0;
-
-                for (let bit = 0; bit < len; bit++) {
-                    k = 2 * k + (j & 1);
-                    j >>= 1;
-                }
-
-                if (k > i) {
-                    [input[i], input[k]] = [input[k], input[i]];
-                }
-            }
-
-            // Calculate the Fourier Transform using the Cooley-Tukey algorithm
-            for (let s = 1; s <= len; s <<= 1) {
-                const wm = Math.sin(theta * s);
-                const wp = Math.sin(theta * s / 2);
-                const wpr = -2 * wp * wp;
-                const wpi = Math.sin(theta * s);
-
-                let wr = 1;
-                let wi = 0;
-
-                for (let m = 0; m < s; m++) {
-                    for (let k = m; k < input.length; k += 2 * s) {
-                        const j = k + s;
-                        const tr = wr * input[j] - wi * output[j];
-                        const ti = wr * output[j] + wi * input[j];
-
-                        input[j] = input[k] - tr;
-                        output[j] = output[k] - ti;
-                        input[k] += tr;
-                        output[k] += ti;
-                    }
-
-                    const temp = wr;
-                    wr += wr * wpr - wi * wpi;
-                    wi += wi * wpr + temp * wpi;
-                }
-            }
-
-            if (inverse) {
-                for (let i = 0; i < input.length; i++) {
-                    input[i] /= input.length;
-                    output[i] /= output.length;
-                }
-            }
-        }
-
-        // Copy the audio buffer to a temporary buffer and apply a window function
-        tempReal.set(audioBuffer);
-        for (let i = 0; i < n; i++) {
-            tempReal[i] *= 0.54 - 0.46 * Math.cos(2 * Math.PI * i / (n - 1));
-        }
-
-        // Calculate the Fourier Transform of the audio buffer
-        fft(tempReal, tempImag, false);
-
-        // Extract the real and imaginary parts of the Fourier Transform
-        for (let i = 0; i < n / 2; i++) {
-            real[i] = tempReal[i];
-            imag[i] = tempImag[i];
-        }
-
-        return { real, imag };
-    }
-
     //decode audio
     async decodeAudio(audioBuffer: any) {
         const decode = await import('audio-decode');
 
         return await decode.default(audioBuffer)
     }
+
     reverseBits(n, numBits) {
         let reversed = 0;
         for (let i = 0; i < numBits; i++) {
@@ -251,73 +84,15 @@ export class MusicService {
             frequencyBins[k] = k * (sampleRate / N);
         }
 
-        return { frequencyBins, spectrum };
-    }
-
-    // Returns the sum of two complex numbers
-    calculateFFT(audioBuffer, sampleRate) {
-        const N = audioBuffer.length;
-
-        // Ensure the length of the buffer is a power of 2
-
-        // Perform the FFT
-        const spectrum = new Array(N / 2).fill(0);
-        const re = new Array(N).fill(0);
-        const im = new Array(N).fill(0);
-
-        // Bit-reversal permutation
-        for (let i = 0; i < N; i++) {
-            const j = this.reverseBits(i, Math.log2(N));
-            re[j] = audioBuffer[i];
-        }
-
-        // FFT butterfly computation
-        for (let n = 2; n <= N; n *= 2) {
-            const halfN = n / 2;
-            const theta = (2 * Math.PI) / n;
-
-            for (let i = 0; i < N; i += n) {
-                let wR = 1;
-                let wI = 0;
-
-                for (let j = 0; j < halfN; j++) {
-                    const tR = wR * re[i + j + halfN] - wI * im[i + j + halfN];
-                    const tI = wR * im[i + j + halfN] + wI * re[i + j + halfN];
-                    const uR = re[i + j];
-                    const uI = im[i + j];
-
-                    re[i + j] = uR + tR;
-                    im[i + j] = uI + tI;
-                    re[i + j + halfN] = uR - tR;
-                    im[i + j + halfN] = uI - tI;
-
-                    const nextWR = Math.cos(theta) * wR - Math.sin(theta) * wI;
-                    wI = Math.sin(theta) * wR + Math.cos(theta) * wI;
-                    wR = nextWR;
-                }
-            }
-        }
-
-        // Calculate the magnitude spectrum
-        for (let k = 0; k < N / 2; k++) {
-            const magnitude = Math.sqrt(re[k] ** 2 + im[k] ** 2);
-            spectrum[k] = magnitude;
-        }
-
-        // Convert the frequency domain to Hz
-        const frequencyBins = new Array(N / 2).fill(0);
-        for (let k = 0; k < N / 2; k++) {
-            frequencyBins[k] = k * (sampleRate / N);
-        }
-
-        return { frequencyBins, spectrum };
+        return { real: re, imag: im, spectrum, frequencyBins };
     }
 
     //getIntervals
     async generateIntervalData(audio: any, type: ConvertingType, intervalCount?: number) { //xary count logic
         const decodedAudio = await this.decodeAudio(audio);
-        let fft = this.getFft(decodedAudio);
-        return fft
+        //let fft = this.getFft(decodedAudio); //        let fft = this.fft(decodedAudio._channelData[0]);
+        let fft = this.fft(decodedAudio._channelData[0]);
+
         let duration = this.getDuration(decodedAudio);
         let frequency = this.getFrequencyData(fft, decodedAudio._channelData[0].length, intervalCount);
 
@@ -343,9 +118,7 @@ export class MusicService {
                 return [amplitude, intervalDuration];
             case ConvertingType.SPEECH:
                 return [amplitude, intervalDuration];
-
         }
-
     }
 
     generateBySynesthesia(frequencyArray, amplitudeArray, duration = null, intervalDuration = null, intervalCount = null, gradientSplitCount = null) {
@@ -1153,7 +926,6 @@ export class MusicService {
     //#endregion
 
 }
-
 //#region todo
     //addShazam maybe others to
 

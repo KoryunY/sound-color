@@ -51,31 +51,28 @@ export class AudioService {
                 intervalCount = defaultIntervalCount
         }
 
-        //let [frequency, amplitude, duration, intervalDuration] = 
-        let asd = await this.musicService.generateIntervalData(audio, type, intervalCount);
-        console.log(asd)
-        return
-        // const data = this.musicService.generateBySynesthesia(frequency, amplitude, duration, intervalDuration, intervalCount, gradientSplitCount);
-        // //return data
+        let [frequency, amplitude, duration, intervalDuration] = await this.musicService.generateIntervalData(audio, type, intervalCount);
 
-        // const replaceData = JSON.stringify(data);
-        // const html = fs.readFileSync('./src/public/index.html', 'utf-8');
-        // const audioBuffer = audio.buffer.toString('base64');
-        // const audioMimeType = audio.mimetype;
-        // const audioSrc = `data:${audioMimeType};base64,${audioBuffer}`;
+        const data = this.musicService.generateBySynesthesia(frequency, amplitude, duration, intervalDuration, intervalCount, gradientSplitCount);
 
-        // let replacedhtml = html.replace('<script id="data">', `<script id="data">\n        const data = ${replaceData};`);
-        // const replacedHtml = replacedhtml.replace('audio.src = URL.createObjectURL(audioFile);', `audio.src = "${audioSrc}";`);
+        const replaceData = JSON.stringify(data);
+        const html = fs.readFileSync('./src/public/index.html', 'utf-8');
+        const audioBuffer = audio.buffer.toString('base64');
+        const audioMimeType = audio.mimetype;
+        const audioSrc = `data:${audioMimeType};base64,${audioBuffer}`;
 
-        // switch (saveAndReturnOption) {
-        //     case SaveAndReturnOption.SAVE_AND_RETURN_ID:
-        //         return (await this.audioModel.create({ name, data, user }))._id;
-        //     case SaveAndReturnOption.SAVE_AND_RETURN_DEMO:
-        //         await this.audioModel.create({ name, data, user })
-        //         return replacedHtml;
-        //     case SaveAndReturnOption.RETURN_DEMO:
-        //         return replacedHtml;
-        // }
+        let replacedhtml = html.replace('<script id="data">', `<script id="data">\n        const data = ${replaceData};`);
+        const replacedHtml = replacedhtml.replace('audio.src = URL.createObjectURL(audioFile);', `audio.src = "${audioSrc}";`);
+
+        switch (saveAndReturnOption) {
+            case SaveAndReturnOption.SAVE_AND_RETURN_ID:
+                return (await this.audioModel.create({ name, data, user }))._id;
+            case SaveAndReturnOption.SAVE_AND_RETURN_DEMO:
+                await this.audioModel.create({ name, data, user })
+                return replacedHtml;
+            case SaveAndReturnOption.RETURN_DEMO:
+                return replacedHtml;
+        }
     }
 
     async generateByGenre(options: GenreOptionsDto, audio: any) {
@@ -302,14 +299,40 @@ export class AudioService {
     }
 
     async test(audio: any) {
-        let decoded = await this.musicService.decodeAudio(audio);
+        let decoded = await this.musicService.decodeAudio(audio)
+        // const N = decoded.length;
+        // const real = new Float64Array(N);
+        // const imag = new Float64Array(N);
 
-        return this.musicService.getRealAndImag2(decoded._channelData[0])//, decoded.sampleRate);
+        // // calculate the real and imaginary parts of the signal's frequency domain representation
+        // for (let k = 0; k < N; k++) {
+        //     let re = 0;
+        //     let im = 0;
+        //     for (let n = 0; n < N; n++) {
+        //         const theta = 2 * Math.PI * k * n / N;
+        //         re += decoded[n] * Math.cos(theta);
+        //         im -= decoded[n] * Math.sin(theta);
+        //     }
+        //     //return { re, im };
+        //     real[k] = re;
+        //     imag[k] = im;
+        // }
+
+        // return { real, imag };
+        const asd = this.musicService.fft(decoded._channelData[0])
+        //, decoded.sampleRate);
+        return asd.real.length
     }
+
 
     async test2(audio: any) {
         let decoded = await this.musicService.decodeAudio(audio);
 
-        return this.musicService.getFft(decoded);
+        const fft = this.musicService.getFft(decoded);
+
+        //console.log(fft)
+
+        return
     }
+
 }
