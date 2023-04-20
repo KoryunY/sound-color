@@ -304,7 +304,7 @@ export class AudioService {
     async test(audio: any) {
         let decoded = await this.musicService.decodeAudio(audio);
 
-        return this.musicService.fft(decoded._channelData[0])//, decoded.sampleRate);
+        return this.musicService.getRealAndImag2(decoded._channelData[0])//, decoded.sampleRate);
     }
 
     async test2(audio: any) {
