@@ -52,8 +52,8 @@ export class AudioService {
         }
 
         let [frequency, amplitude, duration, intervalDuration] = await this.musicService.generateIntervalData(audio, type, intervalCount);
+
         const data = this.musicService.generateBySynesthesia(frequency, amplitude, duration, intervalDuration, intervalCount, gradientSplitCount);
-        //return data
 
         const replaceData = JSON.stringify(data);
         const html = fs.readFileSync('./src/public/index.html', 'utf-8');
@@ -297,4 +297,42 @@ export class AudioService {
         const count = await this.audioModel.countDocuments({ _id: id }).exec();
         return count > 0;
     }
+
+    async test(audio: any) {
+        let decoded = await this.musicService.decodeAudio(audio)
+        // const N = decoded.length;
+        // const real = new Float64Array(N);
+        // const imag = new Float64Array(N);
+
+        // // calculate the real and imaginary parts of the signal's frequency domain representation
+        // for (let k = 0; k < N; k++) {
+        //     let re = 0;
+        //     let im = 0;
+        //     for (let n = 0; n < N; n++) {
+        //         const theta = 2 * Math.PI * k * n / N;
+        //         re += decoded[n] * Math.cos(theta);
+        //         im -= decoded[n] * Math.sin(theta);
+        //     }
+        //     //return { re, im };
+        //     real[k] = re;
+        //     imag[k] = im;
+        // }
+
+        // return { real, imag };
+        const asd = this.musicService.fft(decoded._channelData[0])
+        //, decoded.sampleRate);
+        return asd.real.length
+    }
+
+
+    async test2(audio: any) {
+        let decoded = await this.musicService.decodeAudio(audio);
+
+        const fft = this.musicService.getFft(decoded);
+
+        //console.log(fft)
+
+        return
+    }
+
 }

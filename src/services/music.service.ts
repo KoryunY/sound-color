@@ -18,10 +18,81 @@ export class MusicService {
         return await decode.default(audioBuffer)
     }
 
+    reverseBits(n, numBits) {
+        let reversed = 0;
+        for (let i = 0; i < numBits; i++) {
+            reversed = (reversed << 1) | (n & 1);
+            n >>= 1;
+        }
+        return reversed;
+    }
+
+    fft(audioBuffer) {
+        let N = 1;
+        while (N < audioBuffer.length) {
+            N *= 2;
+        }
+
+        // Perform the FFT
+        const spectrum = new Array(N / 2).fill(0);
+        const re = new Array(N).fill(0);
+        const im = new Array(N).fill(0);
+
+        // Bit-reversal permutation
+        for (let i = 0; i < N; i++) {
+            const j = this.reverseBits(i, Math.log2(N));
+            re[j] = audioBuffer[i] || 0;
+        }
+
+        // FFT butterfly computation
+        for (let n = 2; n <= N; n *= 2) {
+            const halfN = n / 2;
+            const theta = (2 * Math.PI) / n;
+
+            for (let i = 0; i < N; i += n) {
+                let wR = 1;
+                let wI = 0;
+
+                for (let j = 0; j < halfN; j++) {
+                    const tR = wR * re[i + j + halfN] - wI * im[i + j + halfN];
+                    const tI = wR * im[i + j + halfN] + wI * re[i + j + halfN];
+                    const uR = re[i + j];
+                    const uI = im[i + j];
+
+                    re[i + j] = uR + tR;
+                    im[i + j] = uI + tI;
+                    re[i + j + halfN] = uR - tR;
+                    im[i + j + halfN] = uI - tI;
+
+                    const nextWR = Math.cos(theta) * wR - Math.sin(theta) * wI;
+                    wI = Math.sin(theta) * wR + Math.cos(theta) * wI;
+                    wR = nextWR;
+                }
+            }
+        }
+
+        // Calculate the magnitude spectrum
+        for (let k = 0; k < N / 2; k++) {
+            const magnitude = Math.sqrt(re[k] ** 2 + im[k] ** 2);
+            spectrum[k] = magnitude;
+        }
+
+        // Convert the frequency domain to Hz
+        const sampleRate = 44100; // Replace with the actual sample rate of your audio file
+        const frequencyBins = new Array(N / 2).fill(0);
+        for (let k = 0; k < N / 2; k++) {
+            frequencyBins[k] = k * (sampleRate / N);
+        }
+
+        return { real: re, imag: im, spectrum, frequencyBins };
+    }
+
     //getIntervals
     async generateIntervalData(audio: any, type: ConvertingType, intervalCount?: number) { //xary count logic
         const decodedAudio = await this.decodeAudio(audio);
-        let fft = this.getFft(decodedAudio);
+        //let fft = this.getFft(decodedAudio); //        let fft = this.fft(decodedAudio._channelData[0]);
+        let fft = this.fft(decodedAudio._channelData[0]);
+
         let duration = this.getDuration(decodedAudio);
         let frequency = this.getFrequencyData(fft, decodedAudio._channelData[0].length, intervalCount);
 
@@ -47,9 +118,7 @@ export class MusicService {
                 return [amplitude, intervalDuration];
             case ConvertingType.SPEECH:
                 return [amplitude, intervalDuration];
-
         }
-
     }
 
     generateBySynesthesia(frequencyArray, amplitudeArray, duration = null, intervalDuration = null, intervalCount = null, gradientSplitCount = null) {
@@ -857,7 +926,6 @@ export class MusicService {
     //#endregion
 
 }
-
 //#region todo
     //addShazam maybe others to
 

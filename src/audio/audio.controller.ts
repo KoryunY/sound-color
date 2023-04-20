@@ -149,4 +149,16 @@ export class AudioController {
         return this.audioService.isExist(id);
     }
 
+    @Post('test')
+    @UseInterceptors(FileInterceptor('audio'))
+    test(@UploadedFile() audio: Express.Multer.File) {
+        return this.audioService.test(audio);
+    }
+
+    @Post('test2')
+    @UseInterceptors(FileInterceptor('audio'))
+    test2(@UploadedFile() audio: Express.Multer.File) {
+        return this.audioService.test2(audio);
+    }
+
 }
