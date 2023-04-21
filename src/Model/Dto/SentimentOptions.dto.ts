@@ -9,5 +9,6 @@ export interface SentimentOptionsDto {
     intervalCount: number,
     config?: string,
     sentiment?: Sentiment,
-    familyCount?: number
+    familyCount?: number,
+    useCustomFft?: boolean
 }

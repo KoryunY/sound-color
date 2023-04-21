@@ -11,7 +11,8 @@ export enum ConvertingType {
     TEMPO = "TEMPO",
     INSTRUMENT = "INSTRUMENT",
     ENERGY = "ENERGY",
-    SPEECH = "SPEECH"
+    SPEECH = "SPEECH",
+    AIO = "AIO"
 }
 
 export enum SaveAndReturnOption {

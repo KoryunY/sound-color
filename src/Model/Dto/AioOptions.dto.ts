@@ -1,0 +1,20 @@
+import { ConvertingType, Genre, Instrument, SaveAndReturnOption, Sentiment, Tempo } from "src/Defaults/types";
+import { ObjectId } from "mongoose";
+
+export interface AioOptionsDto {
+    name: string,
+    type: ConvertingType,
+    saveAndReturnOption: SaveAndReturnOption,
+    user: ObjectId,
+    config?: string,
+    useIntervals?: boolean,
+    intervalCount?: number,
+    familyCount?: number,
+    gradientSplitCount?: number,
+    genre?: Genre,
+    instrument?: Instrument,
+    useCustomFft?: boolean,
+    tempo?: Tempo
+    sentiment?: Sentiment,
+
+}

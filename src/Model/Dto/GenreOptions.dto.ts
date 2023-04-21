@@ -7,7 +7,8 @@ export interface GenreOptionsDto {
     saveAndReturnOption: SaveAndReturnOption,
     useIntervals: boolean,
     intervalCount?: number,
-    genre?: Genre;
+    genre?: Genre,
     config?: string
     user: ObjectId,
+    useCustomFft?: boolean
 }

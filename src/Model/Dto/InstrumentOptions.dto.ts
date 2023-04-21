@@ -6,7 +6,8 @@ export interface InstrumentOptionsDto {
     type: ConvertingType,
     saveAndReturnOption: SaveAndReturnOption,
     intervalCount?: number,
-    instrument?: Instrument;
+    instrument?: Instrument,
     config?: string
     user: ObjectId,
+    useCustomFft?: boolean
 }

@@ -8,4 +8,5 @@ export interface EnergyOptionsDto {
     user: ObjectId,
     intervalCount?: number,
     config?: string,
+    useCustomFft?: boolean
 }

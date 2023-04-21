@@ -9,4 +9,5 @@ export interface TempoOptionsDto {
     tempo?: Tempo,
     config?: string
     user: ObjectId,
+    useCustomFft?: boolean
 }

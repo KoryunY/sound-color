@@ -88,10 +88,13 @@ export class MusicService {
     }
 
     //getIntervals
-    async generateIntervalData(audio: any, type: ConvertingType, intervalCount?: number) { //xary count logic
+    async generateIntervalData(audio: any, type: ConvertingType, intervalCount?: number, useCustomFft?: boolean) { //xary count logic
         const decodedAudio = await this.decodeAudio(audio);
-        //let fft = this.getFft(decodedAudio); //        let fft = this.fft(decodedAudio._channelData[0]);
-        let fft = this.fft(decodedAudio._channelData[0]);
+        let fft;
+        if (useCustomFft)
+            fft = this.fft(decodedAudio._channelData[0]);
+        else
+            fft = this.getFft(decodedAudio);
 
         let duration = this.getDuration(decodedAudio);
         let frequency = this.getFrequencyData(fft, decodedAudio._channelData[0].length, intervalCount);
@@ -118,6 +121,8 @@ export class MusicService {
                 return [amplitude, intervalDuration];
             case ConvertingType.SPEECH:
                 return [amplitude, intervalDuration];
+            case ConvertingType.AIO:
+                return [frequency, amplitude, duration, intervalDuration, bpm, pitch]
         }
     }
 
@@ -923,6 +928,12 @@ export class MusicService {
         return [name, genre];
     }
 
+    //#endregion
+
+    //#region allInOne
+    generateByAio() {
+
+    }
     //#endregion
 
 }

@@ -16,6 +16,7 @@ import { ConfigService } from 'src/config/config.service';
 import { MusicService } from 'src/services/music.service';
 import fs from 'fs';
 import { SentimentOptionsDto } from 'src/Model/Dto/SentimentOptions.dto';
+import { AioOptionsDto } from 'src/Model/Dto/AioOptions.dto';
 
 @Injectable()
 export class AudioService {
@@ -44,6 +45,7 @@ export class AudioService {
         let useIntervals: boolean = options.useIntervals;
         let intervalCount: number;
         let gradientSplitCount: number = options.gradientSplitCount;
+        let useCustomFft: boolean = options.useCustomFft;
 
         if (useIntervals) {
             intervalCount = options.intervalCount;
@@ -51,7 +53,7 @@ export class AudioService {
                 intervalCount = defaultIntervalCount
         }
 
-        let [frequency, amplitude, duration, intervalDuration] = await this.musicService.generateIntervalData(audio, type, intervalCount);
+        let [frequency, amplitude, duration, intervalDuration] = await this.musicService.generateIntervalData(audio, type, intervalCount, useCustomFft);
 
         const data = this.musicService.generateBySynesthesia(frequency, amplitude, duration, intervalDuration, intervalCount, gradientSplitCount);
 
@@ -82,6 +84,7 @@ export class AudioService {
         let user: ObjectId = options.user;
         let configId: string = options.config;
         let genre: Genre = options.genre;
+        let useCustomFft: boolean = options.useCustomFft;
 
         let useIntervals: boolean = options.useIntervals;
         let intervalCount: number;
@@ -99,7 +102,7 @@ export class AudioService {
         }
 
         //nullcheck
-        let [frequency, amplitude, duration, intervalDuration] = await this.musicService.generateIntervalData(audio, type, intervalCount);
+        let [frequency, amplitude, duration, intervalDuration] = await this.musicService.generateIntervalData(audio, type, intervalCount, useCustomFft);
         const data = this.musicService.generateByGenre(config, genre, frequency, amplitude, duration, intervalDuration, intervalCount);
 
         const replaceData = JSON.stringify(data);
@@ -129,6 +132,7 @@ export class AudioService {
         let configId: string = options.config;
         let tempo: Tempo = options.tempo;
         let user: ObjectId = options.user;
+        let useCustomFft: boolean = options.useCustomFft;
 
         let intervalCount: number = options.intervalCount;
 
@@ -138,7 +142,7 @@ export class AudioService {
             config = await this.configService.getConfig(configId);
         }
 
-        let [frequency, amplitude, intervalDuration, bpm] = await this.musicService.generateIntervalData(audio, type, intervalCount);
+        let [frequency, amplitude, intervalDuration, bpm] = await this.musicService.generateIntervalData(audio, type, intervalCount, useCustomFft);
         const data = this.musicService.generateByTempo(config, tempo, frequency, amplitude, intervalDuration, intervalCount, bpm);
 
         const replaceData = JSON.stringify(data);
@@ -165,6 +169,7 @@ export class AudioService {
         let name: string = options.name;
         const type: ConvertingType = options.type;
         const saveAndReturnOption: SaveAndReturnOption = options.saveAndReturnOption;
+        let useCustomFft: boolean = options.useCustomFft;
 
         let intervalCount: number = options.intervalCount;
         // let saturation: number = options.saturation;
@@ -179,7 +184,7 @@ export class AudioService {
             config = await this.configService.getConfig(configId);
         }
 
-        let [amplitude, intervalDuration, pitch] = await this.musicService.generateIntervalData(audio, type, intervalCount);
+        let [amplitude, intervalDuration, pitch] = await this.musicService.generateIntervalData(audio, type, intervalCount, useCustomFft);
         const data = this.musicService.generateByInstrument(config, instrument, amplitude, pitch, intervalDuration, intervalCount);
 
         const replaceData = JSON.stringify(data);
@@ -207,6 +212,7 @@ export class AudioService {
         const type: ConvertingType = options.type;
         let intervalCount: number = options.intervalCount;
         const saveAndReturnOption: SaveAndReturnOption = options.saveAndReturnOption;
+        let useCustomFft: boolean = options.useCustomFft;
 
         let configId: string = options.config;
         let user: ObjectId = options.user;
@@ -216,7 +222,7 @@ export class AudioService {
             config = await this.configService.getConfig(configId);
         }
 
-        let [amplitude, intervalDuration] = await this.musicService.generateIntervalData(audio, type, intervalCount);
+        let [amplitude, intervalDuration] = await this.musicService.generateIntervalData(audio, type, intervalCount, useCustomFft);
         const data = await this.musicService.generateByEnergy(config, amplitude, intervalDuration, intervalCount);
         const replaceData = JSON.stringify(data);
         const html = fs.readFileSync('./src/public/index.html', 'utf-8');
@@ -245,6 +251,7 @@ export class AudioService {
         let familyCount: number = options.familyCount;
         let configId: string = options.config;
         const saveAndReturnOption: SaveAndReturnOption = options.saveAndReturnOption;
+        let useCustomFft: boolean = options.useCustomFft;
 
         let user: ObjectId = options.user;
         let sentiment = options.sentiment;
@@ -257,7 +264,50 @@ export class AudioService {
         if (!sentiment && !config)
             [, , sentiment] = (await this.musicService.getMetadata(audio));
 
-        let [amplitude, intervalDuration] = await this.musicService.generateIntervalData(audio, type, intervalCount);
+        let [amplitude, intervalDuration] = await this.musicService.generateIntervalData(audio, type, intervalCount, useCustomFft);
+
+        const data = await this.musicService.generateBySentiment(config, sentiment, amplitude, intervalDuration, intervalCount, familyCount);
+        const replaceData = JSON.stringify(data);
+        const html = fs.readFileSync('./src/public/index.html', 'utf-8');
+        const audioBuffer = audio.buffer.toString('base64');
+        const audioMimeType = audio.mimetype;
+        const audioSrc = `data:${audioMimeType};base64,${audioBuffer}`;
+
+        let replacedhtml = html.replace('<script id="data">', `<script id="data">\n        const data = ${replaceData};`);
+        const replacedHtml = replacedhtml.replace('audio.src = URL.createObjectURL(audioFile);', `audio.src = "${audioSrc}";`);
+
+        switch (saveAndReturnOption) {
+            case SaveAndReturnOption.SAVE_AND_RETURN_ID:
+                return (await this.audioModel.create({ name, data, user }))._id;
+            case SaveAndReturnOption.SAVE_AND_RETURN_DEMO:
+                await this.audioModel.create({ name, data, user })
+                return replacedHtml;
+            case SaveAndReturnOption.RETURN_DEMO:
+                return replacedHtml;
+        }
+    }
+
+    async generateByAio(options: AioOptionsDto, audio: any) {
+        let name: string = options.name;
+        const type: ConvertingType = options.type;
+        let intervalCount: number = options.intervalCount;
+        let familyCount: number = options.familyCount;
+        let configId: string = options.config;
+        const saveAndReturnOption: SaveAndReturnOption = options.saveAndReturnOption;
+        let useCustomFft: boolean = options.useCustomFft;
+
+        let user: ObjectId = options.user;
+        let sentiment = options.sentiment;
+        let config;
+
+        if (configId) {
+            config = await this.configService.getConfig(configId);
+        }
+
+        if (!sentiment && !config)
+            [, , sentiment] = (await this.musicService.getMetadata(audio));
+
+        let [amplitude, intervalDuration] = await this.musicService.generateIntervalData(audio, type, intervalCount, useCustomFft);
 
         const data = await this.musicService.generateBySentiment(config, sentiment, amplitude, intervalDuration, intervalCount, familyCount);
         const replaceData = JSON.stringify(data);

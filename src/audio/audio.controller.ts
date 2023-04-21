@@ -9,6 +9,7 @@ import { GenreOptionsDto } from 'src/Model/Dto/GenreOptions.dto';
 import { TempoOptionsDto } from 'src/Model/Dto/TempoOptions.dto';
 import { AudioService } from './audio.service';
 import { AudioDto } from 'src/Model/Dto/Audio.dto';
+import { AioOptionsDto } from 'src/Model/Dto/AioOptions.dto';
 
 @Controller('audio')
 export class AudioController {
@@ -38,7 +39,8 @@ export class AudioController {
             useIntervals: Boolean(colorOptionsDto.useIntervals),
             intervalCount: parseInt(colorOptionsDto.intervalCount),
             user: colorOptionsDto.user,
-            gradientSplitCount: parseInt(colorOptionsDto.gradientSplitCount)
+            gradientSplitCount: parseInt(colorOptionsDto.gradientSplitCount),
+            useCustomFft: Boolean(colorOptionsDto.useCustomFft)
         };
 
         return this.audioService.generateBySynesthesia(dto, audio);
@@ -59,7 +61,8 @@ export class AudioController {
             intervalCount: parseInt(colorOptionsDto.intervalCount),
             genre: Genre[colorOptionsDto.genre],
             config: colorOptionsDto.config,
-            user: colorOptionsDto.user
+            user: colorOptionsDto.user,
+            useCustomFft: Boolean(colorOptionsDto.useCustomFft)
         };
 
         return this.audioService.generateByGenre(dto, audio);
@@ -79,7 +82,8 @@ export class AudioController {
             intervalCount: parseInt(colorOptionsDto.intervalCount),
             tempo: Tempo[colorOptionsDto.tempo],
             config: colorOptionsDto.config,
-            user: colorOptionsDto.user
+            user: colorOptionsDto.user,
+            useCustomFft: Boolean(colorOptionsDto.useCustomFft)
         };
 
         return this.audioService.generateByTempo(dto, audio);
@@ -99,7 +103,8 @@ export class AudioController {
             intervalCount: parseInt(colorOptionsDto.intervalCount),
             instrument: Instrument[colorOptionsDto.instrument],
             config: colorOptionsDto.config,
-            user: colorOptionsDto.user
+            user: colorOptionsDto.user,
+            useCustomFft: Boolean(colorOptionsDto.useCustomFft)
         };
 
         return this.audioService.generateByInstrument(dto, audio);
@@ -118,7 +123,8 @@ export class AudioController {
             saveAndReturnOption: SaveAndReturnOption[colorOptionsDto.saveAndReturnOption],
             intervalCount: parseInt(colorOptionsDto.intervalCount),
             config: colorOptionsDto.config,
-            user: colorOptionsDto.user
+            user: colorOptionsDto.user,
+            useCustomFft: Boolean(colorOptionsDto.useCustomFft)
         };
         return this.audioService.generateByEnergy(dto, audio);
     }
@@ -138,10 +144,33 @@ export class AudioController {
             config: colorOptionsDto.config,
             user: colorOptionsDto.user,
             sentiment: Sentiment[colorOptionsDto.sentiment],
-            familyCount: parseInt(colorOptionsDto.familyCount)
+            familyCount: parseInt(colorOptionsDto.familyCount),
+            useCustomFft: Boolean(colorOptionsDto.useCustomFft)
         };
 
         return this.audioService.generateBySentiment(dto, audio);
+    }
+
+    @Post('aio')
+    @UseInterceptors(FileInterceptor('audio'))
+    generateAIOColors(@Body() colorOptionsDto: any, @UploadedFile() audio: Express.Multer.File) {
+        const checkAttrMessage = this.audioService.checkAttr(audio.mimetype, audio.originalname);
+        if (checkAttrMessage != "isOk")
+            return checkAttrMessage;
+
+        const dto: AioOptionsDto = {
+            name: colorOptionsDto.name,
+            type: ConvertingType[colorOptionsDto.type],
+            saveAndReturnOption: SaveAndReturnOption[colorOptionsDto.saveAndReturnOption],
+            intervalCount: parseInt(colorOptionsDto.intervalCount),
+            config: colorOptionsDto.config,
+            user: colorOptionsDto.user,
+            sentiment: Sentiment[colorOptionsDto.sentiment],
+            familyCount: parseInt(colorOptionsDto.familyCount),
+            useCustomFft: Boolean(colorOptionsDto.useCustomFft)
+        };
+
+        return this.audioService.generateByAio(dto, audio);
     }
 
     @Get('check')
