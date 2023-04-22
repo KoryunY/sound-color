@@ -161,35 +161,7 @@ export class MusicService {
         }
 
         if (gradientSplitCount) {
-            let newIntervalData = [];
-            for (let i = 0; i < intervalData.length - 1; i++) {
-                const { start: start1, end: end1, color: color1, intensity: intensity1 } = intervalData[i];
-                const { color: color2, intensity: intensity2 } = intervalData[i + 1];
-                const match1 = color1.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
-                const match2 = color2.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
-                const r1 = parseInt(match1[1], 10);
-                const g1 = parseInt(match1[2], 10);
-                const b1 = parseInt(match1[3], 10);
-                const r2 = parseInt(match2[1], 10);
-                const g2 = parseInt(match2[2], 10);
-                const b2 = parseInt(match2[3], 10);
-                const colorObj1 = { r: r1, g: g1, b: b1 };
-                const colorObj2 = { r: r2, g: g2, b: b2 };
-                const gradient = this.getGradientRgbArray(colorObj1, colorObj2, gradientSplitCount + 1);
-
-                const intervalLength = (end1 - start1) / (gradientSplitCount + 1);
-
-                for (let j = 0; j < gradientSplitCount + 1; j++) {
-                    const intervalStart = start1 + j * intervalLength;
-                    const intervalEnd = intervalStart + intervalLength;
-                    const [red, green, blue] = gradient[j];
-                    const color = `rgb(${red}, ${green}, ${blue})`
-                    const intensity = (intensity1 + intensity2) / 2;
-                    newIntervalData.push({ start: intervalStart, end: intervalEnd, intensity, color });
-                }
-            }
-
-            return newIntervalData;
+            return this.transfromIntervalsToGradients(intervalData, gradientSplitCount);
         }
 
         return intervalData;
@@ -426,7 +398,6 @@ export class MusicService {
         return matchScore;
 
     }
-
 
     getColorFromFrequency(frequency, returnObject = false) {
         const hue = Math.round(frequency) % 360;
@@ -858,6 +829,39 @@ export class MusicService {
         }
         // Return the combined array of parent and child colors
         return parents.concat(children);
+    }
+
+
+    transfromIntervalsToGradients(intervalData, gradientSplitCount) {
+        let newIntervalData = [];
+        for (let i = 0; i < intervalData.length - 1; i++) {
+            const { start: start1, end: end1, color: color1, intensity: intensity1 } = intervalData[i];
+            const { color: color2, intensity: intensity2 } = intervalData[i + 1];
+            const match1 = color1.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+            const match2 = color2.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+            const r1 = parseInt(match1[1], 10);
+            const g1 = parseInt(match1[2], 10);
+            const b1 = parseInt(match1[3], 10);
+            const r2 = parseInt(match2[1], 10);
+            const g2 = parseInt(match2[2], 10);
+            const b2 = parseInt(match2[3], 10);
+            const colorObj1 = { r: r1, g: g1, b: b1 };
+            const colorObj2 = { r: r2, g: g2, b: b2 };
+            const gradient = this.getGradientRgbArray(colorObj1, colorObj2, gradientSplitCount + 1);
+
+            const intervalLength = (end1 - start1) / (gradientSplitCount + 1);
+
+            for (let j = 0; j < gradientSplitCount + 1; j++) {
+                const intervalStart = start1 + j * intervalLength;
+                const intervalEnd = intervalStart + intervalLength;
+                const [red, green, blue] = gradient[j];
+                const color = `rgb(${red}, ${green}, ${blue})`
+                const intensity = (intensity1 + intensity2) / 2;
+                newIntervalData.push({ start: intervalStart, end: intervalEnd, intensity, color });
+            }
+        }
+
+        return newIntervalData;
     }
     //#endregion
 
