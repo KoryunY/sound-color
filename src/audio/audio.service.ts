@@ -309,12 +309,12 @@ export class AudioService {
         //     config = await this.configService.getConfig(configId);
         // }
 
-        // if (!sentiment && !config)
-        //     [, , sentiment] = (await this.musicService.getMetadata(audio));
+        if (!sentiment)//&& !config)
+            [, , sentiment] = (await this.musicService.getMetadata(audio));
 
         let [frequency, amplitude, duration, intervalDuration, bpm, pitch] = await this.musicService.generateIntervalData(audio, type, intervalCount, useCustomFft);
 
-        const data = this.musicService.generateByAio(intervalCount, intervalDuration, frequency, amplitude, bpm);
+        const data = this.musicService.generateByAio(intervalCount, intervalDuration, frequency, amplitude, pitch, bpm, sentiment);
         //        console.log(data)
         const replaceData = JSON.stringify(data);
         const html = fs.readFileSync('./src/public/index.html', 'utf-8');

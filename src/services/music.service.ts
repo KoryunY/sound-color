@@ -902,7 +902,7 @@ export class MusicService {
         const sentiment = this.sentimentFromWords(this.extractUniqueWords(words)).sentiment;
         const name = data.track.share.subject;
 
-        return [name, genres, sentiment];
+        return [name, genres, sentiment.toUpperCase()];
     }
 
     async searchMetadataBytext(text: string) {
@@ -934,11 +934,12 @@ export class MusicService {
     //#endregion
 
     //#region allInOne
-    generateByAio(intervalCount, intervalDuration, frequencyArray, amplitudeArray, bpm) {
+    generateByAio(intervalCount, intervalDuration, frequencyArray, amplitudeArray, pitchArray, bpm, sentiment) {
         let intervalData = [];
         let colors = [];
         const tempo = this.getTempoFromBpm(bpm[0]);
         const tempoColorsByBpm = tempoColors[tempo];
+        let sentimentColors = sentimentsColors[sentiment];
 
         for (let i = 0; i < intervalCount; i++) {
             const intervalStart = i * intervalDuration;
@@ -962,9 +963,33 @@ export class MusicService {
             if (hexTempoColor !== null)
                 colors.push(hexTempoColor);
 
-            const color = this.combineColors(colors);
+            const pitch = pitchArray[i];
+            const instrument = this.mapInstrument(pitch);
+            const instrumentColorsHex = instrumentColors[instrument];
+            const instrumentColorIndex = Math.floor(Math.random() * instrumentColorsHex.length);
+            const instrumentColorHex = instrumentColorsHex[instrumentColorIndex];
+            if (instrumentColorHex !== null)
+                colors.push(instrumentColorHex);
+
+            const energyLevel = this.mapEnergy(amplitude);
+            const energyColorsHex = energyColors[energyLevel];
+            const energyColorIndex = Math.floor(Math.random() * energyColorsHex.length);
+            const energyColorHex = energyColorsHex[energyColorIndex];
+            if (energyColorHex !== null)
+                colors.push(energyColorHex);
+
+            const sentimentColorIndex = Math.floor(Math.random() * sentimentColors.length);
+            const sentimentColorHex = sentimentColors[sentimentColorIndex];
+            if (sentimentColorHex !== null)
+                colors.push(sentimentColorHex);
+
+            const colorHex = this.combineColors(colors);
+            const [red, green, blue] = this.hexToRgb(colorHex)
+            const color = `rgb(${red}, ${green}, ${blue})`;
+
             const interval = { start: intervalStart, end: intervalEnd, intensity, color };
             intervalData.push(interval);
+
             colors = [];
         }
 
