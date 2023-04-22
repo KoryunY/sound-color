@@ -1004,6 +1004,157 @@ export class MusicService {
 
     //#endregion
 
+    fft2(audioBuffer) {
+        const N = audioBuffer.length;
+
+        // Use direct DFT for small input sizes
+        if (N <= 16) {
+            return this.directDFT(audioBuffer);
+        }
+
+        // Use Bluestein's algorithm for medium input sizes
+        if (N <= 4096) {
+            return this.bluesteinFFT(audioBuffer);
+        }
+
+        // Use Rader's algorithm for large input sizes
+        return this.raderFFT(audioBuffer);
+    }
+
+    directDFT(audioBuffer) {
+        const N = audioBuffer.length;
+        const spectrum = new Float32Array(N / 2).fill(0);
+        const re = new Float32Array(N);
+        const im = new Float32Array(N).fill(0);
+
+        // Calculate the DFT
+        for (let k = 0; k < N / 2; k++) {
+            for (let n = 0; n < N; n++) {
+                const angle = 2 * Math.PI * k * n / N;
+                re[k] += audioBuffer[n] * Math.cos(angle);
+                im[k] -= audioBuffer[n] * Math.sin(angle);
+            }
+            const magnitude = Math.sqrt(re[k] ** 2 + im[k] ** 2);
+            spectrum[k] = magnitude;
+        }
+
+        // Convert the frequency domain to Hz
+        const sampleRate = 44100;
+        const frequencyBins = new Float32Array(N / 2);
+        for (let k = 0; k < N / 2; k++) {
+            frequencyBins[k] = k * (sampleRate / N);
+        }
+
+        return { real: re, imag: im, spectrum, frequencyBins };
+    }
+
+    bluesteinFFT(audioBuffer) {
+        const N = audioBuffer.length;
+        const M = 2 * Math.pow(2, Math.ceil(Math.log2(2 * N - 1)));
+
+        const fastSinTable = new Float32Array(M);
+        const fastCosTable = new Float32Array(M);
+
+        for (let i = 0; i < M; i++) {
+            const angle = Math.PI * i * i / N;
+            fastSinTable[i] = Math.sin(angle);
+            fastCosTable[i] = Math.cos(angle);
+        }
+
+        const paddedInput = new Float32Array(M).fill(0);
+        for (let i = 0; i < N; i++) {
+            paddedInput[i] = audioBuffer[i];
+        }
+
+        const paddedOutputReal = new Float32Array(M).fill(0);
+        const paddedOutputImag = new Float32Array(M).fill(0);
+
+        for (let i = 0; i < M; i++) {
+            for (let j = 0; j < N; j++) {
+                paddedOutputReal[i] += paddedInput[j] * fastCosTable[(i - j + M) % M];
+                paddedOutputImag[i] += paddedInput[j] * fastSinTable[(i - j + M) % M];
+            }
+        }
+
+        const outputReal = new Float32Array(N).fill(0);
+        const outputImag = new Float32Array(N).fill(0);
+
+        for (let i = 0; i < N; i++) {
+            for (let j = 0; j < M; j++) {
+                outputReal[i] += paddedOutputReal[j] * fastCosTable[(i * j) % M] - paddedOutputImag[j] * fastSinTable[(i * j) % M];
+                outputImag[i] += paddedOutputReal[j] * fastSinTable[(i * j) % M] + paddedOutputImag[j] * fastCosTable[(i * j) % M];
+            }
+        }
+
+        const spectrum = new Float32Array(N / 2).fill(0);
+        for (let k = 0; k < N / 2; k++) {
+            const magnitude = Math.sqrt(outputReal[k] ** 2 + outputImag[k] ** 2);
+            spectrum[k] = magnitude;
+        }
+
+        const sampleRate = 44100;
+        const frequencyBins = new Float32Array(N / 2);
+        for (let k = 0; k < N / 2; k++) {
+            frequencyBins[k] = k * (sampleRate / N);
+        }
+
+        return { real: outputReal, imag: outputImag, spectrum, frequencyBins };
+    }
+
+    raderFFT(audioBuffer) {
+        const N = audioBuffer.length;
+        let M = 1;
+        while (M < N) {
+            M *= 2;
+        }
+        M *= 2;
+
+        // Precompute twiddle factors
+        const omegaTable = new Array(M);
+        for (let k = 1; k < M; k++) {
+            omegaTable[k] = new Array(N);
+            for (let j = 0; j < N; j++) {
+                const angle = (-2 * Math.PI * k * j) / M;
+                omegaTable[k][j] = Math.cos(angle) - Math.sin(angle) //* 1i;
+            }
+        }
+
+        // Compute convolution
+        const x = new Array(M).fill(0);
+        const y = new Array(M).fill(0);
+        for (let i = 0; i < N; i++) {
+            x[i] = audioBuffer[i];
+        }
+
+        for (let k = 1; k < M; k++) {
+            let v = 0;
+            for (let j = 0; j < N; j++) {
+                v += x[j] * omegaTable[k][j];
+            }
+            y[k] = v;
+        }
+
+        // Perform inverse FFT
+        const inversed //= // this.inverseFFT(y.slice(1, N));
+        const result = new Array(N);
+        for (let i = 0; i < N; i++) {
+            result[i] = inversed[N - i - 1];
+        }
+
+        return result;
+    }
+    // Function to check if a number is prime
+    isPrime(num) {
+        if (num < 2) {
+            return false;
+        }
+        for (let i = 2; i <= Math.sqrt(num); i++) {
+            if (num % i === 0) {
+                return false;
+            }
+        }
+        return true;
+    }
 }
 //#region todo
     //addShazam maybe others to
