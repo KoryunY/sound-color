@@ -221,7 +221,7 @@ export class MusicService {
         }
 
         const intervalData = [];
-        let sumAmplitude = 0;
+        //let sumAmplitude = 0;
 
         // calculate interval duration if not provided
         if (!intervalDuration && duration) {
@@ -233,7 +233,7 @@ export class MusicService {
         for (let i = 0; i < length; i++) {
             const frequency = frequencyArray[i];
             const amplitude = amplitudeArray[i];
-            sumAmplitude += amplitude;
+            //sumAmplitude += amplitude;
             const intervalStart = i * intervalDuration;
             const intervalEnd = (i + 1) * intervalDuration;
             const intensity = Math.sqrt(amplitude);
@@ -270,6 +270,7 @@ export class MusicService {
             const intervalStart = i * intervalDuration;
             const intervalEnd = (i + 1) * intervalDuration;
             const intensity = Math.sqrt(amplitude);
+
             const colorrr = this.getMatchingColor(bpm[0], frequency[i], colorr)
             // Map tempo to hue value using tempoColors object
             const [red, green, blue] = this.hexToRgb(colorrr);
@@ -427,11 +428,13 @@ export class MusicService {
     }
 
 
-    getColorFromFrequency(frequency) {
+    getColorFromFrequency(frequency, returnObject = false) {
         const hue = Math.round(frequency) % 360;
         const saturation = Math.max(30, Math.min(70, frequency * 2.5));
         const lightness = Math.max(10, Math.min(90, frequency * 1.5));
         const [red, green, blue] = this.hslToRgb(hue, saturation, lightness); // convert HSL to RGB values
+        if (returnObject)
+            return [red, green, blue];
         return `rgb(${red}, ${green}, ${blue})`;
     }
 
@@ -931,8 +934,95 @@ export class MusicService {
     //#endregion
 
     //#region allInOne
-    generateByAio() {
+    generateByAio(intervalCount, intervalDuration, frequencyArray, amplitudeArray, bpm) {
+        let intervalData = [];
+        let colors = [];
+        const tempo = this.getTempoFromBpm(bpm[0]);
+        const tempoColorsByBpm = tempoColors[tempo];
 
+        for (let i = 0; i < intervalCount; i++) {
+            const intervalStart = i * intervalDuration;
+            const intervalEnd = (i + 1) * intervalDuration;
+            const amplitude = amplitudeArray[i];
+            const intensity = Math.sqrt(amplitude) * 10;
+
+            const frequency = frequencyArray[i];
+            const frequencyColor = this.getColorFromFrequency(frequency, true);
+            const hexFrequencyColor = this.rgbToHex(frequencyColor);
+            if (hexFrequencyColor !== null)
+                colors.push(hexFrequencyColor);
+
+            const genre = this.getGenreFromFrequency(frequency);
+            const colorIndex = Math.floor(Math.random() * colors.length);
+            const hexGenreColor = genreColors[genre][colorIndex]
+            if (hexGenreColor !== null)
+                colors.push(hexGenreColor);
+
+            const hexTempoColor = this.getMatchingColor(bpm[0], frequency, tempoColorsByBpm)
+            if (hexTempoColor !== null)
+                colors.push(hexTempoColor);
+
+            const color = this.combineColors(colors);
+            const interval = { start: intervalStart, end: intervalEnd, intensity, color };
+            intervalData.push(interval);
+            colors = [];
+        }
+
+        return intervalData;
+    }
+
+    combineColors(colors) {
+        const totalColors = colors.length;
+        let rTotal = 0;
+        let gTotal = 0;
+        let bTotal = 0;
+
+        // Convert each color to RGB values and add them up
+        colors.forEach(color => {
+            const r = parseInt(color.substring(1, 3), 16);
+            const g = parseInt(color.substring(3, 5), 16);
+            const b = parseInt(color.substring(5, 7), 16);
+            rTotal += r;
+            gTotal += g;
+            bTotal += b;
+        });
+
+        // Calculate the average RGB values
+        const avgR = Math.round(rTotal / totalColors);
+        const avgG = Math.round(gTotal / totalColors);
+        const avgB = Math.round(bTotal / totalColors);
+
+        // Convert the average RGB values back to hexadecimal format
+        const combinedColor = "#" + this.componentToHex(avgR) + this.componentToHex(avgG) + this.componentToHex(avgB);
+        return combinedColor;
+    }
+
+    componentToHex(c) {
+        const hex = c.toString(16);
+        return hex.length === 1 ? "0" + hex : hex;
+    }
+
+    combineColors2(colors) {
+        // Convert each color to RGB values
+        const rgbValues = colors.map(color => this.hexToRgb(color));
+        // Calculate the average RGB values
+        const avgRgbValues = rgbValues.reduce((acc, cur) => {
+            return {
+                r: acc.r + cur.r,
+                g: acc.g + cur.g,
+                b: acc.b + cur.b
+            };
+        }, { r: 0, g: 0, b: 0 });
+
+        console.log(avgRgbValues)
+        const numColors = rgbValues.length;
+        avgRgbValues.r = Math.round(avgRgbValues.r / numColors);
+        avgRgbValues.g = Math.round(avgRgbValues.g / numColors);
+        avgRgbValues.b = Math.round(avgRgbValues.b / numColors);
+
+        // Convert the average RGB values back to hexadecimal format
+        const combinedColor = this.rgbToHex([avgRgbValues.r, avgRgbValues.g, avgRgbValues.b]);
+        return combinedColor;
     }
     //#endregion
 

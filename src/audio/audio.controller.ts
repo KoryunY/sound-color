@@ -162,11 +162,16 @@ export class AudioController {
             name: colorOptionsDto.name,
             type: ConvertingType[colorOptionsDto.type],
             saveAndReturnOption: SaveAndReturnOption[colorOptionsDto.saveAndReturnOption],
-            intervalCount: parseInt(colorOptionsDto.intervalCount),
-            config: colorOptionsDto.config,
             user: colorOptionsDto.user,
+            config: colorOptionsDto.config,
+            useIntervals: Boolean(colorOptionsDto.useIntervals),
+            intervalCount: parseInt(colorOptionsDto.intervalCount),
+            familyCount: parseInt(colorOptionsDto.intervalCount),
+            gradientSplitCount: parseInt(colorOptionsDto.intervalCount),
+            genre: Genre[colorOptionsDto.genre],
+            instrument: Instrument[colorOptionsDto.instrument],
+            tempo: Tempo[colorOptionsDto.tempo],
             sentiment: Sentiment[colorOptionsDto.sentiment],
-            familyCount: parseInt(colorOptionsDto.familyCount),
             useCustomFft: Boolean(colorOptionsDto.useCustomFft)
         };
 

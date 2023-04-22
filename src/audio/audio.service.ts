@@ -290,26 +290,32 @@ export class AudioService {
     async generateByAio(options: AioOptionsDto, audio: any) {
         let name: string = options.name;
         const type: ConvertingType = options.type;
+        const saveAndReturnOption: SaveAndReturnOption = options.saveAndReturnOption;
+        let user: ObjectId = options.user;
+        let configId: string = options.config;
+        let useIntervals: boolean = options.useIntervals;
         let intervalCount: number = options.intervalCount;
         let familyCount: number = options.familyCount;
-        let configId: string = options.config;
-        const saveAndReturnOption: SaveAndReturnOption = options.saveAndReturnOption;
+        let gradientSplitCount: number = options.gradientSplitCount;
+        let genre = options.genre;
+        let instrument = options.instrument;
+        let tempo = options.tempo;
+        let sentiment = options.sentiment;
         let useCustomFft: boolean = options.useCustomFft;
 
-        let user: ObjectId = options.user;
-        let sentiment = options.sentiment;
-        let config;
+        // let config;
 
-        if (configId) {
-            config = await this.configService.getConfig(configId);
-        }
+        // if (configId) {
+        //     config = await this.configService.getConfig(configId);
+        // }
 
-        if (!sentiment && !config)
-            [, , sentiment] = (await this.musicService.getMetadata(audio));
+        // if (!sentiment && !config)
+        //     [, , sentiment] = (await this.musicService.getMetadata(audio));
 
-        let [amplitude, intervalDuration] = await this.musicService.generateIntervalData(audio, type, intervalCount, useCustomFft);
+        let [frequency, amplitude, duration, intervalDuration, bpm, pitch] = await this.musicService.generateIntervalData(audio, type, intervalCount, useCustomFft);
 
-        const data = await this.musicService.generateBySentiment(config, sentiment, amplitude, intervalDuration, intervalCount, familyCount);
+        const data = this.musicService.generateByAio(intervalCount, intervalDuration, frequency, amplitude, bpm);
+        //        console.log(data)
         const replaceData = JSON.stringify(data);
         const html = fs.readFileSync('./src/public/index.html', 'utf-8');
         const audioBuffer = audio.buffer.toString('base64');

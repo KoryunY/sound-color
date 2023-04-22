@@ -13,8 +13,7 @@ export interface AioOptionsDto {
     gradientSplitCount?: number,
     genre?: Genre,
     instrument?: Instrument,
-    useCustomFft?: boolean,
     tempo?: Tempo
     sentiment?: Sentiment,
-
+    useCustomFft?: boolean,
 }
