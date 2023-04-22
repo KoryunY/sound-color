@@ -1002,28 +1002,6 @@ export class MusicService {
         return hex.length === 1 ? "0" + hex : hex;
     }
 
-    combineColors2(colors) {
-        // Convert each color to RGB values
-        const rgbValues = colors.map(color => this.hexToRgb(color));
-        // Calculate the average RGB values
-        const avgRgbValues = rgbValues.reduce((acc, cur) => {
-            return {
-                r: acc.r + cur.r,
-                g: acc.g + cur.g,
-                b: acc.b + cur.b
-            };
-        }, { r: 0, g: 0, b: 0 });
-
-        console.log(avgRgbValues)
-        const numColors = rgbValues.length;
-        avgRgbValues.r = Math.round(avgRgbValues.r / numColors);
-        avgRgbValues.g = Math.round(avgRgbValues.g / numColors);
-        avgRgbValues.b = Math.round(avgRgbValues.b / numColors);
-
-        // Convert the average RGB values back to hexadecimal format
-        const combinedColor = this.rgbToHex([avgRgbValues.r, avgRgbValues.g, avgRgbValues.b]);
-        return combinedColor;
-    }
     //#endregion
 
 }
