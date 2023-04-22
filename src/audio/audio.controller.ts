@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Post, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { ConvertingType, Genre, Instrument, SaveAndReturnOption, Sentiment, Tempo } from 'src/Defaults/types';
 import { SynesthesiaOptionsDto } from 'src/Model/Dto/SynesthesiaOptions.dto';
 import { InstrumentOptionsDto } from 'src/Model/Dto/InstrumentOptions.dto';
@@ -183,16 +183,16 @@ export class AudioController {
         return this.audioService.isExist(id);
     }
 
-    @Post('test')
-    @UseInterceptors(FileInterceptor('audio'))
-    test(@UploadedFile() audio: Express.Multer.File) {
-        return this.audioService.test(audio);
-    }
+    // @Post('test')
+    // @UseInterceptors(FileInterceptor('audio'))
+    // test(@UploadedFile() audio: Express.Multer.File) {
+    //     return this.audioService.test(audio);
+    // }
 
-    @Post('test2')
-    @UseInterceptors(FileInterceptor('audio'))
-    test2(@UploadedFile() audio: Express.Multer.File) {
-        return this.audioService.test2(audio);
-    }
+    // @Post('test2')
+    // @UseInterceptors(FileInterceptor('audio'))
+    // test2(@UploadedFile() audio: Express.Multer.File) {
+    //     return this.audioService.test2(audio);
+    // }
 
 }

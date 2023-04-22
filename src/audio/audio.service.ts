@@ -17,6 +17,7 @@ import { MusicService } from 'src/services/music.service';
 import fs from 'fs';
 import { SentimentOptionsDto } from 'src/Model/Dto/SentimentOptions.dto';
 import { AioOptionsDto } from 'src/Model/Dto/AioOptions.dto';
+import { MetadataProcessingService } from 'src/services/metadata.service';
 
 @Injectable()
 export class AudioService {
@@ -25,7 +26,8 @@ export class AudioService {
         @InjectModel(Config.name) private configModel: Model<Config>,
         @InjectModel(Audio.name) private audioModel: Model<Audio>,
         private musicService: MusicService,
-        private configService: ConfigService
+        private configService: ConfigService,
+        private metaDataService: MetadataProcessingService,
 
     ) { }
 
@@ -262,7 +264,7 @@ export class AudioService {
         }
 
         if (!sentiment && !config)
-            [, , sentiment] = (await this.musicService.getMetadata(audio));
+            [, , sentiment] = (await this.metaDataService.getMetadata(audio));
 
         let [amplitude, intervalDuration] = await this.musicService.generateIntervalData(audio, type, intervalCount, useCustomFft);
 
@@ -310,7 +312,7 @@ export class AudioService {
         // }
 
         if (!sentiment)//&& !config)
-            [, , sentiment] = (await this.musicService.getMetadata(audio));
+            [, , sentiment] = (await this.metaDataService.getMetadata(audio));
 
         let [frequency, amplitude, duration, intervalDuration, bpm, pitch] = await this.musicService.generateIntervalData(audio, type, intervalCount, useCustomFft);
 
@@ -354,41 +356,41 @@ export class AudioService {
         return count > 0;
     }
 
-    async test(audio: any) {
-        let decoded = await this.musicService.decodeAudio(audio)
-        // const N = decoded.length;
-        // const real = new Float64Array(N);
-        // const imag = new Float64Array(N);
+    // async test(audio: any) {
+    //     let decoded = await this.audioProcessingService.decodeAudio(audio)
+    //     // const N = decoded.length;
+    //     // const real = new Float64Array(N);
+    //     // const imag = new Float64Array(N);
 
-        // // calculate the real and imaginary parts of the signal's frequency domain representation
-        // for (let k = 0; k < N; k++) {
-        //     let re = 0;
-        //     let im = 0;
-        //     for (let n = 0; n < N; n++) {
-        //         const theta = 2 * Math.PI * k * n / N;
-        //         re += decoded[n] * Math.cos(theta);
-        //         im -= decoded[n] * Math.sin(theta);
-        //     }
-        //     //return { re, im };
-        //     real[k] = re;
-        //     imag[k] = im;
-        // }
+    //     // // calculate the real and imaginary parts of the signal's frequency domain representation
+    //     // for (let k = 0; k < N; k++) {
+    //     //     let re = 0;
+    //     //     let im = 0;
+    //     //     for (let n = 0; n < N; n++) {
+    //     //         const theta = 2 * Math.PI * k * n / N;
+    //     //         re += decoded[n] * Math.cos(theta);
+    //     //         im -= decoded[n] * Math.sin(theta);
+    //     //     }
+    //     //     //return { re, im };
+    //     //     real[k] = re;
+    //     //     imag[k] = im;
+    //     // }
 
-        // return { real, imag };
-        const asd = this.musicService.fft(decoded._channelData[0])
-        //, decoded.sampleRate);
-        return asd.real.length
-    }
+    //     // return { real, imag };
+    //     const asd = this.audioProcessingService.fft(decoded._channelData[0])
+    //     //, decoded.sampleRate);
+    //     return asd.real.length
+    // }
 
 
-    async test2(audio: any) {
-        let decoded = await this.musicService.decodeAudio(audio);
+    // async test2(audio: any) {
+    //     let decoded = await this.audioProcessingService.decodeAudio(audio);
 
-        const fft = this.musicService.getFft(decoded);
+    //     const fft = this.audioProcessingService.getFft(decoded);
 
-        //console.log(fft)
+    //     //console.log(fft)
 
-        return
-    }
+    //     return
+    // }
 
 }

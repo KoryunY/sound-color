@@ -1,15 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Config } from 'src/Model/configs.schema';
 import { User } from 'src/Model/user.schema';
-import { MusicService } from 'src/services/music.service';
+import { MetadataProcessingService } from 'src/services/metadata.service';
 
 @Injectable()
 export class UsersService {
     constructor(
         @InjectModel(User.name) private userModel: Model<User>,
-        private musicService: MusicService
+        private metadataService: MetadataProcessingService
     ) { }
 
     async createUser(name: string) {
@@ -35,15 +34,15 @@ export class UsersService {
     }
 
     async shazamAudio(audio: any) {
-        return await this.musicService.getMetadata(audio);
+        return await this.metadataService.getMetadata(audio);
     }
 
     async shazamText(text: string) {
-        return await this.musicService.getMetadata(null, text);
+        return await this.metadataService.getMetadata(null, text);
     }
 
     async metadata(audio: any) {
-        return await this.musicService.parseMetadata(audio);
+        return await this.metadataService.parseMetadata(audio);
     }
 
     async isExist(id: string): Promise<boolean> {
