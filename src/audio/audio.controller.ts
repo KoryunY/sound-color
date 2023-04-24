@@ -28,6 +28,8 @@ export class AudioController {
     @Post('synesthesia')
     @UseInterceptors(FileInterceptor('audio'))
     generateSynesthesiaColors(@Body() colorOptionsDto: any, @UploadedFile() audio: Express.Multer.File) {
+        if (!audio) return "Err:missing audio";
+
         const checkAttrMessage = this.audioService.checkAttr(audio.mimetype, audio.originalname);
         if (checkAttrMessage != "isOk")
             return checkAttrMessage;
@@ -42,13 +44,14 @@ export class AudioController {
             gradientSplitCount: parseInt(colorOptionsDto.gradientSplitCount),
             useCustomFft: Boolean(colorOptionsDto.useCustomFft)
         };
-
         return this.audioService.generateBySynesthesia(dto, audio);
     }
 
     @Post('genre')
     @UseInterceptors(FileInterceptor('audio'))
     generateGenreColors(@Body() colorOptionsDto: any, @UploadedFile() audio: Express.Multer.File) {
+        if (!audio) return "Err:missing audio";
+
         const checkAttrMessage = this.audioService.checkAttr(audio.mimetype, audio.originalname);
         if (checkAttrMessage != "isOk")
             return checkAttrMessage;
@@ -71,6 +74,8 @@ export class AudioController {
     @Post('tempo')
     @UseInterceptors(FileInterceptor('audio'))
     generateTempoColors(@Body() colorOptionsDto: any, @UploadedFile() audio: Express.Multer.File) {
+        if (!audio) return "Err:missing audio";
+
         const checkAttrMessage = this.audioService.checkAttr(audio.mimetype, audio.originalname);
         if (checkAttrMessage != "isOk")
             return checkAttrMessage;
@@ -113,6 +118,8 @@ export class AudioController {
     @Post('energy')
     @UseInterceptors(FileInterceptor('audio'))
     generateEnergyColors(@Body() colorOptionsDto: any, @UploadedFile() audio: Express.Multer.File) {
+        if (!audio) return "Err:missing audio";
+
         const checkAttrMessage = this.audioService.checkAttr(audio.mimetype, audio.originalname);
         if (checkAttrMessage != "isOk")
             return checkAttrMessage;
@@ -132,6 +139,8 @@ export class AudioController {
     @Post('sentiment')
     @UseInterceptors(FileInterceptor('audio'))
     generateSentimentColors(@Body() colorOptionsDto: any, @UploadedFile() audio: Express.Multer.File) {
+        if (!audio) return "Err:missing audio";
+
         const checkAttrMessage = this.audioService.checkAttr(audio.mimetype, audio.originalname);
         if (checkAttrMessage != "isOk")
             return checkAttrMessage;
@@ -147,13 +156,18 @@ export class AudioController {
             familyCount: parseInt(colorOptionsDto.familyCount),
             useCustomFft: Boolean(colorOptionsDto.useCustomFft)
         };
-
-        return this.audioService.generateBySentiment(dto, audio);
+        try {
+            return this.audioService.generateBySentiment(dto, audio);
+        } catch (err) {
+            return err.message;
+        }
     }
 
     @Post('aio')
     @UseInterceptors(FileInterceptor('audio'))
     generateAIOColors(@Body() colorOptionsDto: any, @UploadedFile() audio: Express.Multer.File) {
+        if (!audio) return "Err:missing audio";
+
         const checkAttrMessage = this.audioService.checkAttr(audio.mimetype, audio.originalname);
         if (checkAttrMessage != "isOk")
             return checkAttrMessage;
