@@ -7,8 +7,8 @@ import { ColorrocessingService } from './colors.service';
 @Injectable()
 export class OtherProcessingService {
     constructor(private colorService: ColorrocessingService) {
-
     }
+
     getGenreFromFrequency(frequency) {
         // Define frequency ranges for each genre
         let localGenreWeights = { ...genreWeights };
@@ -93,7 +93,6 @@ export class OtherProcessingService {
 
 
     sentimentFromWords(words) {
-
         let sentiment = 'neutral';
         const wordCount = words.length;
         let maxMatch = 0; //minimum match percentege

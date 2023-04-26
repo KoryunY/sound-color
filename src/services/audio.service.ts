@@ -285,6 +285,7 @@ export class AudioProcessingService {
 
         return rawData;
     }
+
     calculateAverageFrequency(amplitudes, frequencies) {
         let sum = 0;
         let count = 0;
