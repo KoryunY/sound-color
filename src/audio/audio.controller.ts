@@ -27,7 +27,7 @@ export class AudioController {
 
     @Post('synesthesia')
     @UseInterceptors(FileInterceptor('audio'))
-    generateSynesthesiaColors(@Body() colorOptionsDto: any, @UploadedFile() audio: Express.Multer.File) {
+    generateFrequencyColors(@Body() colorOptionsDto: any, @UploadedFile() audio: Express.Multer.File) {
         if (!audio) return "Err:missing audio";
 
         const checkAttrMessage = this.audioService.checkAttr(audio.mimetype, audio.originalname);
@@ -44,7 +44,7 @@ export class AudioController {
             gradientSplitCount: parseInt(colorOptionsDto.gradientSplitCount),
             useCustomFft: Boolean(colorOptionsDto.useCustomFft)
         };
-        return this.audioService.generateBySynesthesia(dto, audio);
+        return this.audioService.generateByFrequency(dto, audio);
     }
 
     @Post('genre')

@@ -6,7 +6,7 @@ export type IData = {
 }
 
 export enum ConvertingType {
-    SYNESTHESIA = "SYNESTHESIA",
+    FREQUENCY = "FREQUENCY",
     GENRE = "GENRE",
     TEMPO = "TEMPO",
     INSTRUMENT = "INSTRUMENT",

@@ -39,299 +39,327 @@ export class AudioService {
         return (await this.audioModel.findByIdAndRemove(id))._id;
     }
 
-    async generateBySynesthesia(options: SynesthesiaOptionsDto, audio: any) {
-        let name: string = options.name;
-        const type: ConvertingType = options.type;
-        const saveAndReturnOption: SaveAndReturnOption = options.saveAndReturnOption;
-        let user: ObjectId = options.user;
-        let useIntervals: boolean = options.useIntervals;
-        let intervalCount: number;
-        let gradientSplitCount: number = options.gradientSplitCount;
-        let useCustomFft: boolean = options.useCustomFft;
+    async generateByFrequency(options: SynesthesiaOptionsDto, audio: any) {
+        try {
+            let name: string = options.name;
+            const type: ConvertingType = options.type;
+            const saveAndReturnOption: SaveAndReturnOption = options.saveAndReturnOption;
+            let user: ObjectId = options.user;
+            let useIntervals: boolean = options.useIntervals;
+            let intervalCount: number;
+            let gradientSplitCount: number = options.gradientSplitCount;
+            let useCustomFft: boolean = options.useCustomFft;
 
-        if (useIntervals) {
-            intervalCount = options.intervalCount;
-            if (!intervalCount)
-                intervalCount = defaultIntervalCount
-        }
+            if (useIntervals) {
+                intervalCount = options.intervalCount;
+                if (!intervalCount)
+                    intervalCount = defaultIntervalCount
+            }
 
-        let [frequency, amplitude, duration, intervalDuration] = await this.musicService.generateIntervalData(audio, type, intervalCount, useCustomFft);
+            let [frequency, amplitude, duration, intervalDuration] = await this.musicService.generateIntervalData(audio, type, intervalCount, useCustomFft);
 
-        const data = this.musicService.generateBySynesthesia(frequency, amplitude, duration, intervalDuration, intervalCount, gradientSplitCount);
+            const data = this.musicService.generateByFrequency(frequency, amplitude, duration, intervalDuration, intervalCount, gradientSplitCount);
 
-        const replaceData = JSON.stringify(data);
-        const html = fs.readFileSync('./src/public/index.html', 'utf-8');
-        const audioBuffer = audio.buffer.toString('base64');
-        const audioMimeType = audio.mimetype;
-        const audioSrc = `data:${audioMimeType};base64,${audioBuffer}`;
+            const replaceData = JSON.stringify(data);
+            const html = fs.readFileSync('./src/public/index.html', 'utf-8');
+            const audioBuffer = audio.buffer.toString('base64');
+            const audioMimeType = audio.mimetype;
+            const audioSrc = `data:${audioMimeType};base64,${audioBuffer}`;
 
-        let replacedhtml = html.replace('<script id="data">', `<script id="data">\n        const data = ${replaceData};`);
-        const replacedHtml = replacedhtml.replace('audio.src = URL.createObjectURL(audioFile);', `audio.src = "${audioSrc}";`);
+            let replacedhtml = html.replace('<script id="data">', `<script id="data">\n        const data = ${replaceData};`);
+            const replacedHtml = replacedhtml.replace('audio.src = URL.createObjectURL(audioFile);', `audio.src = "${audioSrc}";`);
 
-        switch (saveAndReturnOption) {
-            case SaveAndReturnOption.SAVE_AND_RETURN_ID:
-                return (await this.audioModel.create({ name, data, user }))._id;
-            case SaveAndReturnOption.SAVE_AND_RETURN_DEMO:
-                await this.audioModel.create({ name, data, user })
-                return replacedHtml;
-            case SaveAndReturnOption.RETURN_DEMO:
-                return replacedHtml;
+            switch (saveAndReturnOption) {
+                case SaveAndReturnOption.SAVE_AND_RETURN_ID:
+                    return (await this.audioModel.create({ name, data, user }))._id;
+                case SaveAndReturnOption.SAVE_AND_RETURN_DEMO:
+                    await this.audioModel.create({ name, data, user })
+                    return replacedHtml;
+                case SaveAndReturnOption.RETURN_DEMO:
+                    return replacedHtml;
+            }
+        } catch (err) {
+            return err.message;
         }
     }
 
     async generateByGenre(options: GenreOptionsDto, audio: any) {
-        let name: string = options.name;
-        const type: ConvertingType = options.type;
-        const saveAndReturnOption: SaveAndReturnOption = options.saveAndReturnOption;
-        let user: ObjectId = options.user;
-        let configId: string = options.config;
-        let genre: Genre = options.genre;
-        let useCustomFft: boolean = options.useCustomFft;
+        try {
+            let name: string = options.name;
+            const type: ConvertingType = options.type;
+            const saveAndReturnOption: SaveAndReturnOption = options.saveAndReturnOption;
+            let user: ObjectId = options.user;
+            let configId: string = options.config;
+            let genre: Genre = options.genre;
+            let useCustomFft: boolean = options.useCustomFft;
 
-        let useIntervals: boolean = options.useIntervals;
-        let intervalCount: number;
+            let useIntervals: boolean = options.useIntervals;
+            let intervalCount: number;
 
-        if (useIntervals) {
-            intervalCount = options.intervalCount;
-            if (!intervalCount)
-                intervalCount = defaultIntervalCount
-        }
+            if (useIntervals) {
+                intervalCount = options.intervalCount;
+                if (!intervalCount)
+                    intervalCount = defaultIntervalCount
+            }
 
-        let config;
+            let config;
 
-        if (configId) {
-            config = await this.configService.getConfig(configId);
-        }
+            if (configId) {
+                config = await this.configService.getConfig(configId);
+            }
 
-        let [frequency, amplitude, duration, intervalDuration] = await this.musicService.generateIntervalData(audio, type, intervalCount, useCustomFft);
-        const data = this.musicService.generateByGenre(config, genre, frequency, amplitude, duration, intervalDuration, intervalCount);
+            let [frequency, amplitude, duration, intervalDuration] = await this.musicService.generateIntervalData(audio, type, intervalCount, useCustomFft);
+            const data = this.musicService.generateByGenre(config, genre, frequency, amplitude, duration, intervalDuration, intervalCount);
 
-        const replaceData = JSON.stringify(data);
-        const html = fs.readFileSync('./src/public/index.html', 'utf-8');
-        const audioBuffer = audio.buffer.toString('base64');
-        const audioMimeType = audio.mimetype;
-        const audioSrc = `data:${audioMimeType};base64,${audioBuffer}`;
+            const replaceData = JSON.stringify(data);
+            const html = fs.readFileSync('./src/public/index.html', 'utf-8');
+            const audioBuffer = audio.buffer.toString('base64');
+            const audioMimeType = audio.mimetype;
+            const audioSrc = `data:${audioMimeType};base64,${audioBuffer}`;
 
-        let replacedhtml = html.replace('<script id="data">', `<script id="data">\n        const data = ${replaceData};`);
-        const replacedHtml = replacedhtml.replace('audio.src = URL.createObjectURL(audioFile);', `audio.src = "${audioSrc}";`);
+            let replacedhtml = html.replace('<script id="data">', `<script id="data">\n        const data = ${replaceData};`);
+            const replacedHtml = replacedhtml.replace('audio.src = URL.createObjectURL(audioFile);', `audio.src = "${audioSrc}";`);
 
-        switch (saveAndReturnOption) {
-            case SaveAndReturnOption.SAVE_AND_RETURN_ID:
-                return (await this.audioModel.create({ name, data, user }))._id;
-            case SaveAndReturnOption.SAVE_AND_RETURN_DEMO:
-                await this.audioModel.create({ name, data, user })
-                return replacedHtml;
-            case SaveAndReturnOption.RETURN_DEMO:
-                return replacedHtml;
+            switch (saveAndReturnOption) {
+                case SaveAndReturnOption.SAVE_AND_RETURN_ID:
+                    return (await this.audioModel.create({ name, data, user }))._id;
+                case SaveAndReturnOption.SAVE_AND_RETURN_DEMO:
+                    await this.audioModel.create({ name, data, user })
+                    return replacedHtml;
+                case SaveAndReturnOption.RETURN_DEMO:
+                    return replacedHtml;
+            }
+        } catch (err) {
+            return err.message;
         }
     }
 
     async generateByTempo(options: TempoOptionsDto, audio: any) {
-        let name: string = options.name;
-        const type: ConvertingType = options.type;
-        const saveAndReturnOption: SaveAndReturnOption = options.saveAndReturnOption;
-        let configId: string = options.config;
-        let tempo: Tempo = options.tempo;
-        let user: ObjectId = options.user;
-        let useCustomFft: boolean = options.useCustomFft;
+        try {
+            let name: string = options.name;
+            const type: ConvertingType = options.type;
+            const saveAndReturnOption: SaveAndReturnOption = options.saveAndReturnOption;
+            let configId: string = options.config;
+            let tempo: Tempo = options.tempo;
+            let user: ObjectId = options.user;
+            let useCustomFft: boolean = options.useCustomFft;
 
-        let intervalCount: number = options.intervalCount;
+            let intervalCount: number = options.intervalCount;
 
-        let config;
+            let config;
 
-        if (configId) {
-            config = await this.configService.getConfig(configId);
-        }
+            if (configId) {
+                config = await this.configService.getConfig(configId);
+            }
 
-        let [frequency, amplitude, intervalDuration, bpm] = await this.musicService.generateIntervalData(audio, type, intervalCount, useCustomFft);
-        const data = this.musicService.generateByTempo(config, tempo, frequency, amplitude, intervalDuration, intervalCount, bpm);
+            let [frequency, amplitude, intervalDuration, bpm] = await this.musicService.generateIntervalData(audio, type, intervalCount, useCustomFft);
+            const data = this.musicService.generateByTempo(config, tempo, frequency, amplitude, intervalDuration, intervalCount, bpm);
 
-        const replaceData = JSON.stringify(data);
-        const html = fs.readFileSync('./src/public/index.html', 'utf-8');
-        const audioBuffer = audio.buffer.toString('base64');
-        const audioMimeType = audio.mimetype;
-        const audioSrc = `data:${audioMimeType};base64,${audioBuffer}`;
+            const replaceData = JSON.stringify(data);
+            const html = fs.readFileSync('./src/public/index.html', 'utf-8');
+            const audioBuffer = audio.buffer.toString('base64');
+            const audioMimeType = audio.mimetype;
+            const audioSrc = `data:${audioMimeType};base64,${audioBuffer}`;
 
-        let replacedhtml = html.replace('<script id="data">', `<script id="data">\n        const data = ${replaceData};`);
-        const replacedHtml = replacedhtml.replace('audio.src = URL.createObjectURL(audioFile);', `audio.src = "${audioSrc}";`);
+            let replacedhtml = html.replace('<script id="data">', `<script id="data">\n        const data = ${replaceData};`);
+            const replacedHtml = replacedhtml.replace('audio.src = URL.createObjectURL(audioFile);', `audio.src = "${audioSrc}";`);
 
-        switch (saveAndReturnOption) {
-            case SaveAndReturnOption.SAVE_AND_RETURN_ID:
-                return (await this.audioModel.create({ name, data, user }))._id;
-            case SaveAndReturnOption.SAVE_AND_RETURN_DEMO:
-                await this.audioModel.create({ name, data, user })
-                return replacedHtml;
-            case SaveAndReturnOption.RETURN_DEMO:
-                return replacedHtml;
+            switch (saveAndReturnOption) {
+                case SaveAndReturnOption.SAVE_AND_RETURN_ID:
+                    return (await this.audioModel.create({ name, data, user }))._id;
+                case SaveAndReturnOption.SAVE_AND_RETURN_DEMO:
+                    await this.audioModel.create({ name, data, user })
+                    return replacedHtml;
+                case SaveAndReturnOption.RETURN_DEMO:
+                    return replacedHtml;
+            }
+        } catch (err) {
+            return err.message;
         }
     }
 
     async generateByInstrument(options: InstrumentOptionsDto, audio: any) {
-        let name: string = options.name;
-        const type: ConvertingType = options.type;
-        const saveAndReturnOption: SaveAndReturnOption = options.saveAndReturnOption;
-        let useCustomFft: boolean = options.useCustomFft;
+        try {
+            let name: string = options.name;
+            const type: ConvertingType = options.type;
+            const saveAndReturnOption: SaveAndReturnOption = options.saveAndReturnOption;
+            let useCustomFft: boolean = options.useCustomFft;
 
-        let intervalCount: number = options.intervalCount;
-        let configId: string = options.config;
-        let user: ObjectId = options.user;
-        let instrument: Instrument = options.instrument;
+            let intervalCount: number = options.intervalCount;
+            let configId: string = options.config;
+            let user: ObjectId = options.user;
+            let instrument: Instrument = options.instrument;
 
-        let config;
+            let config;
 
-        if (configId) {
-            config = await this.configService.getConfig(configId);
-        }
+            if (configId) {
+                config = await this.configService.getConfig(configId);
+            }
 
-        let [amplitude, intervalDuration, pitch] = await this.musicService.generateIntervalData(audio, type, intervalCount, useCustomFft);
-        const data = this.musicService.generateByInstrument(config, instrument, amplitude, pitch, intervalDuration, intervalCount);
+            let [amplitude, intervalDuration, pitch] = await this.musicService.generateIntervalData(audio, type, intervalCount, useCustomFft);
+            const data = this.musicService.generateByInstrument(config, instrument, amplitude, pitch, intervalDuration, intervalCount);
 
-        const replaceData = JSON.stringify(data);
-        const html = fs.readFileSync('./src/public/index.html', 'utf-8');
-        const audioBuffer = audio.buffer.toString('base64');
-        const audioMimeType = audio.mimetype;
-        const audioSrc = `data:${audioMimeType};base64,${audioBuffer}`;
+            const replaceData = JSON.stringify(data);
+            const html = fs.readFileSync('./src/public/index.html', 'utf-8');
+            const audioBuffer = audio.buffer.toString('base64');
+            const audioMimeType = audio.mimetype;
+            const audioSrc = `data:${audioMimeType};base64,${audioBuffer}`;
 
-        let replacedhtml = html.replace('<script id="data">', `<script id="data">\n        const data = ${replaceData};`);
-        const replacedHtml = replacedhtml.replace('audio.src = URL.createObjectURL(audioFile);', `audio.src = "${audioSrc}";`);
+            let replacedhtml = html.replace('<script id="data">', `<script id="data">\n        const data = ${replaceData};`);
+            const replacedHtml = replacedhtml.replace('audio.src = URL.createObjectURL(audioFile);', `audio.src = "${audioSrc}";`);
 
-        switch (saveAndReturnOption) {
-            case SaveAndReturnOption.SAVE_AND_RETURN_ID:
-                return (await this.audioModel.create({ name, data, user }))._id;
-            case SaveAndReturnOption.SAVE_AND_RETURN_DEMO:
-                await this.audioModel.create({ name, data, user })
-                return replacedHtml;
-            case SaveAndReturnOption.RETURN_DEMO:
-                return replacedHtml;
+            switch (saveAndReturnOption) {
+                case SaveAndReturnOption.SAVE_AND_RETURN_ID:
+                    return (await this.audioModel.create({ name, data, user }))._id;
+                case SaveAndReturnOption.SAVE_AND_RETURN_DEMO:
+                    await this.audioModel.create({ name, data, user })
+                    return replacedHtml;
+                case SaveAndReturnOption.RETURN_DEMO:
+                    return replacedHtml;
+            }
+        } catch (err) {
+            return err.message;
         }
     }
 
     async generateByEnergy(options: EnergyOptionsDto, audio: any) {
-        let name: string = options.name;
-        const type: ConvertingType = options.type;
-        let intervalCount: number = options.intervalCount;
-        const saveAndReturnOption: SaveAndReturnOption = options.saveAndReturnOption;
-        let useCustomFft: boolean = options.useCustomFft;
+        try {
+            let name: string = options.name;
+            const type: ConvertingType = options.type;
+            let intervalCount: number = options.intervalCount;
+            const saveAndReturnOption: SaveAndReturnOption = options.saveAndReturnOption;
+            let useCustomFft: boolean = options.useCustomFft;
 
-        let configId: string = options.config;
-        let user: ObjectId = options.user;
-        let config;
+            let configId: string = options.config;
+            let user: ObjectId = options.user;
+            let config;
 
-        if (configId) {
-            config = await this.configService.getConfig(configId);
-        }
+            if (configId) {
+                config = await this.configService.getConfig(configId);
+            }
 
-        let [amplitude, intervalDuration] = await this.musicService.generateIntervalData(audio, type, intervalCount, useCustomFft);
-        const data = await this.musicService.generateByEnergy(config, amplitude, intervalDuration, intervalCount);
-        const replaceData = JSON.stringify(data);
-        const html = fs.readFileSync('./src/public/index.html', 'utf-8');
-        const audioBuffer = audio.buffer.toString('base64');
-        const audioMimeType = audio.mimetype;
-        const audioSrc = `data:${audioMimeType};base64,${audioBuffer}`;
+            let [amplitude, intervalDuration] = await this.musicService.generateIntervalData(audio, type, intervalCount, useCustomFft);
+            const data = await this.musicService.generateByEnergy(config, amplitude, intervalDuration, intervalCount);
+            const replaceData = JSON.stringify(data);
+            const html = fs.readFileSync('./src/public/index.html', 'utf-8');
+            const audioBuffer = audio.buffer.toString('base64');
+            const audioMimeType = audio.mimetype;
+            const audioSrc = `data:${audioMimeType};base64,${audioBuffer}`;
 
-        let replacedhtml = html.replace('<script id="data">', `<script id="data">\n        const data = ${replaceData};`);
-        const replacedHtml = replacedhtml.replace('audio.src = URL.createObjectURL(audioFile);', `audio.src = "${audioSrc}";`);
+            let replacedhtml = html.replace('<script id="data">', `<script id="data">\n        const data = ${replaceData};`);
+            const replacedHtml = replacedhtml.replace('audio.src = URL.createObjectURL(audioFile);', `audio.src = "${audioSrc}";`);
 
-        switch (saveAndReturnOption) {
-            case SaveAndReturnOption.SAVE_AND_RETURN_ID:
-                return (await this.audioModel.create({ name, data, user }))._id;
-            case SaveAndReturnOption.SAVE_AND_RETURN_DEMO:
-                await this.audioModel.create({ name, data, user })
-                return replacedHtml;
-            case SaveAndReturnOption.RETURN_DEMO:
-                return replacedHtml;
+            switch (saveAndReturnOption) {
+                case SaveAndReturnOption.SAVE_AND_RETURN_ID:
+                    return (await this.audioModel.create({ name, data, user }))._id;
+                case SaveAndReturnOption.SAVE_AND_RETURN_DEMO:
+                    await this.audioModel.create({ name, data, user })
+                    return replacedHtml;
+                case SaveAndReturnOption.RETURN_DEMO:
+                    return replacedHtml;
+            }
+        } catch (err) {
+            return err.message;
         }
     }
 
     async generateBySentiment(options: SentimentOptionsDto, audio: any) {
-        let name: string = options.name;
-        const type: ConvertingType = options.type;
-        let intervalCount: number = options.intervalCount;
-        let familyCount: number = options.familyCount;
-        let configId: string = options.config;
-        const saveAndReturnOption: SaveAndReturnOption = options.saveAndReturnOption;
-        let useCustomFft: boolean = options.useCustomFft;
+        try {
+            let name: string = options.name;
+            const type: ConvertingType = options.type;
+            let intervalCount: number = options.intervalCount;
+            let familyCount: number = options.familyCount;
+            let configId: string = options.config;
+            const saveAndReturnOption: SaveAndReturnOption = options.saveAndReturnOption;
+            let useCustomFft: boolean = options.useCustomFft;
 
-        let user: ObjectId = options.user;
-        let sentiment = options.sentiment;
-        let config;
+            let user: ObjectId = options.user;
+            let sentiment = options.sentiment;
+            let config;
 
-        if (configId) {
-            config = await this.configService.getConfig(configId);
-        }
+            if (configId) {
+                config = await this.configService.getConfig(configId);
+            }
 
-        if (!sentiment && !config)
-            [, , sentiment] = (await this.metaDataService.getMetadata(audio));
+            if (!sentiment && !config)
+                [, , sentiment] = (await this.metaDataService.getMetadata(audio));
 
-        let [amplitude, intervalDuration] = await this.musicService.generateIntervalData(audio, type, intervalCount, useCustomFft);
+            let [amplitude, intervalDuration] = await this.musicService.generateIntervalData(audio, type, intervalCount, useCustomFft);
 
-        const data = await this.musicService.generateBySentiment(config, sentiment, amplitude, intervalDuration, intervalCount, familyCount);
-        const replaceData = JSON.stringify(data);
-        const html = fs.readFileSync('./src/public/index.html', 'utf-8');
-        const audioBuffer = audio.buffer.toString('base64');
-        const audioMimeType = audio.mimetype;
-        const audioSrc = `data:${audioMimeType};base64,${audioBuffer}`;
+            const data = await this.musicService.generateBySentiment(config, sentiment, amplitude, intervalDuration, intervalCount, familyCount);
+            const replaceData = JSON.stringify(data);
+            const html = fs.readFileSync('./src/public/index.html', 'utf-8');
+            const audioBuffer = audio.buffer.toString('base64');
+            const audioMimeType = audio.mimetype;
+            const audioSrc = `data:${audioMimeType};base64,${audioBuffer}`;
 
-        let replacedhtml = html.replace('<script id="data">', `<script id="data">\n        const data = ${replaceData};`);
-        const replacedHtml = replacedhtml.replace('audio.src = URL.createObjectURL(audioFile);', `audio.src = "${audioSrc}";`);
+            let replacedhtml = html.replace('<script id="data">', `<script id="data">\n        const data = ${replaceData};`);
+            const replacedHtml = replacedhtml.replace('audio.src = URL.createObjectURL(audioFile);', `audio.src = "${audioSrc}";`);
 
-        switch (saveAndReturnOption) {
-            case SaveAndReturnOption.SAVE_AND_RETURN_ID:
-                return (await this.audioModel.create({ name, data, user }))._id;
-            case SaveAndReturnOption.SAVE_AND_RETURN_DEMO:
-                await this.audioModel.create({ name, data, user })
-                return replacedHtml;
-            case SaveAndReturnOption.RETURN_DEMO:
-                return replacedHtml;
+            switch (saveAndReturnOption) {
+                case SaveAndReturnOption.SAVE_AND_RETURN_ID:
+                    return (await this.audioModel.create({ name, data, user }))._id;
+                case SaveAndReturnOption.SAVE_AND_RETURN_DEMO:
+                    await this.audioModel.create({ name, data, user })
+                    return replacedHtml;
+                case SaveAndReturnOption.RETURN_DEMO:
+                    return replacedHtml;
+            }
+        } catch (err) {
+            return err.message;
         }
     }
 
     async generateByAio(options: AioOptionsDto, audio: any) {
-        let name: string = options.name;
-        const type: ConvertingType = options.type;
-        const saveAndReturnOption: SaveAndReturnOption = options.saveAndReturnOption;
-        let user: ObjectId = options.user;
-        let intervalCount: number = options.intervalCount;
-        let sentiment = options.sentiment;
-        let useCustomFft: boolean = options.useCustomFft;
+        try {
+            let name: string = options.name;
+            const type: ConvertingType = options.type;
+            const saveAndReturnOption: SaveAndReturnOption = options.saveAndReturnOption;
+            let user: ObjectId = options.user;
+            let intervalCount: number = options.intervalCount;
+            let sentiment = options.sentiment;
+            let useCustomFft: boolean = options.useCustomFft;
 
-        // let configId: string = options.config;
-        // let useIntervals: boolean = options.useIntervals;
-        // let familyCount: number = options.familyCount;
-        // let gradientSplitCount: number = options.gradientSplitCount;
-        // let genre = options.genre;
-        // let instrument = options.instrument;
-        // let tempo = options.tempo;
-        // let config;
+            // let configId: string = options.config;
+            // let useIntervals: boolean = options.useIntervals;
+            // let familyCount: number = options.familyCount;
+            // let gradientSplitCount: number = options.gradientSplitCount;
+            // let genre = options.genre;
+            // let instrument = options.instrument;
+            // let tempo = options.tempo;
+            // let config;
 
-        // if (configId) {
-        //     config = await this.configService.getConfig(configId);
-        // }
+            // if (configId) {
+            //     config = await this.configService.getConfig(configId);
+            // }
 
-        if (!sentiment)
-            [, , sentiment] = (await this.metaDataService.getMetadata(audio));
+            if (!sentiment)
+                [, , sentiment] = (await this.metaDataService.getMetadata(audio));
 
-        let [frequency, amplitude, duration, intervalDuration, bpm, pitch] = await this.musicService.generateIntervalData(audio, type, intervalCount, useCustomFft);
+            let [frequency, amplitude, duration, intervalDuration, bpm, pitch] = await this.musicService.generateIntervalData(audio, type, intervalCount, useCustomFft);
 
-        const data = this.musicService.generateByAio(intervalCount, intervalDuration, frequency, amplitude, pitch, bpm, sentiment);
-        const replaceData = JSON.stringify(data);
+            const data = this.musicService.generateByAio(intervalCount, intervalDuration, frequency, amplitude, pitch, bpm, sentiment);
+            const replaceData = JSON.stringify(data);
 
-        const html = fs.readFileSync('./src/public/index.html', 'utf-8');
-        const audioBuffer = audio.buffer.toString('base64');
-        const audioMimeType = audio.mimetype;
-        const audioSrc = `data:${audioMimeType};base64,${audioBuffer}`;
+            const html = fs.readFileSync('./src/public/index.html', 'utf-8');
+            const audioBuffer = audio.buffer.toString('base64');
+            const audioMimeType = audio.mimetype;
+            const audioSrc = `data:${audioMimeType};base64,${audioBuffer}`;
 
-        let replacedhtml = html.replace('<script id="data">', `<script id="data">\n        const data = ${replaceData};`);
-        const replacedHtml = replacedhtml.replace('audio.src = URL.createObjectURL(audioFile);', `audio.src = "${audioSrc}";`);
+            let replacedhtml = html.replace('<script id="data">', `<script id="data">\n        const data = ${replaceData};`);
+            const replacedHtml = replacedhtml.replace('audio.src = URL.createObjectURL(audioFile);', `audio.src = "${audioSrc}";`);
 
-        switch (saveAndReturnOption) {
-            case SaveAndReturnOption.SAVE_AND_RETURN_ID:
-                return (await this.audioModel.create({ name, data, user }))._id;
-            case SaveAndReturnOption.SAVE_AND_RETURN_DEMO:
-                await this.audioModel.create({ name, data, user })
-                return replacedHtml;
-            case SaveAndReturnOption.RETURN_DEMO:
-                return replacedHtml;
+            switch (saveAndReturnOption) {
+                case SaveAndReturnOption.SAVE_AND_RETURN_ID:
+                    return (await this.audioModel.create({ name, data, user }))._id;
+                case SaveAndReturnOption.SAVE_AND_RETURN_DEMO:
+                    await this.audioModel.create({ name, data, user })
+                    return replacedHtml;
+                case SaveAndReturnOption.RETURN_DEMO:
+                    return replacedHtml;
+            }
+        } catch (err) {
+            return err.message;
         }
     }
 

@@ -33,7 +33,7 @@ export class MusicService {
         let intervalDuration = duration / intervalCount;
 
         switch (type) {
-            case ConvertingType.SYNESTHESIA:
+            case ConvertingType.FREQUENCY:
                 return [frequency, amplitude, duration, intervalDuration];
             case ConvertingType.GENRE:
                 return [frequency, amplitude, duration, intervalDuration];
@@ -47,10 +47,12 @@ export class MusicService {
                 return [amplitude, intervalDuration];
             case ConvertingType.AIO:
                 return [frequency, amplitude, duration, intervalDuration, bpm, pitch]
+            default:
+                throw new Error("Unhandled Converting Type")
         }
     }
 
-    generateBySynesthesia(frequencyArray, amplitudeArray, duration = null, intervalDuration = null, intervalCount = null, gradientSplitCount = null) {
+    generateByFrequency(frequencyArray, amplitudeArray, duration = null, intervalDuration = null, intervalCount = null, gradientSplitCount = null) {
         let length;
 
         // check for valid inputs
