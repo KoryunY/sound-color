@@ -14,8 +14,6 @@ export class MetadataProcessingService {
     ) {
 
     }
-    //#region metadata
-    //metadata
     async requestToShazam(decodeAudio: any) {
 
         const rawData = await this.audioService.convertAudioBufferToRawPcm(decodeAudio.buffer);
@@ -84,6 +82,4 @@ export class MetadataProcessingService {
 
         return [name, genre];
     }
-
-    //#endregion
 }

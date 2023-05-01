@@ -371,25 +371,3 @@ export class MusicService {
 
 
 }
-//#region todo
-    //addShazam maybe others to
-
-    //generateByCoverColors
-    //real-timeprocessing
-    //generateByMood//kindaDOne
-
-    //test context==true?2 options:1 for now
-    //one function to do all,
-    //endpoints//above parts
-
-    //dto passing param using
-    //defaults creating and update add delete to for others
-    //audio-metadata getting from shazam and others
-
-    //genreWeights
-    //energyLevel
-
-    //add postman test fix,fix clean all code create front
-    //color family
-    //gradient
-    //#endregion
