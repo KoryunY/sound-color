@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import DSP from 'dsp.js';
 import fs from 'fs';
 
-import { tempos } from 'src/Defaults/consts';
+import { tempos } from 'src/defaults/consts';
 
 
 @Injectable()

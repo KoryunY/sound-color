@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
-import { energyColors, genreColors, instrumentColors, sentimentsColors, tempoColors } from 'src/Defaults/consts';
-import { ConvertingType, Energy, Genre, Instrument, Tempo } from 'src/Defaults/types';
+import { energyColors, genreColors, instrumentColors, sentimentsColors, tempoColors } from 'src/defaults/consts';
+import { ConvertingType, Energy, Genre, Instrument, Tempo } from 'src/defaults/types';
 import { AudioProcessingService } from './audio.service';
 import { OtherProcessingService } from './other.service';
 import { ColorrocessingService as ColorProcessingService } from './colors.service';

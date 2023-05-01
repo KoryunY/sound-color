@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
-import { IData } from 'src/Defaults/types';
+import { IData } from 'src/defaults/types';
 
 export type AudioDocument = HydratedDocument<Audio>;
 

@@ -1,4 +1,4 @@
-import { ConvertingType, Instrument, SaveAndReturnOption } from "src/Defaults/types";
+import { ConvertingType, Instrument, SaveAndReturnOption } from "src/defaults/types";
 import { ObjectId } from "mongoose";
 
 export interface InstrumentOptionsDto {

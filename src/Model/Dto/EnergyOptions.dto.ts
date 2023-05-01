@@ -1,4 +1,4 @@
-import { ConvertingType, SaveAndReturnOption } from "src/Defaults/types";
+import { ConvertingType, SaveAndReturnOption } from "src/defaults/types";
 import { ObjectId } from "mongoose";
 
 export interface EnergyOptionsDto {

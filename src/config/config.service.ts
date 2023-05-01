@@ -1,7 +1,7 @@
-import { UpdateConfigDto } from 'src/Model/Dto/UpdateConfig.dto';
+import { UpdateConfigDto } from 'src/Model/dto/UpdateConfig.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Injectable } from '@nestjs/common';
-import { ConfigDto } from 'src/Model/Dto/Config.dto';
+import { ConfigDto } from 'src/Model/dto/Config.dto';
 import { Config } from 'src/Model/configs.schema';
 import { Model } from 'mongoose';
 

@@ -1,15 +1,15 @@
 import { Body, Controller, Delete, Get, Post, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
-import { ConvertingType, Genre, Instrument, SaveAndReturnOption, Sentiment, Tempo } from 'src/Defaults/types';
-import { SynesthesiaOptionsDto } from 'src/Model/Dto/SynesthesiaOptions.dto';
-import { InstrumentOptionsDto } from 'src/Model/Dto/InstrumentOptions.dto';
-import { SentimentOptionsDto } from 'src/Model/Dto/SentimentOptions.dto';
-import { EnergyOptionsDto } from 'src/Model/Dto/EnergyOptions.dto';
+import { ConvertingType, Genre, Instrument, SaveAndReturnOption, Sentiment, Tempo } from 'src/defaults/types';
+import { SynesthesiaOptionsDto } from 'src/Model/dto/SynesthesiaOptions.dto';
+import { InstrumentOptionsDto } from 'src/Model/dto/InstrumentOptions.dto';
+import { SentimentOptionsDto } from 'src/Model/dto/SentimentOptions.dto';
+import { EnergyOptionsDto } from 'src/Model/dto/EnergyOptions.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { GenreOptionsDto } from 'src/Model/Dto/GenreOptions.dto';
-import { TempoOptionsDto } from 'src/Model/Dto/TempoOptions.dto';
+import { GenreOptionsDto } from 'src/Model/dto/GenreOptions.dto';
+import { TempoOptionsDto } from 'src/Model/dto/TempoOptions.dto';
 import { AudioService } from './audio.service';
-import { AudioDto } from 'src/Model/Dto/Audio.dto';
-import { AioOptionsDto } from 'src/Model/Dto/AioOptions.dto';
+import { AudioDto } from 'src/Model/dto/Audio.dto';
+import { AioOptionsDto } from 'src/Model/dto/AioOptions.dto';
 
 @Controller('audio')
 export class AudioController {
@@ -196,17 +196,5 @@ export class AudioController {
     exist(@Query('id') id: string) {
         return this.audioService.isExist(id);
     }
-
-    // @Post('test')
-    // @UseInterceptors(FileInterceptor('audio'))
-    // test(@UploadedFile() audio: Express.Multer.File) {
-    //     return this.audioService.test(audio);
-    // }
-
-    // @Post('test2')
-    // @UseInterceptors(FileInterceptor('audio'))
-    // test2(@UploadedFile() audio: Express.Multer.File) {
-    //     return this.audioService.test2(audio);
-    // }
 
 }

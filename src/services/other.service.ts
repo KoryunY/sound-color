@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
-import { instrumentPitchRanges, sentimentDict, genres, genreWeights } from 'src/Defaults/consts';
+import { instrumentPitchRanges, sentimentDict, genres, genreWeights } from 'src/defaults/consts';
 import { ColorrocessingService } from './colors.service';
 
 

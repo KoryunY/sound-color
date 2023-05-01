@@ -1,4 +1,4 @@
-import { ConvertingType, Genre, Instrument, SaveAndReturnOption, Sentiment, Tempo } from "src/Defaults/types";
+import { ConvertingType, Genre, Instrument, SaveAndReturnOption, Sentiment, Tempo } from "src/defaults/types";
 import { ObjectId } from "mongoose";
 
 export interface AioOptionsDto {

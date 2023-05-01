@@ -1,4 +1,4 @@
-import { ConvertingType, Genre, SaveAndReturnOption } from "src/Defaults/types";
+import { ConvertingType, Genre, SaveAndReturnOption } from "src/defaults/types";
 import { ObjectId } from "mongoose";
 
 export interface GenreOptionsDto {

@@ -1,4 +1,4 @@
-import { ConvertingType, SaveAndReturnOption, Tempo } from "src/Defaults/types";
+import { ConvertingType, SaveAndReturnOption, Tempo } from "src/defaults/types";
 import { ObjectId } from "mongoose";
 
 export interface TempoOptionsDto {

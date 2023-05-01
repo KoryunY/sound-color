@@ -1,4 +1,4 @@
-import { ConvertingType, SaveAndReturnOption, Sentiment } from "src/Defaults/types";
+import { ConvertingType, SaveAndReturnOption, Sentiment } from "src/defaults/types";
 import { ObjectId } from "mongoose";
 
 export interface SentimentOptionsDto {

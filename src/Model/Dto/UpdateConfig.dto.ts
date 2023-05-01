@@ -1,4 +1,4 @@
-import { Energy, Genre, Instrument, Sentiment, Tempo } from "src/Defaults/types";
+import { Energy, Genre, Instrument, Sentiment, Tempo } from "src/defaults/types";
 
 export interface UpdateConfigDto {
     name?: string,

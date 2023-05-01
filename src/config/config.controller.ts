@@ -1,7 +1,8 @@
 import { Body, Controller, Delete, Post, Put, Query, Get } from '@nestjs/common';
-import { UpdateConfigDto } from 'src/Model/Dto/UpdateConfig.dto';
+import { UpdateConfigDto } from 'src/Model/dto/UpdateConfig.dto';
 import { ConfigService } from './config.service';
-import { ConfigDto } from 'src/Model/Dto/Config.dto';
+import { ConfigDto } from 'src/Model/dto/Config.dto';
+import { Energy, Genre, Instrument, Sentiment, Tempo } from 'src/defaults/types';
 
 @Controller('config')
 export class ConfigController {
@@ -27,4 +28,8 @@ export class ConfigController {
         return this.configService.getConfig(id);
     }
 
+    @Get('defaults')
+    getDefaults() {
+        return { genres: Genre, tempos: Tempo, energys: Energy, instruments: Instrument, sentiments: Sentiment };
+    }
 }

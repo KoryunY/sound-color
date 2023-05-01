@@ -1,22 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
-import { AllowedMimes, defaultIntervalCOunt as defaultIntervalCount } from 'src/Defaults/consts';
-import { ConvertingType, Genre, Instrument, SaveAndReturnOption, Tempo } from 'src/Defaults/types';
-import { AudioDto } from 'src/Model/Dto/Audio.dto';
-import { EnergyOptionsDto } from 'src/Model/Dto/EnergyOptions.dto';
-import { GenreOptionsDto } from 'src/Model/Dto/GenreOptions.dto';
-import { InstrumentOptionsDto } from 'src/Model/Dto/InstrumentOptions.dto';
-import { SynesthesiaOptionsDto } from 'src/Model/Dto/SynesthesiaOptions.dto';
-import { TempoOptionsDto } from 'src/Model/Dto/TempoOptions.dto';
+import { AllowedMimes, defaultIntervalCOunt as defaultIntervalCount } from 'src/defaults/consts';
+import { ConvertingType, Genre, Instrument, SaveAndReturnOption, Tempo } from 'src/defaults/types';
+import { AudioDto } from 'src/Model/dto/Audio.dto';
+import { EnergyOptionsDto } from 'src/Model/dto/EnergyOptions.dto';
+import { GenreOptionsDto } from 'src/Model/dto/GenreOptions.dto';
+import { InstrumentOptionsDto } from 'src/Model/dto/InstrumentOptions.dto';
+import { SynesthesiaOptionsDto } from 'src/Model/dto/SynesthesiaOptions.dto';
+import { TempoOptionsDto } from 'src/Model/dto/TempoOptions.dto';
 import { Audio } from 'src/Model/audio.schema';
 import { Config } from 'src/Model/configs.schema';
 import { User } from 'src/Model/user.schema';
 import { ConfigService } from 'src/config/config.service';
 import { MusicService } from 'src/services/music.service';
 import fs from 'fs';
-import { SentimentOptionsDto } from 'src/Model/Dto/SentimentOptions.dto';
-import { AioOptionsDto } from 'src/Model/Dto/AioOptions.dto';
+import { SentimentOptionsDto } from 'src/Model/dto/SentimentOptions.dto';
+import { AioOptionsDto } from 'src/Model/dto/AioOptions.dto';
 import { MetadataProcessingService } from 'src/services/metadata.service';
 
 @Injectable()
@@ -355,42 +355,5 @@ export class AudioService {
         const count = await this.audioModel.countDocuments({ _id: id }).exec();
         return count > 0;
     }
-
-    // async test(audio: any) {
-    //     let decoded = await this.audioProcessingService.decodeAudio(audio)
-    //     // const N = decoded.length;
-    //     // const real = new Float64Array(N);
-    //     // const imag = new Float64Array(N);
-
-    //     // // calculate the real and imaginary parts of the signal's frequency domain representation
-    //     // for (let k = 0; k < N; k++) {
-    //     //     let re = 0;
-    //     //     let im = 0;
-    //     //     for (let n = 0; n < N; n++) {
-    //     //         const theta = 2 * Math.PI * k * n / N;
-    //     //         re += decoded[n] * Math.cos(theta);
-    //     //         im -= decoded[n] * Math.sin(theta);
-    //     //     }
-    //     //     //return { re, im };
-    //     //     real[k] = re;
-    //     //     imag[k] = im;
-    //     // }
-
-    //     // return { real, imag };
-    //     const asd = this.audioProcessingService.fft(decoded._channelData[0])
-    //     //, decoded.sampleRate);
-    //     return asd.real.length
-    // }
-
-
-    // async test2(audio: any) {
-    //     let decoded = await this.audioProcessingService.decodeAudio(audio);
-
-    //     const fft = this.audioProcessingService.getFft(decoded);
-
-    //     //console.log(fft)
-
-    //     return
-    // }
 
 }

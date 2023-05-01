@@ -1,5 +1,4 @@
 import { Body, Controller, Delete, Get, Param, Post, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
-import { Energy, Genre, Instrument, Sentiment, Tempo } from 'src/Defaults/types';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UsersService } from './users.service';
 
@@ -27,10 +26,7 @@ export class UsersController {
         return this.userService.getUserAudios(id);
     }
 
-    @Get('defaults')
-    getGenress() {
-        return { genres: Genre, tempos: Tempo, energys: Energy, instruments: Instrument, sentiments: Sentiment };
-    }
+    
 
     @Post('shazam-audio')
     @UseInterceptors(FileInterceptor('file'))
