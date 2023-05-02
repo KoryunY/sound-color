@@ -5,7 +5,7 @@ export type UserDocument = HydratedDocument<User>;
 
 @Schema()
 export class User {
-    @Prop()
+    @Prop({ required: true })
     name: string;
 
     @Prop({ type: [{ type: Types.ObjectId, ref: 'Config' }] })

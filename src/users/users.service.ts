@@ -12,11 +12,13 @@ export class UsersService {
     ) { }
 
     async createUser(name: string) {
+        if (!name || name.length < 3)
+            return 'provide valid name:length>3'
         return (await this.userModel.create({ name }))._id;
     }
 
     async deleteUser(id: string) {
-        return (await this.userModel.findByIdAndRemove(id))._id;
+        return this.userModel.findByIdAndRemove(id)//)._id;
     }
 
     async getUserConfig(id: string) {
@@ -31,6 +33,11 @@ export class UsersService {
             .findById(id)
             .populate('audios')
             .exec();
+    }
+
+    async getUser(id: string) {
+        return await this.userModel
+            .findById(id);
     }
 
     async shazamAudio(audio: any) {

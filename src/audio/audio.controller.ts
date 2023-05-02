@@ -25,6 +25,11 @@ export class AudioController {
         return this.audioService.delete(id);
     }
 
+    @Get()
+    audio(@Query('id') id: string) {
+        return this.audioService.find(id);
+    }
+
     @Post('frequency')
     @UseInterceptors(FileInterceptor('audio'))
     generateFrequencyColors(@Body() colorOptionsDto: any, @UploadedFile() audio: Express.Multer.File) {

@@ -5,16 +5,16 @@ export type ConfigDocument = HydratedDocument<Config>;
 
 @Schema()
 export class Config {
-    @Prop()
+    @Prop({ required: true })
     name: string;
 
-    @Prop()
+    @Prop({ required: true })
     type: string
 
-    @Prop()
+    @Prop({ required: true })
     colors: string[];
 
-    @Prop({ type: Types.ObjectId, ref: 'UserConfig' })
+    @Prop({ type: Types.ObjectId, ref: 'UserConfig', required: true })
     user: Types.ObjectId;
 }
 

@@ -7,8 +7,8 @@ export class UsersController {
     constructor(private readonly userService: UsersService) { }
 
     @Post()
-    create(@Body() name: string) {
-        return this.userService.createUser(name);
+    create(@Body() body: { name: string }) {
+        return this.userService.createUser(body.name);
     }
 
     @Delete()
@@ -26,7 +26,10 @@ export class UsersController {
         return this.userService.getUserAudios(id);
     }
 
-    
+    @Get()
+    user(@Query('id') id: string) {
+        return this.userService.getUser(id);
+    }
 
     @Post('shazam-audio')
     @UseInterceptors(FileInterceptor('file'))

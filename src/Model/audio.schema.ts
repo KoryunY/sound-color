@@ -12,10 +12,10 @@ export type AudioDocument = HydratedDocument<Audio>;
 
 @Schema()
 export class Audio {
-    @Prop()
+    @Prop({ required: true })
     name: string;
 
-    @Prop({ type: Types.ObjectId, ref: 'User' })
+    @Prop({ type: Types.ObjectId, ref: 'User', required: true })
     user: Types.ObjectId;
 
     @Prop({ type: [{ start: Number, end: Number, intensity: Number, color: String }], required: true })

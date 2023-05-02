@@ -39,6 +39,10 @@ export class AudioService {
         return (await this.audioModel.findByIdAndRemove(id))._id;
     }
 
+    async find(id: string) {
+        return await this.audioModel.findById(id);
+    }
+
     async generateByFrequency(options: SynesthesiaOptionsDto, audio: any) {
         try {
             let name: string = options.name;
@@ -49,6 +53,7 @@ export class AudioService {
             let intervalCount: number;
             let gradientSplitCount: number = options.gradientSplitCount;
             let useCustomFft: boolean = options.useCustomFft;
+            let id;
 
             if (useIntervals) {
                 intervalCount = options.intervalCount;
@@ -71,9 +76,15 @@ export class AudioService {
 
             switch (saveAndReturnOption) {
                 case SaveAndReturnOption.SAVE_AND_RETURN_ID:
-                    return (await this.audioModel.create({ name, data, user }))._id;
+                    id = (await this.audioModel.create({ name, data, user }))._id;
+                    const userModel = await this.userModel.findById(user);
+                    userModel.audios.push(id)
+                    await userModel.save();
+                    return id;
                 case SaveAndReturnOption.SAVE_AND_RETURN_DEMO:
-                    await this.audioModel.create({ name, data, user })
+                    id = (await this.audioModel.create({ name, data, user }))._id;
+                    userModel.audios.push(id)
+                    await userModel.save();
                     return replacedHtml;
                 case SaveAndReturnOption.RETURN_DEMO:
                     return replacedHtml;
@@ -92,6 +103,7 @@ export class AudioService {
             let configId: string = options.config;
             let genre: Genre = options.genre;
             let useCustomFft: boolean = options.useCustomFft;
+            let id;
 
             let useIntervals: boolean = options.useIntervals;
             let intervalCount: number;
@@ -122,9 +134,15 @@ export class AudioService {
 
             switch (saveAndReturnOption) {
                 case SaveAndReturnOption.SAVE_AND_RETURN_ID:
-                    return (await this.audioModel.create({ name, data, user }))._id;
+                    id = (await this.audioModel.create({ name, data, user }))._id;
+                    const userModel = await this.userModel.findById(user);
+                    userModel.audios.push(id)
+                    await userModel.save();
+                    return id;
                 case SaveAndReturnOption.SAVE_AND_RETURN_DEMO:
-                    await this.audioModel.create({ name, data, user })
+                    id = (await this.audioModel.create({ name, data, user }))._id;
+                    userModel.audios.push(id)
+                    await userModel.save();
                     return replacedHtml;
                 case SaveAndReturnOption.RETURN_DEMO:
                     return replacedHtml;
@@ -143,6 +161,7 @@ export class AudioService {
             let tempo: Tempo = options.tempo;
             let user: ObjectId = options.user;
             let useCustomFft: boolean = options.useCustomFft;
+            let id;
 
             let intervalCount: number = options.intervalCount;
 
@@ -166,9 +185,15 @@ export class AudioService {
 
             switch (saveAndReturnOption) {
                 case SaveAndReturnOption.SAVE_AND_RETURN_ID:
-                    return (await this.audioModel.create({ name, data, user }))._id;
+                    id = (await this.audioModel.create({ name, data, user }))._id;
+                    const userModel = await this.userModel.findById(user);
+                    userModel.audios.push(id)
+                    await userModel.save();
+                    return id;
                 case SaveAndReturnOption.SAVE_AND_RETURN_DEMO:
-                    await this.audioModel.create({ name, data, user })
+                    id = (await this.audioModel.create({ name, data, user }))._id;
+                    userModel.audios.push(id)
+                    await userModel.save();
                     return replacedHtml;
                 case SaveAndReturnOption.RETURN_DEMO:
                     return replacedHtml;
@@ -189,6 +214,7 @@ export class AudioService {
             let configId: string = options.config;
             let user: ObjectId = options.user;
             let instrument: Instrument = options.instrument;
+            let id;
 
             let config;
 
@@ -210,9 +236,15 @@ export class AudioService {
 
             switch (saveAndReturnOption) {
                 case SaveAndReturnOption.SAVE_AND_RETURN_ID:
-                    return (await this.audioModel.create({ name, data, user }))._id;
+                    id = (await this.audioModel.create({ name, data, user }))._id;
+                    const userModel = await this.userModel.findById(user);
+                    userModel.audios.push(id)
+                    await userModel.save();
+                    return id;
                 case SaveAndReturnOption.SAVE_AND_RETURN_DEMO:
-                    await this.audioModel.create({ name, data, user })
+                    id = (await this.audioModel.create({ name, data, user }))._id;
+                    userModel.audios.push(id)
+                    await userModel.save();
                     return replacedHtml;
                 case SaveAndReturnOption.RETURN_DEMO:
                     return replacedHtml;
@@ -233,6 +265,7 @@ export class AudioService {
             let configId: string = options.config;
             let user: ObjectId = options.user;
             let config;
+            let id;
 
             if (configId) {
                 config = await this.configService.getConfig(configId);
@@ -251,9 +284,15 @@ export class AudioService {
 
             switch (saveAndReturnOption) {
                 case SaveAndReturnOption.SAVE_AND_RETURN_ID:
-                    return (await this.audioModel.create({ name, data, user }))._id;
+                    id = (await this.audioModel.create({ name, data, user }))._id;
+                    const userModel = await this.userModel.findById(user);
+                    userModel.audios.push(id)
+                    await userModel.save();
+                    return id;
                 case SaveAndReturnOption.SAVE_AND_RETURN_DEMO:
-                    await this.audioModel.create({ name, data, user })
+                    id = (await this.audioModel.create({ name, data, user }))._id;
+                    userModel.audios.push(id)
+                    await userModel.save();
                     return replacedHtml;
                 case SaveAndReturnOption.RETURN_DEMO:
                     return replacedHtml;
@@ -276,6 +315,7 @@ export class AudioService {
             let user: ObjectId = options.user;
             let sentiment = options.sentiment;
             let config;
+            let id;
 
             if (configId) {
                 config = await this.configService.getConfig(configId);
@@ -298,9 +338,15 @@ export class AudioService {
 
             switch (saveAndReturnOption) {
                 case SaveAndReturnOption.SAVE_AND_RETURN_ID:
-                    return (await this.audioModel.create({ name, data, user }))._id;
+                    id = (await this.audioModel.create({ name, data, user }))._id;
+                    const userModel = await this.userModel.findById(user);
+                    userModel.audios.push(id)
+                    await userModel.save();
+                    return id;
                 case SaveAndReturnOption.SAVE_AND_RETURN_DEMO:
-                    await this.audioModel.create({ name, data, user })
+                    id = (await this.audioModel.create({ name, data, user }))._id;
+                    userModel.audios.push(id)
+                    await userModel.save();
                     return replacedHtml;
                 case SaveAndReturnOption.RETURN_DEMO:
                     return replacedHtml;
@@ -319,7 +365,7 @@ export class AudioService {
             let intervalCount: number = options.intervalCount;
             let sentiment = options.sentiment;
             let useCustomFft: boolean = options.useCustomFft;
-
+            let id;
             // let configId: string = options.config;
             // let useIntervals: boolean = options.useIntervals;
             // let familyCount: number = options.familyCount;
@@ -351,9 +397,15 @@ export class AudioService {
 
             switch (saveAndReturnOption) {
                 case SaveAndReturnOption.SAVE_AND_RETURN_ID:
-                    return (await this.audioModel.create({ name, data, user }))._id;
+                    id = (await this.audioModel.create({ name, data, user }))._id;
+                    const userModel = await this.userModel.findById(user);
+                    userModel.audios.push(id)
+                    await userModel.save();
+                    return id;
                 case SaveAndReturnOption.SAVE_AND_RETURN_DEMO:
-                    await this.audioModel.create({ name, data, user })
+                    id = (await this.audioModel.create({ name, data, user }))._id;
+                    userModel.audios.push(id)
+                    await userModel.save();
                     return replacedHtml;
                 case SaveAndReturnOption.RETURN_DEMO:
                     return replacedHtml;

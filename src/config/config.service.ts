@@ -4,17 +4,20 @@ import { Injectable } from '@nestjs/common';
 import { ConfigDto } from 'src/Model/dto/Config.dto';
 import { Config } from 'src/Model/configs.schema';
 import { Model } from 'mongoose';
+import { User } from 'src/Model/user.schema';
 
 @Injectable()
 export class ConfigService {
     constructor(
-        // @InjectModel(User.name) private userModel: Model<User>,
+        @InjectModel(User.name) private userModel: Model<User>,
         @InjectModel(Config.name) private configModel: Model<Config>,
-        // private musicService: MusicService
     ) { }
-    async createConfig(id: string, dto: ConfigDto) { //FORUSER
-        //const config = new this.configModel({ name: "mycolors", colors: ["#9684b1", "#bc3f67", "#22223b"] });
-        return (await this.configModel.create({ user: id, ...dto }))._id;
+    async createConfig(id: string, dto: ConfigDto) {
+        const createdId = (await this.configModel.create({ user: id, ...dto }))._id;
+        const userModel = await this.userModel.findById(id);
+        userModel.configs.push(createdId);
+        await userModel.save();
+        return createdId;
     }
 
     async updateConfig(id: string, dto: UpdateConfigDto) {
