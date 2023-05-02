@@ -25,7 +25,7 @@ export class AudioController {
         return this.audioService.delete(id);
     }
 
-    @Post('synesthesia')
+    @Post('frequency')
     @UseInterceptors(FileInterceptor('audio'))
     generateFrequencyColors(@Body() colorOptionsDto: any, @UploadedFile() audio: Express.Multer.File) {
         if (!audio) return "Err:missing audio";
