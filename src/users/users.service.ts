@@ -20,7 +20,7 @@ export class UsersService {
 
     async deleteUser(id: string) {
         try {
-            return await this.userModel.findByIdAndRemove(id)//)._id;
+            return await this.userModel.findByIdAndRemove(id);
         } catch (err) {
             return err.message;
         }

@@ -13,23 +13,39 @@ export class ConfigService {
         @InjectModel(Config.name) private configModel: Model<Config>,
     ) { }
     async createConfig(id: string, dto: ConfigDto) {
-        const createdId = (await this.configModel.create({ user: id, ...dto }))._id;
-        const userModel = await this.userModel.findById(id);
-        userModel.configs.push(createdId);
-        await userModel.save();
-        return createdId;
+        try {
+            const createdId = (await this.configModel.create({ user: id, ...dto }))._id;
+            const userModel = await this.userModel.findById(id);
+            userModel.configs.push(createdId);
+            await userModel.save();
+            return createdId;
+        } catch (err) {
+            return err.message;
+        }
     }
 
     async updateConfig(id: string, dto: UpdateConfigDto) {
-        return (await this.configModel.findByIdAndUpdate(id, { ...dto }));
+        try {
+            return await this.configModel.findByIdAndUpdate(id, { ...dto });
+        } catch (err) {
+            return err.message;
+        }
     }
 
-    removeConfig(id: string) {
-        return this.configModel.findByIdAndRemove(id);
+    async removeConfig(id: string) {
+        try {
+            return await this.configModel.findByIdAndRemove(id);
+        } catch (err) {
+            return err.message;
+        }
     }
 
     async getConfig(id: string) {
-        return await this.configModel.findById(id);
+        try {
+            return await this.configModel.findById(id);
+        } catch (err) {
+            return err.message;
+        }
     }
 
     async isExist(id: string): Promise<boolean> {
