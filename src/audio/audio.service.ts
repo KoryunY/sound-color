@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, ObjectId } from 'mongoose';
+import { Model, ObjectId, Types, isValidObjectId } from 'mongoose';
 import { AllowedFileAttributes, AllowedMimes, defaultIntervalCOunt as defaultIntervalCount } from 'src/defaults/consts';
 import { ConvertingType, Genre, Instrument, SaveAndReturnOption, Tempo } from 'src/defaults/types';
 import { AudioDto } from 'src/Model/dto/Audio.dto';
 import { EnergyOptionsDto } from 'src/Model/dto/EnergyOptions.dto';
 import { GenreOptionsDto } from 'src/Model/dto/GenreOptions.dto';
 import { InstrumentOptionsDto } from 'src/Model/dto/InstrumentOptions.dto';
-import { SynesthesiaOptionsDto } from 'src/Model/dto/SynesthesiaOptions.dto';
+import { FrequencyOptionsDto } from 'src/Model/Dto/FrequencyOptions.dto';
 import { TempoOptionsDto } from 'src/Model/dto/TempoOptions.dto';
 import { Audio } from 'src/Model/audio.schema';
 import { Config } from 'src/Model/configs.schema';
@@ -32,18 +32,35 @@ export class AudioService {
     ) { }
 
     async create(dto: AudioDto) {
-        return (await this.audioModel.create(dto))._id;
+        try {
+            const audio = await this.audioModel.create(dto);
+            return audio ? audio._id : "Somethign Went wrong";
+        } catch (error) { return error.message; }
     }
 
     async delete(id: string) {
-        return (await this.audioModel.findByIdAndRemove(id))._id;
+        if (!Types.ObjectId.isValid(id))
+            return 'invalid object id type';
+        try {
+            const removeAudio = await this.audioModel.findByIdAndRemove(id);
+            if (removeAudio) {
+                // Remove the config ID from the user's config array
+                await this.userModel.updateOne(
+                    { _id: removeAudio.user },
+                    { $pull: { configs: removeAudio._id } },
+                ).exec();
+            }
+        } catch (error) { return error.message; }
     }
 
     async find(id: string) {
+        if (!Types.ObjectId.isValid(id))
+            return 'invalid object id type';
+
         return await this.audioModel.findById(id);
     }
 
-    async generateByFrequency(options: SynesthesiaOptionsDto, audio: any) {
+    async generateByFrequency(options: FrequencyOptionsDto, audio: any) {
         try {
             let name: string = options.name;
             const type: ConvertingType = options.type;
@@ -428,9 +445,11 @@ export class AudioService {
         return 'isOk';
     }
 
-    async isExist(id: string): Promise<boolean> {
+    async isExist(id: string) {
+        if (!Types.ObjectId.isValid(id))
+            return 'invalid object id type';
+
         const count = await this.audioModel.countDocuments({ _id: id }).exec();
         return count > 0;
     }
-
 }

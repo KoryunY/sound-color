@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { User } from 'src/Model/user.schema';
 import { AllowedFileAttributes, AllowedMimes } from 'src/defaults/consts';
 import { MetadataProcessingService } from 'src/services/metadata.service';
@@ -19,42 +19,38 @@ export class UsersService {
     }
 
     async deleteUser(id: string) {
-        try {
-            return await this.userModel.findByIdAndRemove(id);
-        } catch (err) {
-            return err.message;
-        }
+        if (!Types.ObjectId.isValid(id))
+            return 'invalid object id type';
+
+        return await this.userModel.findByIdAndRemove(id);
     }
 
     async getUserConfig(id: string) {
-        try {
-            return await this.userModel
-                .findById(id)
-                .populate('configs')
-                .exec();
-        } catch (err) {
-            return err.message;
-        }
+        if (!Types.ObjectId.isValid(id))
+            return 'invalid object id type';
+
+        return await this.userModel
+            .findById(id)
+            .populate('configs')
+            .exec();
     }
 
     async getUserAudios(id: string) {
-        try {
-            return await this.userModel
-                .findById(id)
-                .populate('audios')
-                .exec();
-        } catch (err) {
-            return err.message;
-        }
+        if (!Types.ObjectId.isValid(id))
+            return 'invalid object id type';
+
+        return await this.userModel
+            .findById(id)
+            .populate('audios')
+            .exec();
     }
 
     async getUser(id: string) {
-        try {
-            return await this.userModel
-                .findById(id);
-        } catch (err) {
-            return err.message;
-        }
+        if (!Types.ObjectId.isValid(id))
+            return 'invalid object id type';
+
+        return await this.userModel
+            .findById(id);
     }
 
     async shazamAudio(audio: any) {
@@ -71,7 +67,10 @@ export class UsersService {
         return await this.metadataService.parseMetadata(audio);
     }
 
-    async isExist(id: string): Promise<boolean> {
+    async isExist(id: string) {
+        if (!Types.ObjectId.isValid(id))
+            return 'invalid object id type';
+
         const count = await this.userModel.countDocuments({ _id: id }).exec();
         return count > 0;
     }

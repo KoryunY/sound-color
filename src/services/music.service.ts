@@ -29,7 +29,6 @@ export class MusicService {
         const intervalAudioLength = Math.floor(originalLength / intervalCount);
         const pitch = this.audioService.getPitchArray(frequency);
         let amplitude = this.audioService.getAmplitudeData(fft, decodedAudio._channelData[0].length / 2, paddedLength, intervalCount, intervalAudioLength);
-
         let intervalDuration = duration / intervalCount;
 
         switch (type) {

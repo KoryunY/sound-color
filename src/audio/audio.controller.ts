@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Post, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { ConvertingType, Genre, Instrument, SaveAndReturnOption, Sentiment, Tempo } from 'src/defaults/types';
-import { SynesthesiaOptionsDto } from 'src/Model/dto/SynesthesiaOptions.dto';
+import { FrequencyOptionsDto as FrequencyOptionsDto } from 'src/Model/Dto/FrequencyOptions.dto';
 import { InstrumentOptionsDto } from 'src/Model/dto/InstrumentOptions.dto';
 import { SentimentOptionsDto } from 'src/Model/dto/SentimentOptions.dto';
 import { EnergyOptionsDto } from 'src/Model/dto/EnergyOptions.dto';
@@ -39,7 +39,7 @@ export class AudioController {
         if (checkAttrMessage != "isOk")
             return checkAttrMessage;
 
-        const dto: SynesthesiaOptionsDto = {
+        const dto: FrequencyOptionsDto = {
             name: colorOptionsDto.name,
             type: ConvertingType[colorOptionsDto.type],
             saveAndReturnOption: SaveAndReturnOption[colorOptionsDto.saveAndReturnOption],
