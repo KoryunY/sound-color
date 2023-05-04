@@ -34,17 +34,25 @@ export class UsersController {
     @Post('shazam-audio')
     @UseInterceptors(FileInterceptor('file'))
     async shazamAudio(@UploadedFile() audio: Express.Multer.File) {
+        if (!audio) return "Err:missing audio";
+
+        const checkAttrMessage = this.userService.checkAttr(audio.mimetype, audio.originalname);
+        if (checkAttrMessage != "isOk")
+            return checkAttrMessage;
+
         return await this.userService.shazamAudio(audio);
     }
 
     @Post('shazam-text')
-    async shazamText(@Body() text: string) {
-        return await this.userService.shazamText(text);
+    async shazamText(@Body() body: { text: string }) {
+        return await this.userService.shazamText(body.text);
     }
 
     @Post('metadata')
     @UseInterceptors(FileInterceptor('file'))
     async metadata(@UploadedFile() audio: Express.Multer.File) {
+        if (!audio) return "Err:missing audio";
+
         return await this.userService.metadata(audio);
     }
 

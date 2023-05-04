@@ -44,15 +44,14 @@ export class MetadataProcessingService {
         let data
         if (text == null || text.length == 0)
             data = await this.requestToShazam(decodeAudio);
-        else data = await this.searchMetadataBytext(text);
-
+        else return await this.searchMetadataBytext(text);
         if (!data)
             return;
 
-        const genres = data.track.genres;
-        const words = data.track.sections[1].text
-        const sentiment = this.other.sentimentFromWords(this.other.extractUniqueWords(words)).sentiment;
-        const name = data.track.share.subject;
+        const genres = data.track ? data.track?.genres : "OTHER";
+        const words = data.track?.sections[1].text
+        const sentiment = words ? this.other.sentimentFromWords(this.other.extractUniqueWords(words)).sentiment : "OTHER";
+        const name = data.track ? data.track?.share.subject : "OTHER";
 
         return [name, genres, sentiment.toUpperCase()];
     }

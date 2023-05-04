@@ -1,6 +1,7 @@
 import { Genre } from "./types";
 
-export const AllowedMimes = ['audio/mp3', 'audio/mpeg'];
+export const AllowedMimes = ['audio/mp3', 'audio/mpeg', 'audio/mp4', 'audio/wave'];
+export const AllowedFileAttributes = ['mp3', 'm4a', 'wav'];
 export const defaultIntervalCOunt = 256;
 
 export const genreColors = {

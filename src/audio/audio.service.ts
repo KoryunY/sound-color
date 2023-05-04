@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
-import { AllowedMimes, defaultIntervalCOunt as defaultIntervalCount } from 'src/defaults/consts';
+import { AllowedFileAttributes, AllowedMimes, defaultIntervalCOunt as defaultIntervalCount } from 'src/defaults/consts';
 import { ConvertingType, Genre, Instrument, SaveAndReturnOption, Tempo } from 'src/defaults/types';
 import { AudioDto } from 'src/Model/dto/Audio.dto';
 import { EnergyOptionsDto } from 'src/Model/dto/EnergyOptions.dto';
@@ -421,7 +421,7 @@ export class AudioService {
         }
         let fileAttributes = originalname.split('.');
         let fileAttribute = fileAttributes[fileAttributes.length - 1];
-        if (fileAttribute != 'mp3') {
+        if (!AllowedFileAttributes.includes(fileAttribute)) {
             return `invalid file type:${fileAttribute}`;
         }
 
