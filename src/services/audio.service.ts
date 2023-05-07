@@ -122,7 +122,7 @@ export class AudioProcessingService {
         }
 
         if (intervalCount !== null && intervalAudioLength !== null) {
-            const intervalSize = Math.ceil(length / intervalCount);
+            const intervalSize = Math.floor(length / intervalCount);
             const intervalAmplitudeData = new Array(intervalCount).fill(0);
             const intervalDataCount = new Array(intervalCount).fill(0);
 

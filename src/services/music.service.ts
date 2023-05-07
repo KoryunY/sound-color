@@ -26,7 +26,7 @@ export class MusicService {
         let bpm = this.audioService.calculateBPM(decodedAudio, intervalCount);
         const originalLength = decodedAudio._channelData[0].length;
         const paddedLength = Math.pow(2, Math.ceil(Math.log2(originalLength)));
-        const intervalAudioLength = Math.floor(originalLength / intervalCount);
+        const intervalAudioLength = Math.round(originalLength / intervalCount);
         const pitch = this.audioService.getPitchArray(frequency);
         let amplitude = this.audioService.getAmplitudeData(fft, decodedAudio._channelData[0].length / 2, paddedLength, intervalCount, intervalAudioLength);
         let intervalDuration = duration / intervalCount;
@@ -47,7 +47,7 @@ export class MusicService {
             case ConvertingType.AIO:
                 return [frequency, amplitude, duration, intervalDuration, bpm, pitch]
             default:
-                throw new Error("Unhandled Converting Type")
+                throw new Error("Unhandled Converting Type");
         }
     }
 
@@ -276,7 +276,7 @@ export class MusicService {
         return intervalData;
     }
 
-    generateByAio(intervalCount, intervalDuration, frequencyArray, amplitudeArray, pitchArray, bpm, sentiment) {
+    generateByAio(intervalCount, intervalDuration, frequencyArray, amplitudeArray, pitchArray, bpm, sentiment, gradientSplitCount = null) {
         let intervalData = [];
         let colors = [];
         const tempo = this.audioService.getTempoFromBpm(bpm[0]);
@@ -333,6 +333,10 @@ export class MusicService {
             intervalData.push(interval);
 
             colors = [];
+        }
+
+        if (gradientSplitCount) {
+            return this.transfromIntervalsToGradients(intervalData, gradientSplitCount);
         }
 
         return intervalData;

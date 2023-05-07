@@ -102,6 +102,8 @@ export class AudioController {
     @Post('instrument')
     @UseInterceptors(FileInterceptor('audio'))
     generateInstrumentColors(@Body() colorOptionsDto: any, @UploadedFile() audio: Express.Multer.File) {
+        if (!audio) return "Err:missing audio";
+
         const checkAttrMessage = this.audioService.checkAttr(audio.mimetype, audio.originalname);
         if (checkAttrMessage != "isOk")
             return checkAttrMessage;

@@ -5,10 +5,10 @@ export interface SentimentOptionsDto {
     name: string,
     type: ConvertingType,
     saveAndReturnOption: SaveAndReturnOption,
-    user: ObjectId,
     intervalCount: number,
-    config?: string,
     sentiment?: Sentiment,
     familyCount?: number,
+    config?: string,
+    user: ObjectId,
     useCustomFft?: boolean
 }

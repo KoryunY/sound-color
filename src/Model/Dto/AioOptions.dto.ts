@@ -5,8 +5,6 @@ export interface AioOptionsDto {
     name: string,
     type: ConvertingType,
     saveAndReturnOption: SaveAndReturnOption,
-    user: ObjectId,
-    config?: string,
     useIntervals?: boolean,
     intervalCount?: number,
     familyCount?: number,
@@ -15,5 +13,7 @@ export interface AioOptionsDto {
     instrument?: Instrument,
     tempo?: Tempo
     sentiment?: Sentiment,
+    config?: string,
+    user: ObjectId,
     useCustomFft?: boolean,
 }

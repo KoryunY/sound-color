@@ -91,20 +91,24 @@ export class AudioService {
             let replacedhtml = html.replace('<script id="data">', `<script id="data">\n        const data = ${replaceData};`);
             const replacedHtml = replacedhtml.replace('audio.src = URL.createObjectURL(audioFile);', `audio.src = "${audioSrc}";`);
 
+            let userModel;
             switch (saveAndReturnOption) {
                 case SaveAndReturnOption.SAVE_AND_RETURN_ID:
                     id = (await this.audioModel.create({ name, data, user }))._id;
-                    const userModel = await this.userModel.findById(user);
+                    userModel = await this.userModel.findById(user);
                     userModel.audios.push(id)
                     await userModel.save();
                     return id;
                 case SaveAndReturnOption.SAVE_AND_RETURN_DEMO:
                     id = (await this.audioModel.create({ name, data, user }))._id;
+                    userModel = await this.userModel.findById(user);
                     userModel.audios.push(id)
                     await userModel.save();
                     return replacedHtml;
                 case SaveAndReturnOption.RETURN_DEMO:
                     return replacedHtml;
+                default:
+                    throw new Error("Unhandled Return Type");
             }
         } catch (err) {
             return err.message;
@@ -149,20 +153,24 @@ export class AudioService {
             let replacedhtml = html.replace('<script id="data">', `<script id="data">\n        const data = ${replaceData};`);
             const replacedHtml = replacedhtml.replace('audio.src = URL.createObjectURL(audioFile);', `audio.src = "${audioSrc}";`);
 
+            let userModel;
             switch (saveAndReturnOption) {
                 case SaveAndReturnOption.SAVE_AND_RETURN_ID:
                     id = (await this.audioModel.create({ name, data, user }))._id;
-                    const userModel = await this.userModel.findById(user);
+                    userModel = await this.userModel.findById(user);
                     userModel.audios.push(id)
                     await userModel.save();
                     return id;
                 case SaveAndReturnOption.SAVE_AND_RETURN_DEMO:
                     id = (await this.audioModel.create({ name, data, user }))._id;
+                    userModel = await this.userModel.findById(user);
                     userModel.audios.push(id)
                     await userModel.save();
                     return replacedHtml;
                 case SaveAndReturnOption.RETURN_DEMO:
                     return replacedHtml;
+                default:
+                    throw new Error("Unhandled Return Type");
             }
         } catch (err) {
             return err.message;
@@ -200,20 +208,24 @@ export class AudioService {
             let replacedhtml = html.replace('<script id="data">', `<script id="data">\n        const data = ${replaceData};`);
             const replacedHtml = replacedhtml.replace('audio.src = URL.createObjectURL(audioFile);', `audio.src = "${audioSrc}";`);
 
+            let userModel;
             switch (saveAndReturnOption) {
                 case SaveAndReturnOption.SAVE_AND_RETURN_ID:
                     id = (await this.audioModel.create({ name, data, user }))._id;
-                    const userModel = await this.userModel.findById(user);
+                    userModel = await this.userModel.findById(user);
                     userModel.audios.push(id)
                     await userModel.save();
                     return id;
                 case SaveAndReturnOption.SAVE_AND_RETURN_DEMO:
                     id = (await this.audioModel.create({ name, data, user }))._id;
+                    userModel = await this.userModel.findById(user);
                     userModel.audios.push(id)
                     await userModel.save();
                     return replacedHtml;
                 case SaveAndReturnOption.RETURN_DEMO:
                     return replacedHtml;
+                default:
+                    throw new Error("Unhandled Return Type");
             }
         } catch (err) {
             return err.message;
@@ -251,20 +263,24 @@ export class AudioService {
             let replacedhtml = html.replace('<script id="data">', `<script id="data">\n        const data = ${replaceData};`);
             const replacedHtml = replacedhtml.replace('audio.src = URL.createObjectURL(audioFile);', `audio.src = "${audioSrc}";`);
 
+            let userModel;
             switch (saveAndReturnOption) {
                 case SaveAndReturnOption.SAVE_AND_RETURN_ID:
                     id = (await this.audioModel.create({ name, data, user }))._id;
-                    const userModel = await this.userModel.findById(user);
+                    userModel = await this.userModel.findById(user);
                     userModel.audios.push(id)
                     await userModel.save();
                     return id;
                 case SaveAndReturnOption.SAVE_AND_RETURN_DEMO:
                     id = (await this.audioModel.create({ name, data, user }))._id;
+                    userModel = await this.userModel.findById(user);
                     userModel.audios.push(id)
                     await userModel.save();
                     return replacedHtml;
                 case SaveAndReturnOption.RETURN_DEMO:
                     return replacedHtml;
+                default:
+                    throw new Error("Unhandled Return Type");
             }
         } catch (err) {
             return err.message;
@@ -299,20 +315,24 @@ export class AudioService {
             let replacedhtml = html.replace('<script id="data">', `<script id="data">\n        const data = ${replaceData};`);
             const replacedHtml = replacedhtml.replace('audio.src = URL.createObjectURL(audioFile);', `audio.src = "${audioSrc}";`);
 
+            let userModel;
             switch (saveAndReturnOption) {
                 case SaveAndReturnOption.SAVE_AND_RETURN_ID:
                     id = (await this.audioModel.create({ name, data, user }))._id;
-                    const userModel = await this.userModel.findById(user);
+                    userModel = await this.userModel.findById(user);
                     userModel.audios.push(id)
                     await userModel.save();
                     return id;
                 case SaveAndReturnOption.SAVE_AND_RETURN_DEMO:
                     id = (await this.audioModel.create({ name, data, user }))._id;
+                    userModel = await this.userModel.findById(user);
                     userModel.audios.push(id)
                     await userModel.save();
                     return replacedHtml;
                 case SaveAndReturnOption.RETURN_DEMO:
                     return replacedHtml;
+                default:
+                    throw new Error("Unhandled Return Type");
             }
         } catch (err) {
             return err.message;
@@ -353,20 +373,24 @@ export class AudioService {
             let replacedhtml = html.replace('<script id="data">', `<script id="data">\n        const data = ${replaceData};`);
             const replacedHtml = replacedhtml.replace('audio.src = URL.createObjectURL(audioFile);', `audio.src = "${audioSrc}";`);
 
+            let userModel;
             switch (saveAndReturnOption) {
                 case SaveAndReturnOption.SAVE_AND_RETURN_ID:
                     id = (await this.audioModel.create({ name, data, user }))._id;
-                    const userModel = await this.userModel.findById(user);
+                    userModel = await this.userModel.findById(user);
                     userModel.audios.push(id)
                     await userModel.save();
                     return id;
                 case SaveAndReturnOption.SAVE_AND_RETURN_DEMO:
                     id = (await this.audioModel.create({ name, data, user }))._id;
+                    userModel = await this.userModel.findById(user);
                     userModel.audios.push(id)
                     await userModel.save();
                     return replacedHtml;
                 case SaveAndReturnOption.RETURN_DEMO:
                     return replacedHtml;
+                default:
+                    throw new Error("Unhandled Return Type");
             }
         } catch (err) {
             return err.message;
@@ -412,20 +436,24 @@ export class AudioService {
             let replacedhtml = html.replace('<script id="data">', `<script id="data">\n        const data = ${replaceData};`);
             const replacedHtml = replacedhtml.replace('audio.src = URL.createObjectURL(audioFile);', `audio.src = "${audioSrc}";`);
 
+            let userModel;
             switch (saveAndReturnOption) {
                 case SaveAndReturnOption.SAVE_AND_RETURN_ID:
                     id = (await this.audioModel.create({ name, data, user }))._id;
-                    const userModel = await this.userModel.findById(user);
+                    userModel = await this.userModel.findById(user);
                     userModel.audios.push(id)
                     await userModel.save();
                     return id;
                 case SaveAndReturnOption.SAVE_AND_RETURN_DEMO:
                     id = (await this.audioModel.create({ name, data, user }))._id;
+                    userModel = await this.userModel.findById(user);
                     userModel.audios.push(id)
                     await userModel.save();
                     return replacedHtml;
                 case SaveAndReturnOption.RETURN_DEMO:
                     return replacedHtml;
+                default:
+                    throw new Error("Unhandled Return Type");
             }
         } catch (err) {
             return err.message;
