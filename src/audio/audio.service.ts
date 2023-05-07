@@ -85,7 +85,7 @@ export class AudioService {
             const replaceData = JSON.stringify(data);
             const html = fs.readFileSync('./src/public/index.html', 'utf-8');
             const audioBuffer = audio.buffer.toString('base64');
-            const audioMimeType = audio.mimetype;
+            const audioMimeType = audio.mimetype == 'audio/wave' ? 'audio/wav' : audio.mimetype;
             const audioSrc = `data:${audioMimeType};base64,${audioBuffer}`;
 
             let replacedhtml = html.replace('<script id="data">', `<script id="data">\n        const data = ${replaceData};`);
@@ -147,7 +147,7 @@ export class AudioService {
             const replaceData = JSON.stringify(data);
             const html = fs.readFileSync('./src/public/index.html', 'utf-8');
             const audioBuffer = audio.buffer.toString('base64');
-            const audioMimeType = audio.mimetype;
+            const audioMimeType = audio.mimetype == 'audio/wave' ? 'audio/wav' : audio.mimetype;
             const audioSrc = `data:${audioMimeType};base64,${audioBuffer}`;
 
             let replacedhtml = html.replace('<script id="data">', `<script id="data">\n        const data = ${replaceData};`);
@@ -202,7 +202,7 @@ export class AudioService {
             const replaceData = JSON.stringify(data);
             const html = fs.readFileSync('./src/public/index.html', 'utf-8');
             const audioBuffer = audio.buffer.toString('base64');
-            const audioMimeType = audio.mimetype;
+            const audioMimeType = audio.mimetype == 'audio/wave' ? 'audio/wav' : audio.mimetype;
             const audioSrc = `data:${audioMimeType};base64,${audioBuffer}`;
 
             let replacedhtml = html.replace('<script id="data">', `<script id="data">\n        const data = ${replaceData};`);
@@ -257,7 +257,7 @@ export class AudioService {
             const replaceData = JSON.stringify(data);
             const html = fs.readFileSync('./src/public/index.html', 'utf-8');
             const audioBuffer = audio.buffer.toString('base64');
-            const audioMimeType = audio.mimetype;
+            const audioMimeType = audio.mimetype == 'audio/wave' ? 'audio/wav' : audio.mimetype;
             const audioSrc = `data:${audioMimeType};base64,${audioBuffer}`;
 
             let replacedhtml = html.replace('<script id="data">', `<script id="data">\n        const data = ${replaceData};`);
@@ -309,7 +309,7 @@ export class AudioService {
             const replaceData = JSON.stringify(data);
             const html = fs.readFileSync('./src/public/index.html', 'utf-8');
             const audioBuffer = audio.buffer.toString('base64');
-            const audioMimeType = audio.mimetype;
+            const audioMimeType = audio.mimetype == 'audio/wave' ? 'audio/wav' : audio.mimetype;
             const audioSrc = `data:${audioMimeType};base64,${audioBuffer}`;
 
             let replacedhtml = html.replace('<script id="data">', `<script id="data">\n        const data = ${replaceData};`);
@@ -367,7 +367,7 @@ export class AudioService {
             const replaceData = JSON.stringify(data);
             const html = fs.readFileSync('./src/public/index.html', 'utf-8');
             const audioBuffer = audio.buffer.toString('base64');
-            const audioMimeType = audio.mimetype;
+            const audioMimeType = audio.mimetype == 'audio/wave' ? 'audio/wav' : audio.mimetype;
             const audioSrc = `data:${audioMimeType};base64,${audioBuffer}`;
 
             let replacedhtml = html.replace('<script id="data">', `<script id="data">\n        const data = ${replaceData};`);
@@ -407,30 +407,17 @@ export class AudioService {
             let sentiment = options.sentiment;
             let useCustomFft: boolean = options.useCustomFft;
             let id;
-            // let configId: string = options.config;
-            // let useIntervals: boolean = options.useIntervals;
-            // let familyCount: number = options.familyCount;
-            // let gradientSplitCount: number = options.gradientSplitCount;
-            // let genre = options.genre;
-            // let instrument = options.instrument;
-            // let tempo = options.tempo;
-            // let config;
-
-            // if (configId) {
-            //     config = await this.configService.getConfig(configId);
-            // }
 
             if (!sentiment)
                 [, , sentiment] = (await this.metaDataService.getMetadata(audio));
 
             let [frequency, amplitude, duration, intervalDuration, bpm, pitch] = await this.musicService.generateIntervalData(audio, type, intervalCount, useCustomFft);
-
             const data = this.musicService.generateByAio(intervalCount, intervalDuration, frequency, amplitude, pitch, bpm, sentiment);
             const replaceData = JSON.stringify(data);
 
             const html = fs.readFileSync('./src/public/index.html', 'utf-8');
             const audioBuffer = audio.buffer.toString('base64');
-            const audioMimeType = audio.mimetype;
+            const audioMimeType = audio.mimetype == 'audio/wave' ? 'audio/wav' : audio.mimetype;
             const audioSrc = `data:${audioMimeType};base64,${audioBuffer}`;
 
             let replacedhtml = html.replace('<script id="data">', `<script id="data">\n        const data = ${replaceData};`);

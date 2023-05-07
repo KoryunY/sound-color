@@ -276,13 +276,16 @@ export class MusicService {
         return intervalData;
     }
 
-    generateByAio(intervalCount, intervalDuration, frequencyArray, amplitudeArray, pitchArray, bpm, sentiment, gradientSplitCount = null) {
+    generateByAio(intervalCount, intervalDuration, frequencyArray, amplitudeArray, pitchArray, bpm, sentiment) {
+
         let intervalData = [];
         let colors = [];
         const tempo = this.audioService.getTempoFromBpm(bpm[0]);
         const tempoColorsByBpm = tempoColors[tempo];
         let sentimentColors = sentimentsColors[sentiment];
-
+        if (!sentimentColors) {
+            throw new Error("Invalid sentiment");
+        }
         for (let i = 0; i < intervalCount; i++) {
             const intervalStart = i * intervalDuration;
             const intervalEnd = (i + 1) * intervalDuration;
@@ -324,7 +327,7 @@ export class MusicService {
             const sentimentColorHex = sentimentColors[sentimentColorIndex];
             if (sentimentColorHex !== null)
                 colors.push(sentimentColorHex);
-
+            console.log(colors)
             const colorHex = this.colorService.combineColors(colors);
             const [red, green, blue] = this.colorService.hexToRgb(colorHex)
             const color = `rgb(${red}, ${green}, ${blue})`;
@@ -333,10 +336,6 @@ export class MusicService {
             intervalData.push(interval);
 
             colors = [];
-        }
-
-        if (gradientSplitCount) {
-            return this.transfromIntervalsToGradients(intervalData, gradientSplitCount);
         }
 
         return intervalData;

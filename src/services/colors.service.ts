@@ -112,12 +112,14 @@ export class ColorrocessingService {
 
         // Convert each color to RGB values and add them up
         colors.forEach(color => {
-            const r = parseInt(color.substring(1, 3), 16);
-            const g = parseInt(color.substring(3, 5), 16);
-            const b = parseInt(color.substring(5, 7), 16);
-            rTotal += r;
-            gTotal += g;
-            bTotal += b;
+            if (color.length > 0) {
+                const r = parseInt(color.substring(1, 3), 16);
+                const g = parseInt(color.substring(3, 5), 16);
+                const b = parseInt(color.substring(5, 7), 16);
+                rTotal += r;
+                gTotal += g;
+                bTotal += b;
+            }
         });
 
         // Calculate the average RGB values
