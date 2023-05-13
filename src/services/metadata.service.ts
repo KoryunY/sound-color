@@ -41,7 +41,7 @@ export class MetadataProcessingService {
     }
 
     async getMetadata(decodeAudio?: any, text?: string) {
-        let data
+        let data;
         if (text == null || text.length == 0)
             data = await this.requestToShazam(decodeAudio);
         else return await this.searchMetadataBytext(text);
@@ -49,7 +49,7 @@ export class MetadataProcessingService {
             return;
 
         const genres = data.track ? data.track?.genres : "OTHER";
-        const words = data.track?.sections[1].text
+        const words = data.track?.sections[1].text;
         const sentiment = words ? this.other.sentimentFromWords(this.other.extractUniqueWords(words)).sentiment : "OTHER";
         const name = data.track ? data.track?.share.subject : "OTHER";
 
