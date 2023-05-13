@@ -84,6 +84,7 @@ export class AudioService {
 
             const replaceData = JSON.stringify(data);
             const html = fs.readFileSync('./src/public/index.html', 'utf-8');
+
             const audioBuffer = audio.buffer.toString('base64');
             const audioMimeType = audio.mimetype == 'audio/wave' ? 'audio/wav' : audio.mimetype;
             const audioSrc = `data:${audioMimeType};base64,${audioBuffer}`;
@@ -91,21 +92,31 @@ export class AudioService {
             let replacedhtml = html.replace('<script id="data">', `<script id="data">\n        const data = ${replaceData};`);
             const replacedHtml = replacedhtml.replace('audio.src = URL.createObjectURL(audioFile);', `audio.src = "${audioSrc}";`);
 
+            const averageObjectSizeInBytes = 100; // Set an average size for each object in bytes
+            const dataSizeInBytes = data.length * averageObjectSizeInBytes;
+            const dataSizeInMB = (dataSizeInBytes / 1048576).toFixed(2);
+            const averageCharacterSizeInBytes = 0.5; // Adjust this value as needed
+            const htmlSizeInBytes = replacedHtml.length * averageCharacterSizeInBytes;
+            const htmlSizeInMB = (htmlSizeInBytes / (1024 * 1024)).toFixed(2);
+
             let userModel;
             switch (saveAndReturnOption) {
                 case SaveAndReturnOption.SAVE_AND_RETURN_ID:
+                    if (parseInt(dataSizeInMB) > 10) throw new Error("maximum size reached");
                     id = (await this.audioModel.create({ name, data, user }))._id;
                     userModel = await this.userModel.findById(user);
                     userModel.audios.push(id)
                     await userModel.save();
                     return id;
                 case SaveAndReturnOption.SAVE_AND_RETURN_DEMO:
+                    if (parseInt(dataSizeInMB) > 10) throw new Error("maximum size reached");
                     id = (await this.audioModel.create({ name, data, user }))._id;
                     userModel = await this.userModel.findById(user);
                     userModel.audios.push(id)
                     await userModel.save();
                     return replacedHtml;
                 case SaveAndReturnOption.RETURN_DEMO:
+                    if (parseInt(htmlSizeInMB) >= 50) throw new Error("maximum size reached");
                     return replacedHtml;
                 default:
                     throw new Error("Unhandled Return Type");
@@ -153,21 +164,31 @@ export class AudioService {
             let replacedhtml = html.replace('<script id="data">', `<script id="data">\n        const data = ${replaceData};`);
             const replacedHtml = replacedhtml.replace('audio.src = URL.createObjectURL(audioFile);', `audio.src = "${audioSrc}";`);
 
+            const averageObjectSizeInBytes = 100; // Set an average size for each object in bytes
+            const dataSizeInBytes = data.length * averageObjectSizeInBytes;
+            const dataSizeInMB = (dataSizeInBytes / 1048576).toFixed(2);
+            const averageCharacterSizeInBytes = 0.5; // Adjust this value as needed
+            const htmlSizeInBytes = replacedHtml.length * averageCharacterSizeInBytes;
+            const htmlSizeInMB = (htmlSizeInBytes / (1024 * 1024)).toFixed(2);
+
             let userModel;
             switch (saveAndReturnOption) {
                 case SaveAndReturnOption.SAVE_AND_RETURN_ID:
+                    if (parseInt(dataSizeInMB) > 10) throw new Error("maximum size reached");
                     id = (await this.audioModel.create({ name, data, user }))._id;
                     userModel = await this.userModel.findById(user);
                     userModel.audios.push(id)
                     await userModel.save();
                     return id;
                 case SaveAndReturnOption.SAVE_AND_RETURN_DEMO:
+                    if (parseInt(dataSizeInMB) > 10) throw new Error("maximum size reached");
                     id = (await this.audioModel.create({ name, data, user }))._id;
                     userModel = await this.userModel.findById(user);
                     userModel.audios.push(id)
                     await userModel.save();
                     return replacedHtml;
                 case SaveAndReturnOption.RETURN_DEMO:
+                    if (parseInt(htmlSizeInMB) >= 50) throw new Error("maximum size reached");
                     return replacedHtml;
                 default:
                     throw new Error("Unhandled Return Type");
@@ -208,21 +229,31 @@ export class AudioService {
             let replacedhtml = html.replace('<script id="data">', `<script id="data">\n        const data = ${replaceData};`);
             const replacedHtml = replacedhtml.replace('audio.src = URL.createObjectURL(audioFile);', `audio.src = "${audioSrc}";`);
 
+            const averageObjectSizeInBytes = 100; // Set an average size for each object in bytes
+            const dataSizeInBytes = data.length * averageObjectSizeInBytes;
+            const dataSizeInMB = (dataSizeInBytes / 1048576).toFixed(2);
+            const averageCharacterSizeInBytes = 0.5; // Adjust this value as needed
+            const htmlSizeInBytes = replacedHtml.length * averageCharacterSizeInBytes;
+            const htmlSizeInMB = (htmlSizeInBytes / (1024 * 1024)).toFixed(2);
+
             let userModel;
             switch (saveAndReturnOption) {
                 case SaveAndReturnOption.SAVE_AND_RETURN_ID:
+                    if (parseInt(dataSizeInMB) > 10) throw new Error("maximum size reached");
                     id = (await this.audioModel.create({ name, data, user }))._id;
                     userModel = await this.userModel.findById(user);
                     userModel.audios.push(id)
                     await userModel.save();
                     return id;
                 case SaveAndReturnOption.SAVE_AND_RETURN_DEMO:
+                    if (parseInt(dataSizeInMB) > 10) throw new Error("maximum size reached");
                     id = (await this.audioModel.create({ name, data, user }))._id;
                     userModel = await this.userModel.findById(user);
                     userModel.audios.push(id)
                     await userModel.save();
                     return replacedHtml;
                 case SaveAndReturnOption.RETURN_DEMO:
+                    if (parseInt(htmlSizeInMB) >= 50) throw new Error("maximum size reached");
                     return replacedHtml;
                 default:
                     throw new Error("Unhandled Return Type");
@@ -263,21 +294,31 @@ export class AudioService {
             let replacedhtml = html.replace('<script id="data">', `<script id="data">\n        const data = ${replaceData};`);
             const replacedHtml = replacedhtml.replace('audio.src = URL.createObjectURL(audioFile);', `audio.src = "${audioSrc}";`);
 
+            const averageObjectSizeInBytes = 100; // Set an average size for each object in bytes
+            const dataSizeInBytes = data.length * averageObjectSizeInBytes;
+            const dataSizeInMB = (dataSizeInBytes / 1048576).toFixed(2);
+            const averageCharacterSizeInBytes = 0.5; // Adjust this value as needed
+            const htmlSizeInBytes = replacedHtml.length * averageCharacterSizeInBytes;
+            const htmlSizeInMB = (htmlSizeInBytes / (1024 * 1024)).toFixed(2);
+
             let userModel;
             switch (saveAndReturnOption) {
                 case SaveAndReturnOption.SAVE_AND_RETURN_ID:
+                    if (parseInt(dataSizeInMB) > 10) throw new Error("maximum size reached");
                     id = (await this.audioModel.create({ name, data, user }))._id;
                     userModel = await this.userModel.findById(user);
                     userModel.audios.push(id)
                     await userModel.save();
                     return id;
                 case SaveAndReturnOption.SAVE_AND_RETURN_DEMO:
+                    if (parseInt(dataSizeInMB) > 10) throw new Error("maximum size reached");
                     id = (await this.audioModel.create({ name, data, user }))._id;
                     userModel = await this.userModel.findById(user);
                     userModel.audios.push(id)
                     await userModel.save();
                     return replacedHtml;
                 case SaveAndReturnOption.RETURN_DEMO:
+                    if (parseInt(htmlSizeInMB) >= 50) throw new Error("maximum size reached");
                     return replacedHtml;
                 default:
                     throw new Error("Unhandled Return Type");
@@ -315,21 +356,31 @@ export class AudioService {
             let replacedhtml = html.replace('<script id="data">', `<script id="data">\n        const data = ${replaceData};`);
             const replacedHtml = replacedhtml.replace('audio.src = URL.createObjectURL(audioFile);', `audio.src = "${audioSrc}";`);
 
+            const averageObjectSizeInBytes = 100; // Set an average size for each object in bytes
+            const dataSizeInBytes = data.length * averageObjectSizeInBytes;
+            const dataSizeInMB = (dataSizeInBytes / 1048576).toFixed(2);
+            const averageCharacterSizeInBytes = 0.5; // Adjust this value as needed
+            const htmlSizeInBytes = replacedHtml.length * averageCharacterSizeInBytes;
+            const htmlSizeInMB = (htmlSizeInBytes / (1024 * 1024)).toFixed(2);
+
             let userModel;
             switch (saveAndReturnOption) {
                 case SaveAndReturnOption.SAVE_AND_RETURN_ID:
+                    if (parseInt(dataSizeInMB) > 10) throw new Error("maximum size reached");
                     id = (await this.audioModel.create({ name, data, user }))._id;
                     userModel = await this.userModel.findById(user);
                     userModel.audios.push(id)
                     await userModel.save();
                     return id;
                 case SaveAndReturnOption.SAVE_AND_RETURN_DEMO:
+                    if (parseInt(dataSizeInMB) > 10) throw new Error("maximum size reached");
                     id = (await this.audioModel.create({ name, data, user }))._id;
                     userModel = await this.userModel.findById(user);
                     userModel.audios.push(id)
                     await userModel.save();
                     return replacedHtml;
                 case SaveAndReturnOption.RETURN_DEMO:
+                    if (parseInt(htmlSizeInMB) >= 50) throw new Error("maximum size reached");
                     return replacedHtml;
                 default:
                     throw new Error("Unhandled Return Type");
@@ -373,21 +424,31 @@ export class AudioService {
             let replacedhtml = html.replace('<script id="data">', `<script id="data">\n        const data = ${replaceData};`);
             const replacedHtml = replacedhtml.replace('audio.src = URL.createObjectURL(audioFile);', `audio.src = "${audioSrc}";`);
 
+            const averageObjectSizeInBytes = 100; // Set an average size for each object in bytes
+            const dataSizeInBytes = data.length * averageObjectSizeInBytes;
+            const dataSizeInMB = (dataSizeInBytes / 1048576).toFixed(2);
+            const averageCharacterSizeInBytes = 0.5; // Adjust this value as needed
+            const htmlSizeInBytes = replacedHtml.length * averageCharacterSizeInBytes;
+            const htmlSizeInMB = (htmlSizeInBytes / (1024 * 1024)).toFixed(2);
+
             let userModel;
             switch (saveAndReturnOption) {
                 case SaveAndReturnOption.SAVE_AND_RETURN_ID:
+                    if (parseInt(dataSizeInMB) > 10) throw new Error("maximum size reached");
                     id = (await this.audioModel.create({ name, data, user }))._id;
                     userModel = await this.userModel.findById(user);
                     userModel.audios.push(id)
                     await userModel.save();
                     return id;
                 case SaveAndReturnOption.SAVE_AND_RETURN_DEMO:
+                    if (parseInt(dataSizeInMB) > 10) throw new Error("maximum size reached");
                     id = (await this.audioModel.create({ name, data, user }))._id;
                     userModel = await this.userModel.findById(user);
                     userModel.audios.push(id)
                     await userModel.save();
                     return replacedHtml;
                 case SaveAndReturnOption.RETURN_DEMO:
+                    if (parseInt(htmlSizeInMB) >= 50) throw new Error("maximum size reached");
                     return replacedHtml;
                 default:
                     throw new Error("Unhandled Return Type");
@@ -423,21 +484,31 @@ export class AudioService {
             let replacedhtml = html.replace('<script id="data">', `<script id="data">\n        const data = ${replaceData};`);
             const replacedHtml = replacedhtml.replace('audio.src = URL.createObjectURL(audioFile);', `audio.src = "${audioSrc}";`);
 
+            const averageObjectSizeInBytes = 100; // Set an average size for each object in bytes
+            const dataSizeInBytes = data.length * averageObjectSizeInBytes;
+            const dataSizeInMB = (dataSizeInBytes / 1048576).toFixed(2);
+            const averageCharacterSizeInBytes = 0.5; // Adjust this value as needed
+            const htmlSizeInBytes = replacedHtml.length * averageCharacterSizeInBytes;
+            const htmlSizeInMB = (htmlSizeInBytes / (1024 * 1024)).toFixed(2);
+
             let userModel;
             switch (saveAndReturnOption) {
                 case SaveAndReturnOption.SAVE_AND_RETURN_ID:
+                    if (parseInt(dataSizeInMB) > 10) throw new Error("maximum size reached");
                     id = (await this.audioModel.create({ name, data, user }))._id;
                     userModel = await this.userModel.findById(user);
                     userModel.audios.push(id)
                     await userModel.save();
                     return id;
                 case SaveAndReturnOption.SAVE_AND_RETURN_DEMO:
+                    if (parseInt(dataSizeInMB) > 10) throw new Error("maximum size reached");
                     id = (await this.audioModel.create({ name, data, user }))._id;
                     userModel = await this.userModel.findById(user);
                     userModel.audios.push(id)
                     await userModel.save();
                     return replacedHtml;
                 case SaveAndReturnOption.RETURN_DEMO:
+                    if (parseInt(htmlSizeInMB) >= 50) throw new Error("maximum size reached");
                     return replacedHtml;
                 default:
                     throw new Error("Unhandled Return Type");
