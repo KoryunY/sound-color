@@ -274,7 +274,7 @@ export const frequencyBandColors = {
         'vocals': '#0074D9',
         'other': '#FFDC00'
     },
-    'angry': { //negative
+    'angry': {
         'bass': ['#85144b', '#0074D9', '#FFDC00'],
         'guitar': '#85144b',
         'keyboard': '#111111',
@@ -357,15 +357,3 @@ export const tempos = {
     'PRESTISSIMO': { min: 200, max: Infinity, hue: 0 },
     'OTHER': { min: 0, max: Infinity, hue: 0 },
 };
-
-// const frequencyBandColors = {
-        //     bass: ["#ff0000", "#000000", "#ffffff"],
-        //     guitar: ["#ff8800", "#ffff00", "#00ffff"],
-        //     drums: ["#ffff00", "#00ff00", "#0000ff"],
-        //     vocals: ["#00ff00", "#ff00ff", "#ff0000"],
-        //     keyboard: ["#ff8800", "#ffff00", "#00ffff"],
-        //     brass: ["#ffff00", "#00ff00", "#0000ff"],
-        //     other: ["#ffff00", "#00ff00", "#0000ff"]
-        // };
-
-//add to db
