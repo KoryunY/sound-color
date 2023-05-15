@@ -51,10 +51,8 @@
             const nextColor = currentData.color;
             const nextColorRgb = nextColor.match(/\d+/g).map(Number);
             const [hue, saturation, lightness] = rgbToHsl(nextColorRgb[0], nextColorRgb[1], nextColorRgb[2]);
-            console.log(saturation + '///')
             const [red, green, blue] = this.hslToRgb(hue, saturation + intensity * 100, lightness); // convert HSL to RGB values
             const newColor = `rgb(${red}, ${green}, ${blue})`;
-            console.log(newColor)
             if (currentColor !== newColor) {
                 square.style.backgroundColor = newColor;
             }

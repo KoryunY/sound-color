@@ -31,6 +31,11 @@ export class UsersController {
         return this.userService.getUser(id);
     }
 
+    @Post('login')
+    login(@Body() body: { name: string }) {
+        return this.userService.loginUser(body.name);
+    }
+
     @Post('shazam-audio')
     @UseInterceptors(FileInterceptor('file'))
     async shazamAudio(@UploadedFile() audio: Express.Multer.File) {

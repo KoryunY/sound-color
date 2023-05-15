@@ -327,7 +327,6 @@ export class MusicService {
             const sentimentColorHex = sentimentColors[sentimentColorIndex];
             if (sentimentColorHex !== null)
                 colors.push(sentimentColorHex);
-            console.log(colors)
             const colorHex = this.colorService.combineColors(colors);
             const [red, green, blue] = this.colorService.hexToRgb(colorHex)
             const color = `rgb(${red}, ${green}, ${blue})`;

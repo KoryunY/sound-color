@@ -18,6 +18,12 @@ export class UsersService {
         return (await this.userModel.create({ name }))._id;
     }
 
+    async loginUser(name: string) {
+        if (!name || name.length < 3)
+            return 'provide valid name:length>3'
+        return (await this.userModel.findOne({ name }));
+    }
+
     async deleteUser(id: string) {
         if (!Types.ObjectId.isValid(id))
             return 'invalid object id type';
