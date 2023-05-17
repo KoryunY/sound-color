@@ -199,6 +199,19 @@ export class AudioController {
         return this.audioService.generateByAio(dto, audio);
     }
 
+    @Post('html')
+    @UseInterceptors(FileInterceptor('audio'))
+    generateHtml(@Body() body: any, @UploadedFile() audio: Express.Multer.File) {
+        if (!audio) return "Err:missing audio";
+
+        const checkAttrMessage = this.audioService.checkAttr(audio.mimetype, audio.originalname);
+        if (checkAttrMessage != "isOk")
+            return checkAttrMessage;
+        const data = body.data
+
+        return this.audioService.generateHtml(data, audio);
+    }
+
     @Get('check')
     exist(@Query('id') id: string) {
         return this.audioService.isExist(id);

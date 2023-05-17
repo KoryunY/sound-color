@@ -530,6 +530,23 @@ export class AudioService {
 
         return 'isOk';
     }
+    async generateHtml(data: any, audio: any) {
+        try {
+            const html = fs.readFileSync('./src/public/index.html', 'utf-8');
+            const audioBuffer = audio.buffer.toString('base64');
+            const audioMimeType = audio.mimetype == 'audio/wave' ? 'audio/wav' : audio.mimetype;
+            const audioSrc = `data:${audioMimeType};base64,${audioBuffer}`;
+
+            let replacedhtml = html.replace('<script id="data">', `<script id="data">\n        const data = ${data};`);
+            const replacedHtml = replacedhtml.replace('audio.src = URL.createObjectURL(audioFile);', `audio.src = "${audioSrc}";`);
+
+            return replacedHtml;
+        }
+        catch (err) {
+            return err.message
+        }
+    }
+
 
     async isExist(id: string) {
         if (!Types.ObjectId.isValid(id))
