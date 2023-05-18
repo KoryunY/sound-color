@@ -9,7 +9,13 @@
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "nest/main.js"
+      "dest": "nest/main.js",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ]
     }
   ]
 }
