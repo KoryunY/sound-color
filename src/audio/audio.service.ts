@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId, Types, isValidObjectId } from 'mongoose';
 import { AllowedFileAttributes, AllowedMimes, defaultIntervalCOunt as defaultIntervalCount } from 'src/defaults/consts';
-import { ConvertingType, Genre, Instrument, SaveAndReturnOption, Tempo } from 'src/defaults/types';
+import { ConvertingType, Genre, Instrument, SaveAndReturnOption, Tempo } from '../defaults/types';
 import { AudioDto } from 'src/Model/dto/Audio.dto';
 import { EnergyOptionsDto } from 'src/Model/dto/EnergyOptions.dto';
 import { GenreOptionsDto } from 'src/Model/dto/GenreOptions.dto';

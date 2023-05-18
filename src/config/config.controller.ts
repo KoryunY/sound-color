@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Post, Put, Query, Get } from '@nestjs/common'
 import { UpdateConfigDto } from 'src/Model/dto/UpdateConfig.dto';
 import { ConfigService } from './config.service';
 import { ConfigDto } from 'src/Model/dto/Config.dto';
-import { Energy, Genre, Instrument, Sentiment, Tempo } from 'src/defaults/types';
+import { Energy, Genre, Instrument, Sentiment, Tempo } from '../defaults/types';
 
 @Controller('config')
 export class ConfigController {

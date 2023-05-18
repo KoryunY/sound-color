@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Post, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
-import { ConvertingType, Genre, Instrument, SaveAndReturnOption, Sentiment, Tempo } from 'src/defaults/types';
+import { ConvertingType, Genre, Instrument, SaveAndReturnOption, Sentiment, Tempo } from '../defaults/types';
 import { FrequencyOptionsDto as FrequencyOptionsDto } from 'src/Model/Dto/FrequencyOptions.dto';
 import { InstrumentOptionsDto } from 'src/Model/dto/InstrumentOptions.dto';
 import { SentimentOptionsDto } from 'src/Model/dto/SentimentOptions.dto';
