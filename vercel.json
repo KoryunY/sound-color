@@ -2,19 +2,18 @@
   "version": 2,
   "builds": [
     {
-      "src": "dist/main.js",
+      "src": "nest/**/*.ts",
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "methods": [
-        "GET",
-        "POST",
-        "PUT",
-        "DELETE"
-      ]
+      "dest": "nest/main.js"
     }
+  ],
+  "includeFiles": [
+    "nest/**/*.json",
+    "nest/**/*.js"
   ]
 }
