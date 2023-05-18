@@ -11,9 +11,5 @@
       "src": "/(.*)",
       "dest": "nest/main.js"
     }
-  ],
-  "includeFiles": [
-    "nest/**/*.json",
-    "nest/**/*.js"
   ]
 }
