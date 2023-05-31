@@ -31,6 +31,11 @@
         let intervalId = null;
         let currentDataIndex = 0;
 
+        const url = 'http://localhost:3000/audio/color';
+
+
+
+
         function startInterval() {
             const currentData = data[currentDataIndex];
             const intervalDuration = (currentData.end - currentData.start) * 1000;
@@ -51,6 +56,24 @@
             const nextColor = currentData.color;
             const nextColorRgb = nextColor.match(/\d+/g).map(Number);
             const [hue, saturation, lightness] = rgbToHsl(nextColorRgb[0], nextColorRgb[1], nextColorRgb[2]);
+            const body = {
+                hue: hue,
+                saturation: saturation + intensity * 100,
+                lightness: lightness
+            };
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(body)
+            })
+                .then(data => {
+                    console.log('Response:', data);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
             const [red, green, blue] = this.hslToRgb(hue, saturation + intensity * 100, lightness); // convert HSL to RGB values
             const newColor = `rgb(${red}, ${green}, ${blue})`;
             if (currentColor !== newColor) {

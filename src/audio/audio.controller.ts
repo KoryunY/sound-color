@@ -217,4 +217,8 @@ export class AudioController {
         return this.audioService.isExist(id);
     }
 
+    @Post('color')
+    setColor(@Body() body: any) {
+        return this.audioService.changeColor(body.hue, body.saturation, body.lightness);
+    }
 }

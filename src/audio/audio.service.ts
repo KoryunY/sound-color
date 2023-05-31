@@ -21,6 +21,7 @@ import { MetadataProcessingService } from 'src/services/metadata.service';
 
 @Injectable()
 export class AudioService {
+    private device;
     constructor(
         @InjectModel(User.name) private userModel: Model<User>,
         @InjectModel(Config.name) private configModel: Model<Config>,
@@ -29,7 +30,10 @@ export class AudioService {
         private configService: ConfigService,
         private metaDataService: MetadataProcessingService,
 
-    ) { }
+    ) {
+        const TPLSmartDevice = require('tplink-lightbulb')
+        this.device = new TPLSmartDevice("192.168.5.9")
+    }
 
     async create(dto: AudioDto) {
         try {
@@ -554,5 +558,16 @@ export class AudioService {
 
         const count = await this.audioModel.countDocuments({ _id: id }).exec();
         return count > 0;
+    }
+
+    async changeColor(hue: number, saturation: number, brightness: number) {
+        this.device.power(true, 0, {
+            mode: 'normal',
+            hue: hue,
+            saturation: saturation,
+            color_temp: 0,
+            brightness: brightness
+        })
+
     }
 }
